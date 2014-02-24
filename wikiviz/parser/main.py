@@ -5,7 +5,6 @@ Text Parser
 
 
 from bs4 import BeautifulSoup
-from bs4 import SoupStrainer
 from types import NoneType
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'File:', 'en/thumb/', '.svg.')
