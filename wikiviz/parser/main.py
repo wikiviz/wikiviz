@@ -9,7 +9,10 @@ from types import NoneType
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'File:', 'en/thumb/', '.svg.')
 
-""" class definitions """
+""" 
+class definitions 
+
+"""
 
 class PageLink:
     
@@ -23,13 +26,15 @@ class ImageLink:
         self.image_url = image_url
         self.image_priority = image_priority        
         
-        
-"""
-get links
+
+""" 
+function definitions
+
 """
 
 """
-currently, page and image links are separate
+get links
+page and image links are currently separate
 """
 
 def get_links(soup):
@@ -67,6 +72,7 @@ ignore //bits.wikimedia.org
 only use //upload.wikimedia.org
 
 """
+
 def get_pics(soup):
     pic_list = list()
     
