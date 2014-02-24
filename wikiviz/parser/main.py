@@ -9,9 +9,7 @@ from types import NoneType
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'File:', 'en/thumb/', '.svg.')
 
-""" function definitions """
-
-""" class definition """
+""" class definitions """
 
 class PageLink:
     
