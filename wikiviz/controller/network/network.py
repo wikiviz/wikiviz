@@ -6,24 +6,12 @@ Retrieves data from wikipedia.
 
 from kivy.network.urlrequest import UrlRequest
 import urllib
-
-class Singleton(type):
-    """ using the metaclass approach to singleton in python:
-        http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python/33201#33201
-    """
-    def __init__(cls, name, bases, dict):
-        super(Singleton, cls).__init__(name, bases, dict)
-        cls.instance = None 
-
-    def __call__(cls,*args,**kw):
-        if cls.instance is None:
-            cls.instance = super(Singleton, cls).__call__(*args, **kw)
-        return cls.instance
-
+import model.model as mod
+import common.singleton as singleton
 
 class Network(object):
     """ Retrieve raw data from Wikipedia, return as page data """    
-    __metaclass__ = Singleton
+    __metaclass__ = singleton.Singleton
     
     def __init__(self):
         # play nice with the Wikipedia API:
@@ -34,6 +22,18 @@ class Network(object):
     def on_success(self, request, result):
         print "Success!"
         print result
+
+        model = mod.Model()
+        print model
+        
+        node = mod.Node("kw", "href", "imgsrc", "text", "links", False)
+        print node
+        
+        model.add_node(node)
+        print "added node"
+
+        model.print_graph()
+
 
     def on_error(self, request, error):
         print "Error!"
