@@ -9,21 +9,28 @@ class NetworkTests(unittest.TestCase):
 	keyword = "Mozart"
 
 	def test_init(self):
+		
+		# test for init
 		instance = network.Network()
-		self.assertTrue(instance)
+		self.assertTrue(instance)		
+
+		# test for singleton state
+		instance_2 = network.Network()		
+		self.assertEqual(instance, instance_2)
+
 
 	def test_on_success(self):
+		""" todo: test that page data is written to Page object """
 		self.assertTrue(self.temp_result)
 
 	def test_on_error(self):
 		pass
 
-	def test_get_instance(self):
-		pass
-
 	def test_get_page(self):
+		"""
+		todo: test keywords for malformed input
+		"""
 		self.assertTrue(self.keyword)
-		pass
 
 	
 if __name__ == '__main__':
