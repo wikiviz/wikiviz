@@ -8,8 +8,8 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 
 import display.display as display
-import parser.parser as parser
-import network.network as network
+import controller.parser.parser as parser
+import controller.network.network as network
 
 
 class WikivizGame(Widget):
