@@ -14,5 +14,17 @@ class Network():
     def __init__(self):
         """ The constructor 
         @param self default parameter for constructor """
+        # print "Network created"
+        pass
 
-        print "Network created"
+	def on_success(self, result):
+		pass
+
+	def on_error(self):
+		pass
+
+	def get_instance(self):
+		pass
+
+	def get_page(self, keyword):
+		pass
