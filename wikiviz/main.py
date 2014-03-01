@@ -7,16 +7,15 @@ Initial structure based off Kivy docs example.
 from kivy.app import App
 from kivy.uix.widget import Widget
 
-import display.display as display
-import parser.parser as parser
-import network.network as network
+import controller.controller as controller
+import time
 
 
 class WikivizGame(Widget):
     """ Tests creation of modules and creates widget on screen """
-    wnetwork = network.Network()
-    wdisplay = display.Display()
-    wparser = parser.Parser()
+    wcontroller = controller.Controller()
+    wcontroller.create_node("Mozart")
+    wcontroller.create_node("Archimedes")
     print "Window created, everything loaded ok"
 
 
