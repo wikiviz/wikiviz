@@ -12,6 +12,8 @@ class Parser():
     """ @class parser
         Main parser class description """
 
+    """ is this correct? should nested classes be within this init method?"""
+    
     def __init__(self):
         """ The constructor 
         @param self default parameter for constructor """
