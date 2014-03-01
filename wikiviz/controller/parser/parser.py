@@ -8,37 +8,32 @@ from bs4 import BeautifulSoup
 from types import NoneType
 
 
-class Parser():
+class Parser(object):
     """ @class parser
         Main parser class description """
-
-    """ is this correct? should nested classes be within this init method?"""
     
     def __init__(self):
         """ The constructor 
         @param self default parameter for constructor """
 
+        """ list of keywords to ignore in link URLs"""
+        
+        filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:', 'en/thumb/', '.svg.', 'Portal:', 'Template:', '/Main_Page')
         print "BeautifulSoup imported"
         print "Parser created"
-        
-    filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:', 'en/thumb/', '.svg.', 'Portal:', 'Template:', '/Main_Page')
 
-    """ 
-    class definitions 
-    
-    """
-    
-    class PageLink:
-        
-        def __init__(self, page_url, page_priority):
-            self.page_url = page_url
-            self.page_priority = page_priority
+        class PageLink:
             
-    class ImageLink:
-        
-        def __init__(self, image_url, image_priority):
-            self.image_url = image_url
-            self.image_priority = image_priority        
+            def __init__(self, page_url, page_priority):
+                self.page_url = page_url
+                self.page_priority = page_priority
+                
+        class ImageLink:
+            
+            def __init__(self, image_url, image_priority):
+                self.image_url = image_url
+                self.image_priority = image_priority        
+            
             
     
     """ 
@@ -51,7 +46,7 @@ class Parser():
     page and image links are currently separate
     """
     
-    def get_links(soup):
+    def get_links(self, soup):
         
         link_list = list()
         
@@ -88,7 +83,7 @@ class Parser():
     get word alone
     
     """
-    def get_link_word(link_list):
+    def get_link_word(self, link_list):
     
         link_word_list = list()
         
@@ -112,7 +107,7 @@ class Parser():
     
     """
     
-    def get_pics(soup):
+    def get_pics(self,soup):
         pic_list = list()
         
         """ add only images themselves to list """
