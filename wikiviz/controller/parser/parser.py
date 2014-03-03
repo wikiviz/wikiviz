@@ -6,7 +6,7 @@ Translates keywords into related links, images, and text.
 
 from bs4 import BeautifulSoup
 from types import NoneType
-
+import model.model as mod
 
 class Parser(object):
     """ @class parser
@@ -75,7 +75,7 @@ class Parser(object):
         for elem in link_list:
             print elem.page_url
             
-        return link_list
+        get_link_word(link_list)
             
         
             
