@@ -1,5 +1,5 @@
 # model.py
-import common.singleton as singleton
+import wikiviz.common.singleton as singleton
 
 class Node():
 	def __init__(self, keyword, href, img_src, text, links, has_visited=False):

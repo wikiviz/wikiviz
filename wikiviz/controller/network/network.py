@@ -6,8 +6,8 @@ Retrieves data from wikipedia.
 
 from kivy.network.urlrequest import UrlRequest
 import urllib
-import model.model as mod
-import common.singleton as singleton
+import wikiviz.model.model as mod
+import wikiviz.common.singleton as singleton
 
 class Network(object):
     """ Retrieve raw data from Wikipedia, return as page data """    
