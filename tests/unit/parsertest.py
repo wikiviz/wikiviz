@@ -1,37 +1,26 @@
-
 import unittest
 from bs4 import BeautifulSoup
-import parser
+import wikiviz.controller.parser.parser as parser
+import os
 
-#######'module' object has no attribute 'Parser'######
 class ParserTests(unittest.TestCase):
+	
+	def test_init(self):
+		# you need the full path for the file to open:
+		current_path = os.path.dirname(os.path.realpath(__file__))
+		soup = BeautifulSoup(open(current_path+"/knitting.html"), from_encoding="UTF-8")
+		 
+		  
+		"""print out page and image links """
+		print "PAGE LINKS"
+		print "**********"
 
-    """test data"""
-    soup = BeautifulSoup(open("knitting.html"), from_encoding="UTF-8")
+		# parser's constructor does not currently accept a parameter
+		p = parser.Parser()
 
+		# test that p is not empty
+		self.assertTrue(p)
 
-##    """ test initialization """
-##    def test_init(self):
-##        instance = parser.Parser()
-##        self.assertTrue(instance)
-##
-##    def test_get_links(self, soup):
-##        self.assertTrue(soup)
-##        page_link_list = parser.Parser().get_links(self, soup)
-##        self.assertTrue(page_link_list)
-##
-##    def test_get_link_word(self, link_list):
-##        self.assertTrue(link_list)
-##        
-##        
-##
-##    def test_get_pics(self, soup):
-##        self.assertTrue(soup)
-##        image_link_list = parser.Parser().get_pics(self, soup)
-##        self.assertTrue(image_link_list)
-
-
+	
 if __name__ == '__main__':
-    unittest.main()        
-
-   
+	unittest.main()

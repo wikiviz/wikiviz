@@ -16,36 +16,14 @@ class Parser(object):
         Main parser class description """
     class PageLink():
 
-        def __init__(self, page_url, page_priority = None):
+        def __init__(self, page_url, page_title, page_priority = 3):
 
             self.page_url = page_url
+            self.page_title = page_title
             self.page_priority = page_priority
 
-##        def get_attributes(self):
-##
-##            return get_page_url
-##
-##        def get_page_priority(self):
-##
-##            return page_priority
 
-
-    class ImageLink():
-
-        def __init__(self, page_url, page_priority = None):
-
-            self.page_url = page_url
-            self.page_priority = page_priority
-
-##        def get_attributes(self):
-##
-##            return get_page_url
-##
-##        def get_page_priority(self):
-##
-##            return page_priority
-        
-    def __init__(self, page_url = None, page_priority = None):
+    def __init__(self, page_url = None, page_priority = 3):
 
         self.page_url = page_url
         self.page_priority = page_priority
@@ -63,22 +41,36 @@ class Parser(object):
     
     def get_links(self, soup):
         
-        link_list = list()
-        
-               
+        page_link_list = list()
+        image_link_list = list()
+
+        """ page links """
         """ get links from wiki article that have a type and are NOT anchors """
         for anchor in soup.find_all('a'):
             page_url = anchor.get('href')
-            
-            """ initially set priority to 3, just for starters"""
-            
             if type(temp_link.page_url) is not NoneType and temp_link.page_url.startswith('/wiki/'):
-                link_list.append(temp_link)
+                page_link_list.append(temp_link)
+                
         """ use keywords list to filter out undesirable elements"""
         for keyword in filtered_keywords:
-                for item in link_list:
+                for item in page_link_list:
                     if keyword in item.page_url:
-                        link_list.remove(item)
+                        page_link_list.remove(item)
+
+        """ image links """
+        for image in soup.find_all('img'):
+            image_url = image.get('src')
+            temp_img = Parser(image_url)
+            if 'bits.wikimedia.org' in temp_img.image_url:
+                continue
+            else:
+                image_link_list.append(temp_img)
+            
+            for keyword in filtered_keywords:
+                for item in image_link_list:
+                    if keyword in item.image_url:
+                        image_link_list.remove(item)
+             
                         
         
         """create distinct set of links"""
@@ -86,8 +78,7 @@ class Parser(object):
         #distinct_link_list = list(set(link_list))
         
         """ print list """
-        for elem in link_list:
-            print elem.page_url
+        
             
 
         
