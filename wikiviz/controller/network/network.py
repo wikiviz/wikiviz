@@ -8,7 +8,6 @@ Retrieves data from wikipedia.
 """
 
 
-
 from kivy.network.urlrequest import UrlRequest
 import urllib
 import wikiviz.model.model as mod
@@ -31,7 +30,7 @@ class Network(object):
         # placeholder data for now
         node = mod.Node(result["parse"]["title"], request.url, result["parse"]["images"], result["parse"]["text"], result["parse"]["links"], False)
         model.add_node(node)
-        print "added node ", node
+        # print "added node ", node
 
 
     def on_error(self, request, error):
@@ -39,9 +38,11 @@ class Network(object):
         print error
 
     def get_page(self, keyword):
-        try: 
+        try:
+            #todo: sanitize input
             keyword = urllib.urlencode(keyword)
         except TypeError:
+            print "Bad keyword"
             pass
 
         url = "http://en.wikipedia.org/w/api.php?action=parse&format=json&title=" + keyword

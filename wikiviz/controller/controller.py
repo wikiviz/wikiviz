@@ -7,6 +7,7 @@ import common.singleton as singleton
 
 
 
+
 class Controller():
     __metaclass__ = singleton.Singleton
 

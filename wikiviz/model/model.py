@@ -1,5 +1,36 @@
 # model.py
+from kivy.event import EventDispatcher
 import wikiviz.common.singleton as singleton
+import wikiviz.display.display as display
+
+
+class Model(EventDispatcher):
+    __metaclass__ = singleton.Singleton
+
+    def __init__(self, **kwargs):
+        self.register_event_type('on_update')
+        super(Model, self).__init__(**kwargs)
+        self.nodes = []
+        self.edges = []
+
+    def add_node(self, node):
+        self.nodes.append(node)
+        self.dispatch('on_update', node)
+
+    def add_edge(self, edge):
+        self.edges.append(edge)
+
+    def print_graph(self):
+        print "Printing graph in model"
+        for n in self.nodes:
+            print "Node: ", n
+        for e in self.edges:
+            print "Edge: ", e
+
+    def on_update(self, *args):
+        print "updated - event was dispatched", args
+        d = display.Display()
+        d.trigger_update()
 
 
 class Node():
@@ -23,23 +54,3 @@ class Edge():
         self.source = source
         self.destination = destination
 
-
-class Model():
-    __metaclass__ = singleton.Singleton
-
-    def __init__(self):
-        self.nodes = []
-        self.edges = []
-
-    def add_node(self, node):
-        self.nodes.append(node)
-
-    def add_edge(self, edge):
-        self.edges.append(edge)
-
-    def print_graph(self):
-        print "Printing graph in model"
-        for n in self.nodes:
-            print "Node: ", n
-        for e in self.edges:
-            print "Edge: ", e

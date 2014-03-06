@@ -13,7 +13,7 @@ class FunctionalTests(unittest.TestCase):
     def test_app(self):
         wnetwork = network.Network()
         wnetwork.get_page("Pacific_Southwest_Airlines")
-        self.fail("Finish test!")
+        self.assertTrue(wnetwork)
 
 
 
