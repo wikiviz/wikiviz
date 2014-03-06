@@ -25,19 +25,13 @@ class Network(object):
                             'Accept': 'text/plain' }
 
     def on_success(self, request, result):
-        print "Success!"
-        print result
-
         model = mod.Model()
-        print model
-        
-        node = mod.Node("kw", "href", "imgsrc", "text", "links", False)
-        print node
-        
+        # this is where we use the parser to parse the result
+        # then store in the model
+        # placeholder data for now
+        node = mod.Node(result["parse"]["title"], request.url, result["parse"]["images"], result["parse"]["text"], result["parse"]["links"], False)
         model.add_node(node)
-        print "added node"
-
-        model.print_graph()
+        print "added node ", node
 
 
     def on_error(self, request, error):
@@ -51,4 +45,4 @@ class Network(object):
             pass
 
         url = "http://en.wikipedia.org/w/api.php?action=parse&format=json&title=" + keyword
-        req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=False)
+        req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)

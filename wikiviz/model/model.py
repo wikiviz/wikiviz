@@ -3,6 +3,9 @@ import wikiviz.common.singleton as singleton
 
 
 class Node():
+    def __str__(self):
+        return ':\t'.join([self.keyword, self.href])
+
     def __init__(self, keyword, href, img_src, text, links, has_visited=False):
         self.keyword = keyword
         self.href = href
@@ -13,6 +16,9 @@ class Node():
 
 
 class Edge():
+    def __str__(self):
+        return ', '.join([self.source, self.destination])
+
     def __init__(self, source, destination):
         self.source = source
         self.destination = destination

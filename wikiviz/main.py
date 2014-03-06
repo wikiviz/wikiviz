@@ -14,8 +14,15 @@ import time
 class WikivizGame(Widget):
     """ Tests creation of modules and creates widget on screen """
     wcontroller = controller.Controller()
-    wcontroller.create_node("Mozart")
-    wcontroller.create_node("Archimedes")
+
+    # testing keywords
+    temp_keywords = ["Mozart", "Gui Programming", "Virus", "Pacific Southwest Airlines"]
+    for keyword in temp_keywords:
+        print "fetching ", keyword
+        wcontroller.create_node(keyword)
+
+    wcontroller.model.print_graph()
+
     print "Window created, everything loaded ok"
 
 
