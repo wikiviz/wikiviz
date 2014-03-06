@@ -41,8 +41,11 @@ class Parser(object):
     """
     get links
     page and image links are currently separate
+
+    TODO: separate into different functions?
     """
-    
+   
+
     def get_links(self, soup):
         
         link_list = list()
@@ -62,22 +65,23 @@ class Parser(object):
                 for item in link_list:
                     if keyword in item.page_url:
                         link_list.remove(item)
+                        
+        """get images, filter """
+        for image in soup.find_all('img'):
+            image_url = image.get('src')
+            temp_img = Parser(image_url)
+            if type(temp_img.page_url) is not NoneType and temp_img.page_url.startswith('/wiki/'):
+                continue
+            else:
+                pic_list.append(temp_img)
 
-        """create distinct set of links"""
-        """ do this after prioritizing! """
-        #distinct_link_list = list(set(link_list))
-        
+        for keyword in filtered_keywords:
+            for item in pic_list:
+                if keyword in item.page_url:
+                    pic_list.remove(item)
+
         return link_list
-    
-    """ noch to remove:
-    Category:
-    Main_page
-    Portal:
-    Wikipedia:
-    Special:
-    """
-
-        
+       
             
     """
     get word alone
@@ -100,11 +104,23 @@ class Parser(object):
                 head, sep, tail = word.page_name.partition('#')
                 word.page_name = head
                 
-            if('(' in word.page_url):
+            if(word.page_name.find('(') != -1):
                 head, sep, tail = word.page_name.partition('(')
                 word.page_name = head
+
+            
 ##                
 ####            #####convert UTF-8 to ascii!!
+                ###how to convert only unicode section to unicode???
+                ###WAIT, how is it actually stored?
+##                if('%' in word.page_name):
+##                word.page_name = word.page_name.replace("%", "\\x")
+##                #get section starting with unicode
+##                #don't worry about multiple in same page name right now...
+##                head, sep,tail = word.page_name.partition('\\')
+##                tail = tail.encode('ascii')
+##                print tail
+                
         
         return(link_list)
 
@@ -120,7 +136,7 @@ class Parser(object):
     def prioritize_links(self, link_list,search_term):
 
         link_name_list = list()
-        distinct_link_list = list(set(link_list))
+        
         num_occur = list()
 
         occur_sum = 0
@@ -157,45 +173,17 @@ class Parser(object):
                 word.page_priority += 4
             elif(word.occur_count < average):
                 word.page_priority -= 4
-                
+
+        ##not removing ALL duplicates???
+        distinct_link_list = list(set(link_list))
+        
         """ print priority """
         for word in distinct_link_list:
             print word.page_name + ": " + str(word.page_priority)
-            
+        
 
        
  
-            ###to extract sentences, prob need NLTK"""
-    """
-    get images: 
-    ignore //bits.wikimedia.org
-    only use //upload.wikimedia.org
-    
-    """
-##    
-##    def get_pics(self,soup):
-##        pic_list = list()
-##        
-##        add only images themselves to list 
-##               get images: ignore //bits.wikimedia.org, only use //upload.wikimedia.org 
-##        for image in soup.find_all('img'):
-##            image_url = image.get('src')
-##            temp_img = Parser()
-##            if type(temp_link.page_url) is not NoneType and temp_link.page_url.startswith('/wiki/'):
-##            
-##                continue
-##            else:
-##                pic_list.append(temp_img)
-##            
-##            for keyword in filtered_keywords:
-##                for item in pic_list:
-##                    if keyword in item.page_url:
-##                        pic_list.remove(item)
-##             
-##        """ print image links """     
-##        for item in pic_list:
-##            print item.image_url
-##
-##   
-##  
+        ###to extract sentences, prob need NLTK"""
+
 
