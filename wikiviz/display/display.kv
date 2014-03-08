@@ -1,0 +1,46 @@
+#kivy  1.0.7
+
+
+
+<Node>:
+	modelimage: asynci
+
+	AsyncImage:
+		id: asynci
+		size: self.size
+		pos: self.pos
+		source: ""
+	
+
+
+<Stencil>:
+	modelimage: asynci
+
+	canvas:
+		StencilPush
+		Ellipse:
+			size: 1000,1000
+			pos: self.pos
+
+		StencilUse:
+			AsyncImage:
+				size: self.size
+				pos: self.pos
+				source: ""
+
+
+
+	AsyncImage:
+		id: asynci
+		size: self.size
+		pos: self.pos
+		source: ""
+		
+
+
+
+
+
+
+
+# create a rectangular mask with a pos of (100, 100) and a (100, 100) size.
