@@ -12,7 +12,6 @@ filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'b
 
 class Parser(object):
 
-    
     """ @class parser
         Main parser class description """
     class PageLink():
@@ -181,9 +180,6 @@ class Parser(object):
         for word in distinct_link_list:
             print word.page_name + ": " + str(word.page_priority)
         
-
-       
- 
         ###to extract sentences, prob need NLTK"""
 
 
