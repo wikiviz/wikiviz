@@ -1,0 +1,125 @@
+#:kivy 1.8.0
+#:import r random
+
+
+
+
+
+
+
+<UIC>:
+	uis: uis.__self__
+	uibc: uibc.__self__
+
+	abs_w: self.width/3.0
+	abs_h: self.height/11.0
+
+
+
+	on_transform_with_touch:
+		uibc.upper_left(self.abs_w, self.abs_h, self.scale)
+
+
+	UISearch:
+		id: uis
+		size: (5*root.width)/12, root.height/(14)
+		pos: root.center_x-self.width/2, root.center_y
+		
+
+	UIBContainer:
+		id: uibc
+		size: 120/root.scale, 60/root.scale
+		spacing: '5px'
+		pos: root.width-120, root.height-60
+		
+
+
+
+
+
+<NodeWithBkgrd>:
+    node: node1
+    canvas:
+        Color:
+            rgb: (r.random(),r.random(),r.random())
+
+        Ellipse:
+            size:self.height*3+20, self.width*3+20
+            pos:self.pos[0]-1.5*self.width-10 , self.pos[1]-1.5*self.height-10
+
+			
+    Node:
+        id: node1
+        size: self.size
+        pos: self.pos
+
+    
+<Node>:
+
+    canvas:
+
+        
+        StencilPush
+
+
+        Ellipse:
+            pos: self.pos[0]-1.5*self.width , self.pos[1]-1.5*self.height
+            size:  self.height*3, self.width*3
+
+
+        StencilUse 
+
+
+        Rectangle:
+            texture: self.texture
+            pos: self.pos[0]-2*self.width , self.pos[1]-2*self.height
+            size: self.height*4, self.width*4
+
+        StencilUnUse
+
+   
+        Ellipse:
+            pos: self.pos[0]-1.5*self.width , self.pos[1]-1.5*self.height
+            size:  self.height*3, self.width*3
+
+
+        StencilPop
+
+<UISearch>:
+	search_bar: search
+	go_button: go1
+
+	UITextInput:
+		id: search
+		pos: root.pos
+		size: (root.width-root.height), root.height
+		font_size: (root.height)-20
+		text: 'Search a Word'
+		multiline: False
+		cursor_blink: False
+
+	UISearchButton:
+		id: go1
+		pos: root.x+(root.width-root.height), root.y
+		size: (root.height), root.height
+
+		source: 'mag.jpg'
+		
+<UIBContainer>:
+	new_search: ns_button
+	share: share_button
+
+	window_c_x: self.to_window(self.x, self.y)[0]
+	window_c_y: self.to_window(self.x, self.y)[1]
+
+
+
+	UINSearchButton:
+		id: ns_button
+		source: 'mag.jpg'
+
+
+	UIShare:
+		id: share_button
+		source: 'share.jpg'
+
