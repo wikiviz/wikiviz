@@ -56,6 +56,7 @@ class Parser(object):
             temp_link = Parser(page_url)
             if type(temp_link.page_url) is not NoneType and temp_link.page_url.startswith('/wiki/'):
                 link_list.append(temp_link)
+
               
         """ use keywords list to filter out undesirable elements"""
         for keyword in filtered_keywords:
@@ -90,7 +91,7 @@ class Parser(object):
         ###need to change object's attribute, NOT start new list...
         for word in link_list:
             word.page_name = word.page_url[6:]
-    
+
             
         """filter out symbols in words"""
         for word in link_list:
