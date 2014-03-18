@@ -9,8 +9,8 @@ search_term = "knitting"
 
 p = parser.Parser()
 link_list = p.get_links(soup)
-for item in link_list:
-    print item.page_url
-new_link_list = p.get_link_word(link_list)
-
+#for item in link_list:
+ #   print item.page_name
+#new_link_list = p.get_link_word(link_list)
+#p.summarize_text(soup)
 #p.prioritize_links(link_list, search_term)
