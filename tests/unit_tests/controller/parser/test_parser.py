@@ -4,31 +4,30 @@ import wikiviz.controller.parser.parser as parser
 import os
 
 current_path = os.path.dirname(os.path.realpath(__file__))
-soup = BeautifulSoup(open(current_path + "/knitting.html"), from_encoding="UTF-8")
-
+soup1 = BeautifulSoup(open(current_path + "/knitting.html"), from_encoding="UTF-8")
+soup2 = BeautifulSoup(open(current_path + "/sarah_stone.html"), from_encoding="UTF-8")
 
 class ParserTests(unittest.TestCase):
-    def test_init(self):
-        # parser's constructor does not currently accept a parameter
-        p = parser.Parser()
 
+    def test_init(self):
+        p = parser.Parser()
         # test that p is not empty
         self.assertTrue(p)
 
+
     def test_get_links(self):
+        """test page with internal Wiki links"""
         p = parser.Parser()
-        p.get_links(soup)
+        p.get_links(soup1)
         self.assertTrue(p)
 
-    def test_get_link_word(self):
-        p = parser.Parser("/wiki/Shoemaking")
-        link_list = list()
-        link_list.append(p)
-        p.get_link_word(link_list)
+        """test dead-end page, with no internal Wiki links"""
+        p.get_links(soup2)
         self.assertTrue(p)
-
 
     def test_prioritize_links(self):
+
+        """test link titles with high priorities and low priorities"""
         p = parser.Parser(page_name = "Knitting clubs")
         p1 = parser.Parser(page_name = "Shoemaking")
         link_list = list([p,p1])
@@ -38,3 +37,4 @@ class ParserTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
