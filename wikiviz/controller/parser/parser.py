@@ -52,13 +52,14 @@ class Parser(object):
                
         """ get links from wiki article that have a type and are NOT anchors """
         for anchor in soup.find_all('a'):
-            page_url = anchor.get('href')
-            
-            """ initially set priority to 10, just for starters"""
-            temp_link = Parser(page_url)
-            if type(temp_link.page_url) is not NoneType and temp_link.page_url.startswith('/wiki/'):
-                link_list.append(temp_link)
-              
+            link = anchor.get('href')
+            if link.startswith('/wiki'):
+                if anchor.get('title') is not None:
+                    page_url = link
+                    page_name = anchor.get('title')
+                    temp_link = Parser(page_url, page_name)
+                    link_list.append(temp_link)
+
         """ use keywords list to filter out undesirable elements"""
         for keyword in filtered_keywords:
                 for item in link_list:
@@ -76,7 +77,7 @@ class Parser(object):
 
         for keyword in filtered_keywords:
             for item in pic_list:
-                if keyword in item.page_url:
+              -  if keyword in item.page_url:
                     pic_list.remove(item)
 
         return link_list
