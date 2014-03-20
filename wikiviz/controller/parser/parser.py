@@ -52,12 +52,16 @@ class Parser(object):
                
         """ get links from wiki article that have a type and are NOT anchors """
         for anchor in soup.find_all('a'):
-            link = anchor.get('href')
-            if link.startswith('/wiki'):
+            link = anchor.get('href')		
+            if type(link) is not NoneType and link.startswith("/wiki"):
                 if anchor.get('title') is not None:
                     page_url = link
                     page_name = anchor.get('title')
                     temp_link = Parser(page_url, page_name)
+                    temp_link.page_url.encode("utf-8")
+                    print type(temp_link.page_url)
+                    temp_link.page_name.encode("utf-8")
+
                     link_list.append(temp_link)
 
         """ use keywords list to filter out undesirable elements"""
@@ -77,52 +81,11 @@ class Parser(object):
 
         for keyword in filtered_keywords:
             for item in pic_list:
-              -  if keyword in item.page_url:
+                if keyword in item.page_url:
                     pic_list.remove(item)
 
-        return link_list
+        return link_list, pic_list
        
-            
-    """
-    get word alone
-    
-    """
-    def get_link_word(self, link_list):
-
-        link_word_list = list()
-       
-        ###need to change object's attribute, NOT start new list...
-        for word in link_list:
-            word.page_name = word.page_url[6:]
-    
-            
-        """filter out symbols in words"""
-        for word in link_list:
-            if('_' in word.page_name or '#' in word.page_name):
-                
-                word.page_name = word.page_name.replace("_", " ")
-                head, sep, tail = word.page_name.partition('#')
-                word.page_name = head
-                
-            if(word.page_name.find('(') != -1):
-                head, sep, tail = word.page_name.partition('(')
-                word.page_name = head
-
-            
-##                
-####            #####convert UTF-8 to ascii!!
-                ###how to convert only unicode section to unicode???
-                ###WAIT, how is it actually stored?
-##                if('%' in word.page_name):
-##                word.page_name = word.page_name.replace("%", "\\x")
-##                #get section starting with unicode
-##                #don't worry about multiple in same page name right now...
-##                head, sep,tail = word.page_name.partition('\\')
-##                tail = tail.encode('ascii')
-##                print tail
-                
-        
-        return(link_list)
 
 
     """
@@ -178,9 +141,8 @@ class Parser(object):
         distinct_link_list = list(set(link_list))
         
         """ print priority """
-        for word in distinct_link_list:
-            print word.page_name + ": " + str(word.page_priority)
-        
+        #for word in distinct_link_list:
+            #print word.page_url
+            #print word.page_name + ": "+ str(word.page_priority)
+
         ###to extract sentences, prob need NLTK"""
-
-
