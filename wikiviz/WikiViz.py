@@ -162,6 +162,7 @@ class UIC(ScatterPlane):
 
     def confirm_new_search(self):
         print "CONFIRM"
+        print "FLAG", self.flag2
         if self.flag2 == 0:
             self.add_widget(self.uipup)
             self.flag2 = 1
@@ -217,6 +218,10 @@ class UIC(ScatterPlane):
             return True
         return False
  
+    def remove_widget(self, to_remove):
+        super(UIC, self).remove_widget(to_remove)
+        self.flag2 = 0
+        return 0
 
 '''
                         UI INITIAL SEARCH CLASSES
@@ -253,6 +258,8 @@ class UIPopup(Popup):
             return True
         return False
         
+
+            
 
 
 class test(PageLayout):
