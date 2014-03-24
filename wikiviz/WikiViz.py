@@ -18,7 +18,7 @@ from kivy.uix.image import Image
 from kivy.uix.image import AsyncImage
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty, BooleanProperty
 from kivy.graphics import Line, Color
 from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilUse
 from kivy.animation import Animation
@@ -57,7 +57,7 @@ class Node(Scatter):
     def on_touch_up(self, touch):
         print "TOUCH NODE UP", touch.x, touch.y
         
-        if (abs(touch.x - self.center_x) <=(self.width/2) and abs(touch.y - self.center_y) <= (self.height/2)):
+        if (self.collide_point(touch.x, touch.y)):
 
             self.parent.parent.page= 1
             self.parent.parent.do_layout()
@@ -120,9 +120,10 @@ class Edge(Scatter):
 
 
 class UIC(ScatterPlane):
-    flag2 = NumericProperty(0)
 
     obj = ListProperty(None)
+
+    is_popup_displayed = BooleanProperty(False)
 
     def __init__(self, **kwargs):
 
@@ -201,16 +202,15 @@ class UIC(ScatterPlane):
         return
 
     def confirm_new_search(self):
-        print "CONFIRM"
-        print "FLAG", self.flag2
-        if self.flag2 == 0:
-            self.add_widget(self.uipup)
-            self.flag2 = 1
-            self.do_translation = False
+
+        self.add_widget(self.uipup)
+        self.do_translation = False
+        self.is_popup_displayed = True
+
     def decline_new_search(self):
         self.remove_widget(self.uipup)
         self.do_translation = True
-
+        self.is_popup_displayed = False
 
     def new_search(self):
 
@@ -219,7 +219,7 @@ class UIC(ScatterPlane):
         self.remove_widget(self.uibc)
         self.remove_widget(self.uis)
         self.remove_widget(self.uipup)
-        self.flag2 = 0
+        self.is_popup_displayed = False
         self.clear_widgets()
         self.pos = (0,0)
         self.add_widget(self.uis)
@@ -240,9 +240,10 @@ class UIC(ScatterPlane):
  
     def remove_widget(self, to_remove):
         super(UIC, self).remove_widget(to_remove)
-        self.flag2 = 0
         return 0
     def on_touch_down(self, touch):
+        if self.is_popup_displayed:
+            return False
         x, y = touch.x, touch.y     
         if not self.do_collide_after_children:
             if not self.collide_point(x, y):
@@ -274,6 +275,8 @@ class UIC(ScatterPlane):
         return True
 
     def on_touch_move(self, touch):
+        if self.is_popup_displayed:
+            return False
         x, y = touch.x, touch.y
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
@@ -289,6 +292,15 @@ class UIC(ScatterPlane):
         if self.collide_point(x, y):
             return True
     def on_touch_up(self, touch):
+        if self.is_popup_displayed:
+            m, n = self.to_local(touch.x,touch.y)
+            if self.uipup.collide_point( m , n ):
+                print " COLLISION"
+                touch.x = m
+                touch.y = n
+                self.uipup.on_touch_up(touch)
+                return True
+            return False
         x, y = touch.x, touch.y
         if not touch.grab_current == self:
             touch.push()
