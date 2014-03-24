@@ -2,6 +2,11 @@ import kivy
 kivy.require('1.8.0')
 
 from random import random 
+from math import sqrt
+from math import cos
+from math import sin
+from math import atan2
+from math import degrees
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -13,7 +18,7 @@ from kivy.uix.image import Image
 from kivy.uix.image import AsyncImage
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty
 from kivy.graphics import Line, Color
 from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilUse
 from kivy.animation import Animation
@@ -44,38 +49,71 @@ class Node(Scatter):
         self.do_rotation = False
         self.do_scale = False
         self.do_translation = False
+        self.flag = 0
 
     def display(self, link):
         self.image.source = link
         return
     def on_touch_up(self, touch):
         print "TOUCH NODE UP", touch.x, touch.y
-        if (abs(touch.x - self.pos[0]) <=(self.width) and abs(touch.y - self.pos[1]) <= (self.height)):
-            if ( self.move < 5 and self.flag ==0):
-                self.parent.parent.page+= 1
-                self.parent.parent.summary.text = "INSERT SUMMARY HERE"
-                self.parent.parent.uic.disabled = True
-                self.flag = 1
+        
+        if (abs(touch.x - self.center_x) <=(self.width/2) and abs(touch.y - self.center_y) <= (self.height/2)):
+
+            self.parent.parent.page= 1
+            self.parent.parent.do_layout()
+            self.parent.parent.summary.text = "INSERT SUMMARY HERE"
+            self.parent.parent.uic.disabled = True
 
         return super(Node, self).on_touch_up(touch)
 
-        return
+
     def on_touch_move(self, touch):
-        self.move+=1
+        
         return super(Node, self).on_touch_move(touch)
 
 
     def on_touch_down(self, touch):
-        self.move =0 
-        self.flag = 0
+        
         return super(Node, self).on_touch_down(touch)
+ 
         
 
      
 '''
                             END NODE CLASSES
-'''   
+''' 
 
+class Edge(Scatter):
+    theta = NumericProperty(0)
+    p = ObjectProperty(None)
+    c = ObjectProperty(None)  
+
+    def __init__(self, **kwargs):
+        super(Edge, self).__init__(**kwargs)
+
+        #self.height = 20
+        #self.center_x, self.center_y = parent.center_x, parent.center_y
+        #self.rotation = degrees(atan2((parent.y-child.y), (parent.x-child.x)))
+        #self.rotation = degrees(atan2((parent.y-child.y), (parent.x-child.x)))
+        #print "parent = ", parent.center_x
+
+        print self.pos
+        #self.height = 20
+        #self.width = self.find_width()
+       
+
+    def find_width(self):
+        x = self.p.x-self.c.x
+        y = self.p.y-self.c.y
+        return sqrt(x*x + y*y)
+
+
+    def on_touch_down(self, touch):
+        print touch
+    def on_touch_up(self, touch):
+        print touch
+    def on_touch_move(self, touch):
+        print touch
 
 
 
@@ -84,7 +122,11 @@ class Node(Scatter):
 class UIC(ScatterPlane):
     flag2 = NumericProperty(0)
 
+    obj = ListProperty(None)
+
     def __init__(self, **kwargs):
+
+
 
         super(UIC, self).__init__(**kwargs)
         
@@ -95,7 +137,6 @@ class UIC(ScatterPlane):
         self.do_rotation = False
         self.do_scale = False
         self.do_translation= False
-
 
         #self.remove_widget(self.uibc)
         #self.remove_widget(self.uipup)
@@ -128,7 +169,8 @@ class UIC(ScatterPlane):
         self.add_widget(node1)
         node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
         node1.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        
+        x = Edge()
+        self.add_edge(x)
 
         '''
                             END DELETEION
@@ -154,11 +196,9 @@ class UIC(ScatterPlane):
         to_be_added.label.text= keyword
         self.add_widget(to_be_added)
 
-    def connect_with_line(self,coord1, coord2):
-        print random()
-        with self.canvas:
-            Color(random(),random(),random())
-            Line(points = [coord1[0], coord1[1], coord2[0], coord2[1]], width=2)
+    def add_edge(self, edge):
+        self.add_widget(edge)
+        return
 
     def confirm_new_search(self):
         print "CONFIRM"
@@ -166,11 +206,16 @@ class UIC(ScatterPlane):
         if self.flag2 == 0:
             self.add_widget(self.uipup)
             self.flag2 = 1
+            self.do_translation = False
+    def decline_new_search(self):
+        self.remove_widget(self.uipup)
+        self.do_translation = True
+
 
     def new_search(self):
 
         self.scale = 1.0
-       
+        self.do_translation = True
         self.remove_widget(self.uibc)
         self.remove_widget(self.uis)
         self.remove_widget(self.uipup)
@@ -192,85 +237,87 @@ class UIC(ScatterPlane):
 
         return
 
-    def on_touch_move(self, touch):
-        for eachChild in self.children:
-            if eachChild.on_touch_move(touch):
-                print "IN CHILD"
-                return
-        super(UIC, self).on_touch_move(touch)
-        return
-    def on_touch_up(self, touch):
-        for eachChild in self.children:
-            if eachChild.on_touch_up(touch):
-                print "IN CHILD"
-                return
-        super(UIC, self).on_touch_up(touch)
-        return
-    def on_touch_down(self, touch):
-        for eachChild in self.children:
-            if eachChild.on_touch_down(touch):
-                print "IN CHILD"
-                return
-        super(UIC, self).on_touch_down(touch)
-        return
-    def in_child(self, child, touch):
-        if ((child.center_x - touch.x < child.width/2) and (child.center_y - touch.y < child.height/2)):
-            return True
-        return False
  
     def remove_widget(self, to_remove):
         super(UIC, self).remove_widget(to_remove)
         self.flag2 = 0
         return 0
+    def on_touch_down(self, touch):
+        x, y = touch.x, touch.y     
+        if not self.do_collide_after_children:
+            if not self.collide_point(x, y):
+                return False
+        touch.push()
+        touch.apply_transform_2d(self.to_local)
+        for eachChild in self.children:
+            if eachChild.collide_point(touch.x, touch.y):
+                eachChild.on_touch_down(touch)
+                touch.pop()
+                self._bring_to_front()
+                return True
 
-'''
-                        UI INITIAL SEARCH CLASSES
-'''
+        touch.pop()
+        if not self.do_translation_x and \
+                not self.do_translation_y and \
+                not self.do_rotation and \
+                not self.do_scale:
+            return False
 
+        if self.do_collide_after_children:
+            if not self.collide_point(x, y):
+                return False
+        self._bring_to_front()
+        touch.grab(self)
+        self._touches.append(touch)
+        self._last_touch_pos[touch] = touch.pos
 
-class UITextInput(TextInput):
+        return True
 
+    def on_touch_move(self, touch):
+        x, y = touch.x, touch.y
+        if self.collide_point(x, y) and not touch.grab_current == self:
+            touch.push()
+            touch.apply_transform_2d(self.to_local)
+            if super(Scatter, self).on_touch_move(touch):
+                touch.pop()
+                return True
+            touch.pop()
+        if touch in self._touches and touch.grab_current == self:
+            if self.transform_with_touch(touch):
+                self.dispatch('on_transform_with_touch', touch)
+            self._last_touch_pos[touch] = touch.pos
+        if self.collide_point(x, y):
+            return True
     def on_touch_up(self, touch):
-        if (abs(touch.x - self.center_x) <=self.width/2 and abs(touch.y - self.center_y) <= self.height/2):
-            self.text = ''
-            super(TextInput, self).on_touch_up(touch)
-        return
+        x, y = touch.x, touch.y
+        if not touch.grab_current == self:
+            touch.push()
+            touch.apply_transform_2d(self.to_local)
+            if super(Scatter, self).on_touch_up(touch):
+                touch.pop()
+                return True
+            touch.pop()
+        if touch in self._touches and touch.grab_state:
+            touch.ungrab(self)
+            del self._last_touch_pos[touch]
+            self._touches.remove(touch)
+        if self.collide_point(x, y):
+            return True
 
 
-'''
-                        END UI INITIAL SEARCH CLASSES
-'''
-
-class UIPopup(Popup):
-    def on_touch_down(self,touch):
-        if (abs(touch.x - self.center_x) <=self.width/2 and abs(touch.y - self.center_y) <= self.height/2):
-            super(UIPopup, self).on_touch_down(touch)
-            return True
-        return False
-    def on_touch_up(self,touch):
-        if (abs(touch.x - self.center_x) <=self.width/2 and abs(touch.y - self.center_y) <= self.height/2):
-            super(UIPopup, self).on_touch_up(touch)
-            return True
-        return False
-    def on_touch_move(self,touch):
-        if (abs(touch.x - self.center_x) <=self.width/2 and abs(touch.y - self.center_y) <= self.height/2):
-            super(UIPopup, self).on_touch_move(touch)
-            return True
-        return False
-        
 
             
 
 
-class test(PageLayout):
+class Scatter_Summary_Widget(PageLayout):
     uic = ObjectProperty(None)
     summary = ObjectProperty(None)
 
     def __init__(self, **kwargs):
-        super(test, self).__init__(**kwargs)
+        super(Scatter_Summary_Widget, self).__init__(**kwargs)
         self.uic.remove_widget(self.uic.uipup)
         self.uic.remove_widget(self.uic.uibc)
-
+########################## OVERRIDE FUNCTIONS##############################################
     def do_layout(self, *largs):
         l_children = len(self.children)
         for i, c in enumerate(reversed(self.children)):
@@ -303,24 +350,20 @@ class test(PageLayout):
                     y=self.y,
                     d=.5, t='in_quad').start(c)
 
-    def do_nothing(self, *args):
-        return
     def on_touch_down(self, touch):
-        print self.page
         return self.children[self.page - 1].on_touch_down(touch)
 
     def on_touch_move(self, touch):
-        print self.page
         return self.children[self.page - 1].on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        print self.page
         return self.children[self.page-1].on_touch_up(touch)
+############################################################################################
     
 class UISummary(ScrollView):
 
     text = StringProperty(None)
-
+########################### OVERRIDE FUNCTIONS #############################################
     def on_touch_down(self, touch):
         print "here down"
         return 
@@ -330,6 +373,7 @@ class UISummary(ScrollView):
         self.parent.uic.disabled = False
         self.parent.page -= 1
         return
+############################################################################################
         
 
 class gr(ScatterPlane):
@@ -337,45 +381,93 @@ class gr(ScatterPlane):
     def __init__(self, **kwargs):
         super(gr, self).__init__(**kwargs)
         self.do_rotation = False
-
-    def on_touch_move(self, touch):
-        print "MOVE"
-        for eachChild in self.children:
-            if eachChild.on_touch_move(touch):
-                return
-        super(gr, self).on_touch_move(touch)
-        return
-
-    def on_touch_up(self, touch):
-        print "UP"
-        for eachChild in self.children:
-            if eachChild.on_touch_up(touch):
-                return
-        super(gr, self).on_touch_up(touch)
-        return
+        self.obj = None
+        self.zoom_or_not = 0
 
     def on_touch_down(self, touch):
-        print "DOWN"
-        for eachChild in self.children:
-            if eachChild.on_touch_down(touch):
-                return
-        super(gr, self).on_touch_down(touch)
-        return
+        x, y = touch.x, touch.y     
+        if not self.do_collide_after_children:
+            if not self.collide_point(x, y):
+                return False
+        touch.push()
+        touch.apply_transform_2d(self.to_local)
+        if super(Scatter, self).on_touch_down(touch):
+            touch.pop()
+            self._bring_to_front()
+            return True
+        touch.pop()
+        if not self.do_translation_x and \
+                not self.do_translation_y and \
+                not self.do_rotation and \
+                not self.do_scale:
+            return False
+
+        if self.do_collide_after_children:
+            if not self.collide_point(x, y):
+                return False
+        self._bring_to_front()
+        touch.grab(self)
+        self._touches.append(touch)
+        self._last_touch_pos[touch] = touch.pos
+
+        return True
+
+    def on_touch_move(self, touch):
+        x, y = touch.x, touch.y
+        if self.collide_point(x, y) and not touch.grab_current == self:
+            touch.push()
+            touch.apply_transform_2d(self.to_local)
+            if super(Scatter, self).on_touch_move(touch):
+                touch.pop()
+                return True
+            touch.pop()
+        if touch in self._touches and touch.grab_current == self:
+            if self.transform_with_touch(touch):
+                self.dispatch('on_transform_with_touch', touch)
+            self._last_touch_pos[touch] = touch.pos
+        if self.collide_point(x, y):
+            return True
+    def on_touch_up(self, touch):
+        x, y = touch.x, touch.y
+        if not touch.grab_current == self:
+            touch.push()
+            touch.apply_transform_2d(self.to_local)
+            if super(Scatter, self).on_touch_up(touch):
+                touch.pop()
+                return True
+            touch.pop()
+        if touch in self._touches and touch.grab_state:
+            touch.ungrab(self)
+            del self._last_touch_pos[touch]
+            self._touches.remove(touch)
+        if self.collide_point(x, y):
+            return True
 
 class sc(Scatter):
     image = ObjectProperty(None)
+    def __init__(self, **kwargs):
+        super(sc, self).__init__(**kwargs)
+        self.move_or_not = 0
 
     def on_touch_move(self, touch):
-        print "MOVE"
-        return super(sc, self).on_touch_move(touch)
+        #print "MOVE"
 
+        return super(sc, self).on_touch_move(touch)
     def on_touch_up(self, touch):
-        print "UP"
+        #print "UP"
+ 
         return super(sc, self).on_touch_up(touch)
 
     def on_touch_down(self, touch):
-        print "DOWN"
+        print touch.x, touch.y
+
         return super(sc, self).on_touch_down(touch)
+
+    def clicked_me(self, touch):
+        if (self.collide_point(touch.x, touch.y)):
+            print "CLICKED ME"
+            return True
+        return False
 
 class WikiVizApp(App):
 
@@ -383,13 +475,13 @@ class WikiVizApp(App):
 
 
     def build(self):
-        bkgrd= test()
+        bkgrd= Scatter_Summary_Widget()
 #        bkgrd = gr()
 #        for i in range(0, 10):
 #            x = sc(pos = (i*100,i*100))
 #            x.image.source = "http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg"
 #            bkgrd.add_widget(x)
-#            x.pos = (i*100,i*100)
+            #x.pos = (i*100,i*100)
 
         #bkgrd.uic.add_widget(x)
         return bkgrd
