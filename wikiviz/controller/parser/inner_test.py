@@ -4,16 +4,15 @@ import wikiviz.controller.parser.parser as parser
 import os
 import urllib
 
-
-#current_path = os.path.dirname(os.path.realpath(__file__))
-#soup = BeautifulSoup(open(current_path + "/knitting.html"), from_encoding="UTF-8")
+f = open('workfile.txt', 'w')
 
 
-html = urllib.urlopen('http://en.wikipedia.org/wiki/Knitting').read()
-h = html.decode('utf-8')
-soup = BeautifulSoup(h)
+current_path = os.path.dirname(os.path.realpath(__file__))
+soup = BeautifulSoup(open(current_path + "/knitting.html"), from_encoding="UTF-8")
 
 p = parser.Parser()
 
 link_list, pic_list = p.get_links(soup)
-p.prioritize_links(link_list, "Knitting")
+distinct_link_set = p.prioritize_links(link_list, "Knitting")
+for item in distinct_link_set:
+    f.write(item.page_url.encode('utf8')+'\n')
