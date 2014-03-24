@@ -13,6 +13,7 @@ soup = BeautifulSoup(open(current_path + "/knitting.html"), from_encoding="UTF-8
 p = parser.Parser()
 
 link_list, pic_list = p.get_links(soup)
-distinct_link_set = p.prioritize_links(link_list, "Knitting")
+p_link_list = p.prioritize_links(link_list, "Knitting")
+distinct_link_set = p.remove_duplicates(p_link_list)
 for item in distinct_link_set:
     f.write(item.page_url.encode('utf8')+'\n')

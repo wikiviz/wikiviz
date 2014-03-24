@@ -34,6 +34,16 @@ class ParserTests(unittest.TestCase):
         p.prioritize_links(link_list, "Knitting")
         self.assertTrue(p)
 
+    def test_remove_duplicates(self):
+
+        # is self.assertTrue(p) helpful here? does it prove anything?
+
+        p = parser.Parser(page_url = "/wiki/Knitting_clubs", page_name = "Knitting clubs")
+        p1 = parser.Parser(page_url = "/wiki/Knitting_clubs", page_name = "Knitting clubs")
+        p2 = parser.Parser(page_url = "/wiki/Shoemaking", page_name = "Shoemaking")
+        link_list = list([p, p1, p2])
+        p.remove_duplicates(link_list)
+        self.assertTrue(p)
 
 if __name__ == '__main__':
     unittest.main()

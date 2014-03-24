@@ -93,7 +93,7 @@ TODO:
 -multiple functions?
 -how to send this to model?
 """
-    def prioritize_links(self, link_list,search_term):
+    def prioritize_links(self, link_list, search_term):
 
         link_name_list = list()
 
@@ -134,10 +134,13 @@ TODO:
             elif(word.occur_count < average):
                 word.page_priority -= 4
 
+        return link_list
 
+    """remove duplicate items """
+    def remove_duplicates(self, p_link_list):
         new_set = set()
         distinct_link_list = []
-        for item in link_list:
+        for item in p_link_list:
             if item.page_name not in new_set:
                 distinct_link_list.append(item)
                 new_set.add(item.page_name)
@@ -146,7 +149,8 @@ TODO:
         for keyword in filtered_keywords:
                 for item in distinct_link_list:
                     if keyword in item.page_url:
-                        distinct_link_list.remove(item)
+                        if keyword in item.page_url:
+                            distinct_link_list.remove(item)
 
         return distinct_link_list
 
