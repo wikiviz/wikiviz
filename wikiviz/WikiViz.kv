@@ -5,6 +5,7 @@
 #:import atan2 math.atan2
 #:import sin math.sin
 #:import cos math.cos
+#:import degrees math.degrees
 
 
 
@@ -41,14 +42,20 @@
 		font_size: root.height/2 
 		
 <Edge>:
-	pos: 50, 50
+	p: self._get_p()
+	c: self._get_c()
+	pos: self.p.center_x, self.p.center_y
+	size: self.c.center_x - self.p.center_x, self.c.center_y - self.p.center_y
+
+	#rotation: degrees(atan2((self.p.y-self.c.y), (self.p.x-self.c.x)))
+
 	canvas:
 		Color:
-			rgb: 1,1,1
-		Rectangle:
-			pos: root.pos
-			size: root.pos
+			rgb: r.random(), r.random(),r.random()
 
+		Line:
+			points: self.p.center_x, self.p.center_y , self.c.center_x, self.c.center_y
+			width: 5
 
 <Scatter_Summary_Widget>:
 	uic: uic.__self__

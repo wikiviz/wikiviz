@@ -20,6 +20,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty, BooleanProperty
 from kivy.graphics import Line, Color
+from kivy.graphics.transformation import Matrix
 from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilUse
 from kivy.animation import Animation
 from kivy.core import window
@@ -83,14 +84,17 @@ class Node(Scatter):
                             END NODE CLASSES
 ''' 
 
-class Edge(Scatter):
+class Edge(Widget):
     theta = NumericProperty(0)
     p = ObjectProperty(None)
     c = ObjectProperty(None)  
 
-    def __init__(self, **kwargs):
-        super(Edge, self).__init__(**kwargs)
+    def __init__(self,parent, child, **kwargs):
+        self.p = parent
+        self.c = child
 
+        super(Edge, self).__init__(**kwargs)
+      
         #self.height = 20
         #self.center_x, self.center_y = parent.center_x, parent.center_y
         #self.rotation = degrees(atan2((parent.y-child.y), (parent.x-child.x)))
@@ -101,6 +105,10 @@ class Edge(Scatter):
         #self.height = 20
         #self.width = self.find_width()
        
+    def _get_p(self):
+        return self.p
+    def _get_c(self):
+        return self.c
 
     def find_width(self):
         x = self.p.x-self.c.x
@@ -131,18 +139,11 @@ class UIC(ScatterPlane):
 
         super(UIC, self).__init__(**kwargs)
         
-        
-        #self.uibc.disabled = True
-
 
         self.do_rotation = False
         self.do_scale = False
         self.do_translation= False
 
-        #self.remove_widget(self.uibc)
-        #self.remove_widget(self.uipup)
-
-        #self.controller = Controller()
 
        
 
@@ -170,7 +171,7 @@ class UIC(ScatterPlane):
         self.add_widget(node1)
         node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
         node1.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        x = Edge()
+        x = Edge(node,node1)
         self.add_edge(x)
 
         '''
@@ -293,11 +294,9 @@ class UIC(ScatterPlane):
             return True
     def on_touch_up(self, touch):
         if self.is_popup_displayed:
-            m, n = self.to_local(touch.x,touch.y)
-            if self.uipup.collide_point( m , n ):
+            touch.x, touch.y = self.to_local(touch.x,touch.y)
+            if self.uipup.collide_point( touch.x, touch.y ):
                 print " COLLISION"
-                touch.x = m
-                touch.y = n
                 self.uipup.on_touch_up(touch)
                 return True
             return False
