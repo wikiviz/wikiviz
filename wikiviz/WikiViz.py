@@ -24,6 +24,7 @@ from kivy.graphics.transformation import Matrix
 from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilUse
 from kivy.animation import Animation
 from kivy.core import window
+import wikiviz.controller.network.network as my_network
 
 
 
@@ -126,7 +127,6 @@ class Edge(Widget):
 
 
 
-
 class UIC(ScatterPlane):
 
     obj = ListProperty(None)
@@ -158,12 +158,34 @@ class UIC(ScatterPlane):
 
         self.do_scale = True
         self.do_translation= True
-   
+
+
+        """
+        The code below is just to demonstrate how to
+        use the network to request new nodes from within the display.
+        """
+        # get instance of Network object
+        print "Initing network object"
+        n = my_network.Network()
+
+        # you can create your own instance of the model
+        # or you can access it through the network instance:
+        print "Empty graph:"
+        n.model.print_graph()
+
+        # run a few queries for demo purposes
+        print "Querying for Mozart"
+        n.get_page("Wolfgang Amadeus Mozart")
+
+        print "Querying for Bicycle"
+        n.get_page("Bicycle")
+
+
 
         '''
                     This code will be deleted when model is hoooked up
         '''
-        
+
         node = Node(size=(100,100), pos=(0,0))
         node.label.text = self.uis.search_bar.text
         self.add_widget(node)
@@ -496,6 +518,7 @@ class WikiVizApp(App):
 
         #bkgrd.uic.add_widget(x)
         return bkgrd
+
 
 if __name__=='__main__':
     WikiVizApp().run()

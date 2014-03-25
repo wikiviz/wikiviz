@@ -12,6 +12,8 @@ from kivy.network.urlrequest import UrlRequest
 import urllib
 import wikiviz.model.model as mod
 import wikiviz.common.singleton as singleton
+import wikiviz.controller.parser.parser as parser
+from bs4 import BeautifulSoup
 
 class Network(object):
     """ Retrieve raw data from Wikipedia, return as page data """    
@@ -23,27 +25,79 @@ class Network(object):
                             'Content-type': 'application/json',
                             'Accept': 'text/plain' }
 
-    def on_success(self, request, result):
-        model = mod.Model()
-        # this is where we use the parser to parse the result
-        # then store in the model
-        # placeholder data for now
-        node = mod.Node(result["parse"]["title"], request.url, result["parse"]["images"], result["parse"]["text"], result["parse"]["links"], False)
-        model.add_node(node)
-        # print "added node ", node
+        self.model = mod.Model()
 
+
+    def get_page(self, keyword):
+        """
+        Gets page from network using kivy's async urlrequest.
+        Model notifies Display when update is complete.
+        """
+
+        #todo: sanitize input
+
+        print keyword
+        keyword = urllib.quote(keyword)
+        print "keyword encoded: ", keyword
+
+        # first search wikipedia for the wiki page url
+        self.search(keyword)
+
+
+    def search(self, keyword):
+        url = "http://en.wikipedia.org/w/api.php?action=query&format=json&srprop=timestamp&list=search&srsearch=" + keyword
+        req = UrlRequest(url=url, on_success=self.on_search_success, on_error=self.on_error, req_headers=self.headers, decode=True)
+
+
+    def on_search_success(self, request, result):
+        # parse returned results, pick top one, fetch its page content
+
+
+        results = result['query']['search']
+        top_result = results[0]['title']
+
+        top_result = urllib.quote(top_result)
+        url = "http://en.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&rvparse=1&titles=" + top_result
+        print "Searching ", url
+        req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
+
+
+
+    def on_success(self, request, result):
+        """
+        Called when UrlRequest returns.
+        Takes raw page data, runs through parser, then stores in model.
+        """
+        print "Success"
+
+        page_content = ""
+        page_title = ""
+
+        pages = result["query"]["pages"]
+
+        # page data is stored by key
+        for key, value in pages.items():
+            # key = page id
+            print "Page id:", key
+            page_content = value["revisions"][0]["*"]
+            page_title = value["title"]
+
+        # TODO: replace BS with parser instance
+        soup = BeautifulSoup(page_content, from_encoding="UTF-8")
+        # p = parser.Parser(soup)
+        # page_links = p.get_links(soup)
+        # page_links = p.prioritize_links(page_links, page_title)
+        # page_links = p.remove_duplicates(page_links)
+        # print page_links
+        # page_images = p.get_images()
+
+        page_links = soup.find_all('a')[:5]
+        page_images = ""
+
+        node = mod.Node(page_title, request.url, page_images, page_content, page_links, False)
+        self.model.add_node(node)
+        print "added node ", node
 
     def on_error(self, request, error):
         print "Error!"
         print error
-
-    def get_page(self, keyword):
-        try:
-            #todo: sanitize input
-            keyword = urllib.urlencode(keyword)
-        except TypeError:
-            print "Bad keyword"
-            pass
-
-        url = "http://en.wikipedia.org/w/api.php?action=parse&format=json&title=" + keyword
-        req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)

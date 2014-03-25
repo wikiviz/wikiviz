@@ -1,13 +1,16 @@
 # model.py
 from kivy.event import EventDispatcher
 import wikiviz.common.singleton as singleton
-import wikiviz.display.display as display
+# import wikiviz.display.display as display
 
 
 class Model(EventDispatcher):
     __metaclass__ = singleton.Singleton
 
     def __init__(self, **kwargs):
+        """
+         Creates empty model of nodes and edges, prepares to dispatch when updated
+        """
         self.register_event_type('on_update')
         super(Model, self).__init__(**kwargs)
         self.nodes = []
@@ -24,13 +27,17 @@ class Model(EventDispatcher):
         print "Printing graph in model"
         for n in self.nodes:
             print "Node: ", n
+            print n.links, "\n"
         for e in self.edges:
             print "Edge: ", e
+        print "\n"
 
     def on_update(self, *args):
-        print "updated - event was dispatched", args
-        d = display.Display()
-        d.trigger_update()
+        pass
+        # print "updated - event was dispatched", args
+        # TODO: Re-hookup display notifications
+        # d = display.Display()
+        # d.trigger_update()
 
 
 class Node():
