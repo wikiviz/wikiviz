@@ -24,11 +24,9 @@ from kivy.graphics.transformation import Matrix
 from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilUse
 from kivy.animation import Animation
 from kivy.core import window
+
 import wikiviz.controller.network.network as my_network
 
-
-
-#TODO LIST: ERROR WHEN YOU CLICK NO!!!!!
 
 
 
@@ -56,12 +54,13 @@ class Node(Scatter):
     def display(self, link):
         self.image.source = link
         return
+
     def on_touch_up(self, touch):
         print "TOUCH NODE UP", touch.x, touch.y
         
-        if (self.collide_point(touch.x, touch.y)):
-
-            self.parent.parent.page= 1
+        if (self.collide_point(touch.x, touch.y) and self.move < 10):
+            print "node page" , self.parent.parent.page
+            self.parent.parent.page = 2
             self.parent.parent.do_layout()
             self.parent.parent.summary.text = "INSERT SUMMARY HERE"
             self.parent.parent.uic.disabled = True
@@ -70,12 +69,12 @@ class Node(Scatter):
 
 
     def on_touch_move(self, touch):
-        
+        self.move +=1
         return super(Node, self).on_touch_move(touch)
 
 
     def on_touch_down(self, touch):
-        
+        self.move = 0
         return super(Node, self).on_touch_down(touch)
  
         
@@ -95,16 +94,6 @@ class Edge(Widget):
         self.c = child
 
         super(Edge, self).__init__(**kwargs)
-      
-        #self.height = 20
-        #self.center_x, self.center_y = parent.center_x, parent.center_y
-        #self.rotation = degrees(atan2((parent.y-child.y), (parent.x-child.x)))
-        #self.rotation = degrees(atan2((parent.y-child.y), (parent.x-child.x)))
-        #print "parent = ", parent.center_x
-
-        print self.pos
-        #self.height = 20
-        #self.width = self.find_width()
        
     def _get_p(self):
         return self.p
@@ -117,12 +106,16 @@ class Edge(Widget):
         return sqrt(x*x + y*y)
 
 
+    def collide_point(self, x, y):
+        return False
+
     def on_touch_down(self, touch):
-        print touch
+        return
     def on_touch_up(self, touch):
-        print touch
+        return
     def on_touch_move(self, touch):
-        print touch
+        return
+
 
 
 
@@ -154,11 +147,11 @@ class UIC(ScatterPlane):
         keyword= self.uis.search_bar.text 
         self.remove_widget(self.uis)
  
-        self.uibc.disabled= False
+        
 
         self.do_scale = True
         self.do_translation= True
-
+   
 
         """
         The code below is just to demonstrate how to
@@ -181,25 +174,24 @@ class UIC(ScatterPlane):
         n.get_page("Bicycle")
 
 
-
         '''
                     This code will be deleted when model is hoooked up
         '''
-
-        node = Node(size=(100,100), pos=(0,0))
-        node.label.text = self.uis.search_bar.text
+        node = Node(size=(100,100), pos=(200,450))
         self.add_widget(node)
-        node1 = Node(size=(100,100), pos=(300,500))
-        self.add_widget(node1)
         node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        node1.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        x = Edge(node,node1)
-        self.add_edge(x)
+        for i in range(1,10):
+            x = Node(size=(100,100), pos=(0,i*100))
+            x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
+            x.label.text = self.uis.search_bar.text
+            self.add_widget(x)
+            self.add_edge(Edge(node,x))
+
 
         '''
                             END DELETEION
         '''
-        self.add_widget(self.uibc)
+        #self.add_widget(self.uibc)
 
       
         return
@@ -239,7 +231,6 @@ class UIC(ScatterPlane):
 
         self.scale = 1.0
         self.do_translation = True
-        self.remove_widget(self.uibc)
         self.remove_widget(self.uis)
         self.remove_widget(self.uipup)
         self.is_popup_displayed = False
@@ -248,7 +239,6 @@ class UIC(ScatterPlane):
         self.add_widget(self.uis)
 
         self.uis.disabled = False
-        self.uibc.disabled= True
 
         self.uis.search_bar.font_size = self.uis.height - 20
         self.uis.search_bar.font_name = 'DroidSans'
@@ -315,6 +305,7 @@ class UIC(ScatterPlane):
         if self.collide_point(x, y):
             return True
     def on_touch_up(self, touch):
+        print " touch up uic"
         if self.is_popup_displayed:
             touch.x, touch.y = self.to_local(touch.x,touch.y)
             if self.uipup.collide_point( touch.x, touch.y ):
@@ -326,9 +317,13 @@ class UIC(ScatterPlane):
         if not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            if super(Scatter, self).on_touch_up(touch):
-                touch.pop()
-                return True
+            for eachChild in self.children:
+                if eachChild.collide_point(touch.x, touch.y):
+                    #super(Scatter, self).on_touch_up(touch)
+                    eachChild.on_touch_up(touch)
+                    touch.pop()
+                    self._bring_to_front()
+                    return True
             touch.pop()
         if touch in self._touches and touch.grab_state:
             touch.ungrab(self)
@@ -349,11 +344,17 @@ class Scatter_Summary_Widget(PageLayout):
     def __init__(self, **kwargs):
         super(Scatter_Summary_Widget, self).__init__(**kwargs)
         self.uic.remove_widget(self.uic.uipup)
-        self.uic.remove_widget(self.uic.uibc)
+        #self.uic.remove_widget(self.uic.uibc)
+        
+
+
+
 ########################## OVERRIDE FUNCTIONS##############################################
     def do_layout(self, *largs):
         l_children = len(self.children)
         for i, c in enumerate(reversed(self.children)):
+            if isinstance(c, BoxLayout):
+                continue
             if i < l_children:
                 width = self.width - self.border
             else:
@@ -384,13 +385,20 @@ class Scatter_Summary_Widget(PageLayout):
                     d=.5, t='in_quad').start(c)
 
     def on_touch_down(self, touch):
-        return self.children[self.page - 1].on_touch_down(touch)
+        print self.children
+        if (self.children[1].collide_point(touch.x, touch.y)):
+            return self.children[1].on_touch_down(touch)
+        return self.children[len(self.children) - self.page-1].on_touch_down(touch)
 
     def on_touch_move(self, touch):
-        return self.children[self.page - 1].on_touch_move(touch)
+        if (self.children[1].collide_point(touch.x, touch.y)):
+            return self.children[1].on_touch_move(touch)
+        return self.children[len(self.children) -self.page-1].on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        return self.children[self.page-1].on_touch_up(touch)
+        if (self.children[1].collide_point(touch.x, touch.y)):
+            return self.children[1].on_touch_up(touch)
+        return self.children[len(self.children) -self.page-1].on_touch_up(touch)
 ############################################################################################
     
 class UISummary(ScrollView):
@@ -404,7 +412,9 @@ class UISummary(ScrollView):
     def on_touch_up(self, touch):
         print "here up"
         self.parent.uic.disabled = False
-        self.parent.page -= 1
+        self.parent.page = 0
+        #self.parent.do_layout()
+        print self.parent.page
         return
 ############################################################################################
         
@@ -518,7 +528,6 @@ class WikiVizApp(App):
 
         #bkgrd.uic.add_widget(x)
         return bkgrd
-
 
 if __name__=='__main__':
     WikiVizApp().run()

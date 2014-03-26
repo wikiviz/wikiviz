@@ -58,6 +58,7 @@
 			width: 5
 
 <Scatter_Summary_Widget>:
+	id: ssw
 	uic: uic.__self__
 	summary: rst.__self__
 	border: 0
@@ -65,15 +66,15 @@
 	UIC:
 		id: uic
 		uis: uis.__self__
-		uibc: uibc.__self__
+
 
 		uipup: uipup.__self__
 
 		obj: []
 
-		on_transform_with_touch:
-			uic.remove_widget(uic.uibc)
-			uic.add_widget(uic.uibc)
+#		on_transform_with_touch:
+#			uic.remove_widget(uic.uibc)
+#			uic.add_widget(uic.uibc)
 
 
 		Widget:
@@ -83,7 +84,6 @@
 
 			search_bar: search_text_field
 			go_button: search_button
-
 
 
 			TextInput:
@@ -102,33 +102,11 @@
 				id: search_button
 				pos: uis.x+(uis.width-uis.height), uis.y
 				size: (uis.height), uis.height
-
 				source: 'mag.jpg'
 				on_touch_up: 
 					if search_button.collide_point(args[1].x, args[1].y): uic.display()
 						
 
-		BoxLayout:
-			id: uibc
-			size: (uic.width/7)/uic.scale, (uic.width/14)/uic.scale
-			spacing: str(5/uic.scale) + 'px'
-			pos: (uic.width - uic.x)/uic.scale - (uibc.width) , (uic.height - uic.y)/uic.scale - (uibc.height)
-			new_search: new_search_button
-			share: share_button
-			Image:
-				id: new_search_button
-				source: 'mag.jpg'
-				size: uibc.width-5/uic.scale, uibc.height
-
-				on_touch_down:
-					if uibc.collide_point(args[1].x, args[1].y): uic.confirm_new_search()
-						
-
-
-			Image:
-				id: share_button
-				source: 'share.jpg'		
-				size: uibc.width-5/uic.scale, uibc.height
 
 		Popup:
 			id: uipup
@@ -165,7 +143,27 @@
 					font_size: (uipup.height)/(7)
 					on_touch_up:
 						if no.collide_point(args[1].x, args[1].y): uic.decline_new_search()
-						
+
+	BoxLayout:
+		id: uibc
+		size: 100, 100
+		spacing: str(5) + 'px'
+		pos: (root.width - uibc.width) , (uic.height - uibc.height)
+		new_search: new_search_button
+		share: share_button
+		Image:
+			id: new_search_button
+			source: 'mag.jpg'
+			size: uibc.width-5, uibc.height
+
+			on_touch_down:
+				
+				if uibc.collide_point(args[1].x, args[1].y): uic.confirm_new_search()
+		Image:
+			id: share_button
+			source: 'share.jpg'		
+			size: uibc.width-5, uibc.height		
+							
 							
 	UISummary:
 
@@ -188,6 +186,7 @@
 				id: summary
 				text: rst.text
 				pos: tsum.x + root.width/2, tsum.y + root.height/2
+
 
 
 <gr>:
