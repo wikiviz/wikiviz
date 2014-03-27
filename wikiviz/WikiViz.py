@@ -17,7 +17,9 @@ from kivy.uix.pagelayout import PageLayout
 from kivy.uix.image import Image
 from kivy.uix.image import AsyncImage
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty, BooleanProperty
 from kivy.graphics import Line, Color
 from kivy.graphics.transformation import Matrix
@@ -28,7 +30,60 @@ from kivy.core import window
 import wikiviz.controller.network.network as my_network
 
 
+text1='''
 
+[b]Mozart\n[/b]
+Musican\n
+01234567890123456789012345678901234567890123456789\n
+[color=#3333ff]died:\n[/color]
+Location\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+Mozart\n
+Musican\n
+born:\n
+died:\n
+Location\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+Mozart\n
+Musican\n
+born:\n
+died:\n
+Location\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+Mozart\n
+Musican\n
+born:\n
+died:\n
+Location\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+Musican\n
+born:\n
+died:\n
+Location\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+Musican\n
+born:\n
+died:\n
+Location\n
+Works:\n
+Acomplishments:\n
+Contributions:\n
+
+
+'''
 
 
 
@@ -62,8 +117,8 @@ class Node(Scatter):
             print "node page" , self.parent.parent.page
             self.parent.parent.page = 2
             self.parent.parent.do_layout()
-            self.parent.parent.summary.text = "INSERT SUMMARY HERE"
-            self.parent.parent.uic.disabled = True
+            self.parent.parent.summary.text = text1
+            self.parent.parent.uic.blocked = True
 
         return super(Node, self).on_touch_up(touch)
 
@@ -94,16 +149,8 @@ class Edge(Widget):
         self.c = child
 
         super(Edge, self).__init__(**kwargs)
-       
-    def _get_p(self):
-        return self.p
-    def _get_c(self):
-        return self.c
 
-    def find_width(self):
-        x = self.p.x-self.c.x
-        y = self.p.y-self.c.y
-        return sqrt(x*x + y*y)
+
 
 
     def collide_point(self, x, y):
@@ -122,9 +169,9 @@ class Edge(Widget):
 
 class UIC(ScatterPlane):
 
-    obj = ListProperty(None)
-
     is_popup_displayed = BooleanProperty(False)
+
+    blocked = BooleanProperty(False)
 
     def __init__(self, **kwargs):
 
@@ -156,7 +203,7 @@ class UIC(ScatterPlane):
         """
         The code below is just to demonstrate how to
         use the network to request new nodes from within the display.
-        """
+        
         # get instance of Network object
         print "Initing network object"
         n = my_network.Network()
@@ -172,6 +219,7 @@ class UIC(ScatterPlane):
 
         print "Querying for Bicycle"
         n.get_page("Bicycle")
+        """
 
 
         '''
@@ -182,10 +230,13 @@ class UIC(ScatterPlane):
         node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
         for i in range(1,10):
             x = Node(size=(100,100), pos=(0,i*100))
-            x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
+            #x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
             x.label.text = self.uis.search_bar.text
             self.add_widget(x)
             self.add_edge(Edge(node,x))
+            node._bring_to_front()
+            x._bring_to_front()
+        
 
 
         '''
@@ -361,7 +412,7 @@ class Scatter_Summary_Widget(PageLayout):
                 width = self.width - 2 * self.border
 
             if i == 0:
-                self.uic.diabled = False
+                self.uic.blocked = False
                 x = self.x
 
             elif i < self.page:
@@ -405,112 +456,73 @@ class UISummary(ScrollView):
 
     text = StringProperty(None)
 ########################### OVERRIDE FUNCTIONS #############################################
-    def on_touch_down(self, touch):
-        print "here down"
-        return 
-
-    def on_touch_up(self, touch):
-        print "here up"
-        self.parent.uic.disabled = False
-        self.parent.page = 0
-        #self.parent.do_layout()
-        print self.parent.page
-        return
-############################################################################################
-        
-
-class gr(ScatterPlane):
-    container = ObjectProperty(None)
-    def __init__(self, **kwargs):
-        super(gr, self).__init__(**kwargs)
-        self.do_rotation = False
-        self.obj = None
-        self.zoom_or_not = 0
-
-    def on_touch_down(self, touch):
-        x, y = touch.x, touch.y     
-        if not self.do_collide_after_children:
-            if not self.collide_point(x, y):
-                return False
-        touch.push()
-        touch.apply_transform_2d(self.to_local)
-        if super(Scatter, self).on_touch_down(touch):
+    def on_touch_move(self, touch):
+        if self._get_uid('svavoid') in touch.ud:
+            return
+        if self._touch is not touch:
+            # touch is in parent
+            touch.push()
+            touch.apply_transform_2d(self.to_local)
+            super(ScrollView, self).on_touch_move(touch)
             touch.pop()
-            self._bring_to_front()
+            return self._get_uid() in touch.ud
+        if touch.grab_current is not self:
             return True
-        touch.pop()
-        if not self.do_translation_x and \
-                not self.do_translation_y and \
-                not self.do_rotation and \
-                not self.do_scale:
-            return False
 
-        if self.do_collide_after_children:
-            if not self.collide_point(x, y):
-                return False
-        self._bring_to_front()
-        touch.grab(self)
-        self._touches.append(touch)
-        self._last_touch_pos[touch] = touch.pos
+        uid = self._get_uid()
+        ud = touch.ud[uid]
+        mode = ud['mode']
+
+        # check if the minimum distance has been travelled
+        if mode == 'unknown' or mode == 'scroll':
+            if self.do_scroll_x and self.effect_x:
+                width = self.width
+                if self.scroll_type != ['bars']:
+                    self.effect_x.update(touch.x)
+            if self.do_scroll_y and self.effect_y:
+                height = self.height
+                if self.scroll_type != ['bars']:
+                    self.effect_y.update(touch.y)
+
+        if (touch.dy !=0 and abs(touch.dx/touch.dy) >1) or (touch.dy==0 and abs(touch.dx) > 3):
+            self.parent.page = 0
+            self.parent.do_layout()
+            return True
+
+        if mode == 'unknown':
+            ud['dx'] += abs(touch.dx)
+            ud['dy'] += abs(touch.dy)
+            if ud['dx'] > self.scroll_distance:
+                if not self.do_scroll_x:
+                    # touch is in parent, but _change expects window coords
+                    touch.push()
+                    touch.apply_transform_2d(self.to_local)
+                    touch.apply_transform_2d(self.to_window)
+                    self._change_touch_mode()
+                    touch.pop()
+                    return
+                mode = 'scroll'
+
+            if ud['dy'] > self.scroll_distance:
+                if not self.do_scroll_y:
+                    # touch is in parent, but _change expects window coords
+                    touch.push()
+                    touch.apply_transform_2d(self.to_local)
+                    touch.apply_transform_2d(self.to_window)
+                    self._change_touch_mode()
+                    touch.pop()
+                    return
+                mode = 'scroll'
+            ud['mode'] = mode
+
+        if mode == 'scroll':
+            ud['dt'] = touch.time_update - ud['time']
+            ud['time'] = touch.time_update
+            ud['user_stopped'] = True
 
         return True
+############################################################################################
 
-    def on_touch_move(self, touch):
-        x, y = touch.x, touch.y
-        if self.collide_point(x, y) and not touch.grab_current == self:
-            touch.push()
-            touch.apply_transform_2d(self.to_local)
-            if super(Scatter, self).on_touch_move(touch):
-                touch.pop()
-                return True
-            touch.pop()
-        if touch in self._touches and touch.grab_current == self:
-            if self.transform_with_touch(touch):
-                self.dispatch('on_transform_with_touch', touch)
-            self._last_touch_pos[touch] = touch.pos
-        if self.collide_point(x, y):
-            return True
-    def on_touch_up(self, touch):
-        x, y = touch.x, touch.y
-        if not touch.grab_current == self:
-            touch.push()
-            touch.apply_transform_2d(self.to_local)
-            if super(Scatter, self).on_touch_up(touch):
-                touch.pop()
-                return True
-            touch.pop()
-        if touch in self._touches and touch.grab_state:
-            touch.ungrab(self)
-            del self._last_touch_pos[touch]
-            self._touches.remove(touch)
-        if self.collide_point(x, y):
-            return True
-
-class sc(Scatter):
-    image = ObjectProperty(None)
-    def __init__(self, **kwargs):
-        super(sc, self).__init__(**kwargs)
-        self.move_or_not = 0
-
-    def on_touch_move(self, touch):
-        #print "MOVE"
-
-        return super(sc, self).on_touch_move(touch)
-    def on_touch_up(self, touch):
-        #print "UP"
- 
-        return super(sc, self).on_touch_up(touch)
-
-    def on_touch_down(self, touch):
-        print touch.x, touch.y
-
-        return super(sc, self).on_touch_down(touch)
-
-    def clicked_me(self, touch):
-        if (self.collide_point(touch.x, touch.y)):
-            print "CLICKED ME"
-            return True
-        return False
 
 class WikiVizApp(App):
 
@@ -518,15 +530,9 @@ class WikiVizApp(App):
 
 
     def build(self):
-        bkgrd= Scatter_Summary_Widget()
-#        bkgrd = gr()
-#        for i in range(0, 10):
-#            x = sc(pos = (i*100,i*100))
-#            x.image.source = "http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg"
-#            bkgrd.add_widget(x)
-            #x.pos = (i*100,i*100)
 
-        #bkgrd.uic.add_widget(x)
+        bkgrd= Scatter_Summary_Widget()
+
         return bkgrd
 
 if __name__=='__main__':
