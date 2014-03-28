@@ -2,10 +2,6 @@
 #:import r random
 #: import win kivy.core.window
 #:import Color kivy.graphics.Color
-#:import atan2 math.atan2
-#:import sin math.sin
-#:import cos math.cos
-#:import degrees math.degrees
 
 
 
@@ -37,17 +33,14 @@
 
 	Label:
 		id: label
-		pos: self.pos
+		pos: image.x, image.y+image.height+5
 		text: ""
 		font_size: root.height/2 
 		
 <Edge>:
-	p: self._get_p()
-	c: self._get_c()
+
 	pos: self.p.center_x, self.p.center_y
 	size: self.c.center_x - self.p.center_x, self.c.center_y - self.p.center_y
-
-	#rotation: degrees(atan2((self.p.y-self.c.y), (self.p.x-self.c.x)))
 
 	canvas:
 		Color:
@@ -57,11 +50,16 @@
 			points: self.p.center_x, self.p.center_y , self.c.center_x, self.c.center_y
 			width: 5
 
+
+
+
 <Scatter_Summary_Widget>:
 	id: ssw
 	uic: uic.__self__
 	summary: rst.__self__
+	uibc: uibc.__self__
 	border: 0
+
 
 	UIC:
 		id: uic
@@ -70,12 +68,13 @@
 
 		uipup: uipup.__self__
 
-		obj: []
 
-#		on_transform_with_touch:
-#			uic.remove_widget(uic.uibc)
-#			uic.add_widget(uic.uibc)
 
+		MyImage:
+			id: startup_image
+			size: win.Window.width*2, win.Window.height*2
+			center: win.Window.center
+			source: 'startup.jpg'
 
 		Widget:
 			id: uis
@@ -86,7 +85,7 @@
 			go_button: search_button
 
 
-			TextInput:
+			MyTextInput:
 				id: search_text_field
 				pos: uis.pos
 				size: (uis.width-uis.height), uis.height
@@ -96,15 +95,27 @@
 				cursor_blink: False
 
 				on_touch_up:
-					if search_text_field.collide_point(args[1].x, args[1].y): search_text_field.text = ''
+					x = (search_text_field.text == 'Search a Word')
+					if x and search_text_field.collide_point(args[1].x, args[1].y): search_text_field.text = ''
+
+				on_enter:
+					print "HERE"
+					blocked_and_collided = not uic.disabled
+					if blocked_and_collided: uibc.disabled = False;\
+					uibc.opacity = 1;\
+					uic.display()					
 
 			Image:
 				id: search_button
 				pos: uis.x+(uis.width-uis.height), uis.y
 				size: (uis.height), uis.height
 				source: 'mag.jpg'
-				on_touch_up: 
-					if search_button.collide_point(args[1].x, args[1].y): uic.display()
+				on_touch_up:
+					blocked_and_collided = ((uic.blocked == False) and (search_button.collide_point(args[1].x, args[1].y)))
+					if blocked_and_collided: uibc.disabled = False;\
+					uibc.opacity = 1;\
+					uic.remove_widget(startup_image);\
+					uic.display()
 						
 
 
@@ -132,7 +143,10 @@
 					size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
 					font_size: (uipup.height)/(7)
 					on_touch_up:
-						if yes.collide_point(args[1].x, args[1].y):uic.new_search()
+						collided = yes.collide_point(args[1].x, args[1].y)
+						if collided: uibc.disabled = True;\
+						uibc.opacity = 0;\
+						uic.new_search()
 							
 	
 				Button:
@@ -142,6 +156,7 @@
 					size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
 					font_size: (uipup.height)/(7)
 					on_touch_up:
+						
 						if no.collide_point(args[1].x, args[1].y): uic.decline_new_search()
 
 	BoxLayout:
@@ -158,11 +173,12 @@
 
 			on_touch_down:
 				
-				if uibc.collide_point(args[1].x, args[1].y): uic.confirm_new_search()
+				if uic.blocked == False and uibc.collide_point(args[1].x, args[1].y): uic.confirm_new_search()
 		Image:
 			id: share_button
 			source: 'share.jpg'		
-			size: uibc.width-5, uibc.height		
+			size: uibc.width-5, uibc.height
+			
 							
 							
 	UISummary:
@@ -170,46 +186,33 @@
 		id: rst
 		text: ''
 
+
 		Widget:
 			id: tsum
-			size: rst.size
+			size_hint: None, None
+			height: 50*36+3*win.Window.size[1]/8
+			width: root.width
+			pos: rst.pos
 			Widget:
+				pos: tsum.pos
 				canvas:
 					Color:
 						rgba: .1,.1,.1,.95
 					Rectangle:
-						size: uic.width,uic.height
+						pos: tsum.x - root.width/2, tsum.y - root.height/2
+						size: 2*tsum.width ,2*tsum.height
+
 			AsyncImage:
-				pos: tsum.x + root.width/2, tsum.y + 3*root.height/4
+				id: sum_pic
+				size: win.Window.size[0]/2, win.Window.size[1]/4
+				center_x: tsum.x + tsum.width/2
+				y: tsum.y + tsum.height- 1.5* self.height
 				source: "http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg"
 			Label:
 				id: summary
 				text: rst.text
-				pos: tsum.x + root.width/2, tsum.y + root.height/2
+				markup: True
+				center: tsum.center_x ,tsum.y+ (tsum.height-1.5*sum_pic.height)/2
 
 
-
-<gr>:
-	size: self.size
-<sc>:
-
-
-	image: image
-
-
-	Widget:
-		
-		canvas:
-			Color:
-				rgb: r.random(), r.random(), r.random()
-			Ellipse:
-				size:self.height+30, self.width+30
-				pos:self.x-15 , self.y-15
-	AsyncImage:
-		id: image
-		canvas:
-			Ellipse:
-				size: self.height+20, self.width+20
-				pos: self.x-10, self.y-10
-				texture: self.texture 
 
