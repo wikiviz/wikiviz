@@ -12,26 +12,24 @@ from collections import Counter
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:', 'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page')
 
 #remove this once this is hooked up to the network
-current_path = os.path.dirname(os.path.realpath(__file__))
+
+
+class PageLink(object):
+
+    def __init__(self, page_url=None, page_name=None, page_priority=10, occur_count=0):
+
+        self.page_url = page_url
+        self.page_name = page_name
+        self.page_priority = page_priority
+        self.occur_count = occur_count
+
 
 class Parser(object):
 
-    def __init__(self):
+    def __init__(self, raw_page_content):
 
-        # self.soup = BeautifulSoup(open(raw_page_content), from_encoding="UTF-8")
+        self.soup = BeautifulSoup(open(raw_page_content), from_encoding="UTF-8")
 
-        self.page_link = self.PageLink()
-
-    """ @class parser
-Main parser class description """
-    class PageLink():
-
-        def __init__(self, raw_page_content=None, page_url=None, page_name=None, page_priority=10, occur_count=0):
-
-            self.page_url = page_url
-            self.page_name = page_name
-            self.page_priority = page_priority
-            self.occur_count = occur_count
 
     """
 function definitions
@@ -45,26 +43,21 @@ TODO: separate into different functions?
 """
 
 
-    def get_links(self, soup):
+    def get_links(self):
 
         link_list = list()
 
 
         """ get links from wiki article that have a type and are NOT anchors """
-        for anchor in soup.find_all('a'):
+        for anchor in self.soup.find_all('a'):
             link = anchor.get('href')
 
             if type(link) is not NoneType and link.startswith("/wiki"):
                 if anchor.get('title') is not None:
                     page_url = link
-
                     page_name = anchor.get('title')
-                    temp_link = Parser()
-                    temp_link.PageLink.page_url = page_url
-                    temp_link.PageLink.page_name = page_name
-                    temp_link.PageLink.page_priority = 10
-                    temp_link.PageLink.occur_count = 0
-                    link_list.append(temp_link.PageLink)
+                    temp_link = PageLink(page_url, page_name)
+                    link_list.append(temp_link)
 
 
         """ use keywords list to filter out undesirable elements"""
@@ -76,16 +69,15 @@ TODO: separate into different functions?
         return link_list
 
 
-    def get_images(self,soup):
+    def get_images(self):
 
         image_list = list()
 
         """get images, filter """
-        for image in soup.find_all('img'):
-            image_url = image.get('src')
-            temp_img = Parser()
-            temp_img.PageLink.page_url = image_url
-            if type(temp_img.PageLink.page_url) is not NoneType and temp_img.PageLink.page_url.startswith('/wiki/'):
+        for image in self.soup.find_all('img'):
+            page_url = image.get('src')
+            temp_img = PageLink(page_url)
+            if type(temp_img.page_url) is not NoneType and temp_img.page_url.startswith('/wiki/'):
                 continue
             else:
                 image_list.append(temp_img)
@@ -98,11 +90,11 @@ TODO: separate into different functions?
         return image_list
 
     """
-prioritize links
-
-TODO:
--how to send this to model?
-"""
+    # prioritize links
+    #
+    # TODO:
+    # -how to send this to model?
+    # """
     def prioritize_links(self, link_list, search_term):
 
         link_name_list = list()
@@ -114,7 +106,6 @@ TODO:
         #add priority points if search term in the page name
         ##make case insensitive
         for word in link_list:
-
             if search_term in word.page_name:
                 word.page_priority += 10
 
@@ -138,7 +129,7 @@ TODO:
 
         average = occur_sum/len(num_occur)
 
-        #change priority according to average num of occurences """
+        #change priority according to average num of occurrences """
         for word in link_list:
             if word.occur_count > average:
                 word.page_priority += 4
@@ -146,7 +137,7 @@ TODO:
                 word.page_priority -= 4
 
         return link_list
-
+#
     """remove duplicate items """
     def remove_duplicates(self, p_link_list):
         new_set = set()
@@ -166,4 +157,4 @@ TODO:
         return distinct_link_list
 
 
-        ###to extract sentences, prob need NLTK"""
+    ###to extract sentences, prob need NLTK
