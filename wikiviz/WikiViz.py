@@ -30,6 +30,34 @@ from kivy.core import window
 import wikiviz.controller.network.network as my_network
 
 
+
+import sys
+from kivy.utils import boundary, platform
+
+FL_IS_NEWLINE = 0x01
+
+# late binding
+Clipboard = None
+_platform = platform
+
+# for reloading, we need to keep a list of textinput to retrigger the rendering
+_textinput_list = []
+
+# cache the result
+_is_osx = sys.platform == 'darwin'
+
+# When we are generating documentation, Config doesn't exist
+_is_desktop = False
+
+
+
+
+
+
+
+
+
+
 text1='''
 
 [b]Mozart\n[/b]
@@ -90,7 +118,6 @@ Contributions:\n
 '''
                                 NODE CLASSES
 '''
-
 class Node(Scatter):
     image = ObjectProperty(None)
     label = ObjectProperty(None)
@@ -105,16 +132,14 @@ class Node(Scatter):
         self.do_scale = False
         self.do_translation = False
         self.flag = 0
+        self.register_event_type("on_click")
 
     def display(self, link):
         self.image.source = link
         return
 
-    def on_touch_up(self, touch):
-        print "TOUCH NODE UP", touch.x, touch.y
-        
+    def on_touch_up(self, touch):   
         if (self.collide_point(touch.x, touch.y) and self.move < 10):
-            print "node page" , self.parent.parent.page
             self.parent.parent.page = 2
             self.parent.parent.do_layout()
             self.parent.parent.summary.text = text1
@@ -131,13 +156,14 @@ class Node(Scatter):
     def on_touch_down(self, touch):
         self.move = 0
         return super(Node, self).on_touch_down(touch)
- 
-        
-
-     
+    def on_click(self):
+        return
 '''
                             END NODE CLASSES
 ''' 
+
+
+
 
 class Edge(Widget):
     theta = NumericProperty(0)
@@ -150,9 +176,6 @@ class Edge(Widget):
 
         super(Edge, self).__init__(**kwargs)
 
-
-
-
     def collide_point(self, x, y):
         return False
 
@@ -163,6 +186,17 @@ class Edge(Widget):
     def on_touch_move(self, touch):
         return
 
+
+class MyImage(Image):
+    def collide_point(self, x, y):
+        return False
+
+    def on_touch_down(self, touch):
+        return
+    def on_touch_up(self, touch):
+        return
+    def on_touch_move(self, touch):
+        return
 
 
 
@@ -193,6 +227,8 @@ class UIC(ScatterPlane):
         self.uis.disabled= True
         keyword= self.uis.search_bar.text 
         self.remove_widget(self.uis)
+
+        
  
         
 
@@ -242,9 +278,6 @@ class UIC(ScatterPlane):
         '''
                             END DELETEION
         '''
-        #self.add_widget(self.uibc)
-
-      
         return
 
 
@@ -288,6 +321,8 @@ class UIC(ScatterPlane):
         self.clear_widgets()
         self.pos = (0,0)
         self.add_widget(self.uis)
+        
+        
 
         self.uis.disabled = False
 
@@ -385,20 +420,20 @@ class UIC(ScatterPlane):
 
 
 
-            
+
+
 
 
 class Scatter_Summary_Widget(PageLayout):
     uic = ObjectProperty(None)
     summary = ObjectProperty(None)
-
+    uibc = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(Scatter_Summary_Widget, self).__init__(**kwargs)
+
         self.uic.remove_widget(self.uic.uipup)
-        #self.uic.remove_widget(self.uic.uibc)
-        
-
-
+        self.uibc.disabled = True
+        self.uibc.opacity = 0
 
 ########################## OVERRIDE FUNCTIONS##############################################
     def do_layout(self, *largs):
@@ -523,6 +558,72 @@ class UISummary(ScrollView):
         return True
 ############################################################################################
 
+class MyTextInput(TextInput):
+    def __init__(self, **kwargs):
+        super(MyTextInput, self).__init__(**kwargs)
+        self.register_event_type("on_enter")
+########################### OVERRIDE FUNCTIONS #############################################
+    def _keyboard_on_key_down(self, window, keycode, text, modifiers):
+        # Keycodes on OSX:
+        ctrl, cmd = 64, 1024
+        key, key_str = keycode
+
+        # This allows *either* ctrl *or* cmd, but not both.
+        is_shortcut = (modifiers == ['ctrl'] or (
+            _is_osx and modifiers == ['meta']))
+        is_interesting_key = key in (list(self.interesting_keys.keys()) + [27])
+
+        if not self._editable:
+            # duplicated but faster testing for non-editable keys
+            if text and not is_interesting_key:
+                if is_shortcut and key == ord('c'):
+                    self._copy(self.selection_text)
+            elif key == 27:
+                self.focus = False
+            return True
+
+        if text and not is_interesting_key:
+            self._hide_handles(self._win)
+            self._hide_cut_copy_paste()
+            self._win.remove_widget(self._handle_middle)
+            if is_shortcut:
+                if key == ord('x'):  # cut selection
+                    self._cut(self.selection_text)
+                elif key == ord('c'):  # copy selection
+                    self._copy(self.selection_text)
+                elif key == ord('v'):  # paste selection
+                    self._paste()
+                elif key == ord('a'):  # select all
+                    self.select_all()
+                elif key == ord('z'):  # undo
+                    self.do_undo()
+                elif key == ord('r'):  # redo
+                    self.do_redo()
+            else:
+                if self._selection:
+                    self.delete_selection()
+                self.insert_text(text)
+            #self._recalc_size()
+            return
+
+
+        if key == 27:  # escape
+            self.focus = False
+            return True
+        elif key == 9:  # tab
+            self.insert_text(u'\t')
+            return True
+        elif key == 13: # enter
+            self.dispatch("on_enter")
+            return True
+
+        k = self.interesting_keys.get(key)
+        if k:
+            key = (None, None, k, 1)
+            self._key_down(key)
+############################################################################################
+    def on_enter(self):
+        return
 
 class WikiVizApp(App):
 
