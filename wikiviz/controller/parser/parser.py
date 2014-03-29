@@ -6,10 +6,15 @@ Translates keywords into related links, images, and text.
 
 from bs4 import BeautifulSoup
 from types import NoneType
-import os
-from collections import Counter
 
-filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:', 'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page')
+import numpy
+import nltk
+
+
+
+
+filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:',
+                     'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page')
 
 #remove this once this is hooked up to the network
 
@@ -26,29 +31,21 @@ class PageLink(object):
 
 class Parser(object):
 
-    def __init__(self, raw_page_content):
-
-        self.soup = BeautifulSoup(open(raw_page_content), from_encoding="UTF-8")
-
-
     """
 function definitions
 """
 
-    """
-get links
-page and image links are currently separate
+    def __init__(self, raw_page_content, link_list = list(), image_list = list()):
 
-TODO: separate into different functions?
-"""
+        self.soup = BeautifulSoup(raw_page_content)
+        self.link_list = link_list
+        self.image_list = image_list
 
-
-    def get_links(self):
-
-        link_list = list()
-
+    def extract_links(self):
 
         """ get links from wiki article that have a type and are NOT anchors """
+        #link_list = list()
+
         for anchor in self.soup.find_all('a'):
             link = anchor.get('href')
 
@@ -57,23 +54,23 @@ TODO: separate into different functions?
                     page_url = link
                     page_name = anchor.get('title')
                     temp_link = PageLink(page_url, page_name)
-                    link_list.append(temp_link)
+                    self.link_list.append(temp_link)
 
 
-        """ use keywords list to filter out undesirable elements"""
+        #use keywords list to filter out undesirable elements
         for keyword in filtered_keywords:
-                for item in link_list:
+                for item in self.link_list:
                     if keyword in item.page_url:
-                        link_list.remove(item)
+                        self.link_list.remove(item)
 
-        return link_list
+        return self.link_list
 
 
-    def get_images(self):
+    def extract_images(self):
 
         image_list = list()
 
-        """get images, filter """
+        #get images, filter
         for image in self.soup.find_all('img'):
             page_url = image.get('src')
             temp_img = PageLink(page_url)
@@ -89,13 +86,19 @@ TODO: separate into different functions?
 
         return image_list
 
-    """
-    # prioritize links
-    #
-    # TODO:
-    # -how to send this to model?
-    # """
-    def prioritize_links(self, link_list, search_term):
+    def get_links(self):
+
+        return self.link_list
+
+    def get_images(self):
+
+        return self.image_list
+
+
+    #how to send this to model?
+    @staticmethod
+    def prioritize_links(self, search_term):
+
 
         link_name_list = list()
 
@@ -105,41 +108,42 @@ TODO: separate into different functions?
 
         #add priority points if search term in the page name
         ##make case insensitive
-        for word in link_list:
+        for word in self.link_list:
             if search_term in word.page_name:
                 word.page_priority += 10
 
-
         #make list of page names for processing
-        for word in link_list:
+        for word in self.link_list:
             link_name_list.append(word.page_name)
 
         #count occurrences of each page name in list
-        for word in link_list:
+        for word in self.link_list:
             counter = link_name_list.count(word.page_name)
             word.occur_count = counter
 
         #create list of counts for averaging
-        for word in link_list:
+        for word in self.link_list:
             num_occur.append(word.occur_count)
 
         #get average num of occurrences of each page name
         for n in num_occur:
             occur_sum = occur_sum + n
 
-        average = occur_sum/len(num_occur)
+        average = occur_sum / len(num_occur)
 
         #change priority according to average num of occurrences """
-        for word in link_list:
+        for word in self.link_list:
             if word.occur_count > average:
                 word.page_priority += 4
             elif word.occur_count < average:
                 word.page_priority -= 4
 
-        return link_list
-#
-    """remove duplicate items """
-    def remove_duplicates(self, p_link_list):
+        return self.link_list
+
+
+    @staticmethod
+    def remove_duplicates(p_link_list):
+
         new_set = set()
         distinct_link_list = []
         for item in p_link_list:
@@ -158,3 +162,9 @@ TODO: separate into different functions?
 
 
     ###to extract sentences, prob need NLTK
+
+
+    def get_text_summary(self):
+
+        for item in self.soup.find_all('p', limit=5):
+            print item
