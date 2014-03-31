@@ -2,11 +2,6 @@ import kivy
 kivy.require('1.8.0')
 
 from random import random 
-from math import sqrt
-from math import cos
-from math import sin
-from math import atan2
-from math import degrees
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -34,14 +29,10 @@ import wikiviz.controller.network.network as my_network
 import sys
 from kivy.utils import boundary, platform
 
-FL_IS_NEWLINE = 0x01
 
-# late binding
-Clipboard = None
 _platform = platform
 
 # for reloading, we need to keep a list of textinput to retrigger the rendering
-_textinput_list = []
 
 # cache the result
 _is_osx = sys.platform == 'darwin'
@@ -51,7 +42,27 @@ _is_desktop = False
 
 
 
+'''
+To Do
 
+1. slider
+2. Work on Model
+
+Model needs a data structure to hold the nodes.
+?Possibly use binary tree.
+?Restructure tree using traversal and number of nodes in tree.
+
+?Possibly position buckets using a dict
+
+?Possibly double linked list and bubble sort.
+
+1.Use data structure to test for collisions
+Use data structure to retrieve teh text and images.
+
+2.Use model information to add nodes and edges.
+
+
+'''
 
 
 
@@ -134,9 +145,9 @@ class Node(Scatter):
         self.flag = 0
         self.register_event_type("on_click")
 
-    def display(self, link):
-        self.image.source = link
-        return
+    def collide_point(self, x, y):
+        x, y = self.to_local(x, y)
+        return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
     def on_touch_up(self, touch):   
         if (self.collide_point(touch.x, touch.y) and self.move < 10):
@@ -156,8 +167,16 @@ class Node(Scatter):
     def on_touch_down(self, touch):
         self.move = 0
         return super(Node, self).on_touch_down(touch)
+
+
+
+    def display(self, link):
+        self.image.source = link
+        return
+
     def on_click(self):
         return
+
 '''
                             END NODE CLASSES
 ''' 
@@ -166,7 +185,6 @@ class Node(Scatter):
 
 
 class Edge(Widget):
-    theta = NumericProperty(0)
     p = ObjectProperty(None)
     c = ObjectProperty(None)  
 
@@ -187,10 +205,9 @@ class Edge(Widget):
         return
 
 
-class MyImage(Image):
+class StartupImage(Image):
     def collide_point(self, x, y):
         return False
-
     def on_touch_down(self, touch):
         return
     def on_touch_up(self, touch):
@@ -218,128 +235,14 @@ class UIC(ScatterPlane):
         self.do_scale = False
         self.do_translation= False
 
+        self.register_event_type("on_add_node")
+
 
        
 
         return
-     
-    def display(self):   
-        self.uis.disabled= True
-        keyword= self.uis.search_bar.text 
-        self.remove_widget(self.uis)
 
-        
- 
-        
-
-        self.do_scale = True
-        self.do_translation= True
-   
-
-        """
-        The code below is just to demonstrate how to
-        use the network to request new nodes from within the display.
-        
-        # get instance of Network object
-        print "Initing network object"
-        n = my_network.Network()
-
-        # you can create your own instance of the model
-        # or you can access it through the network instance:
-        print "Empty graph:"
-        n.model.print_graph()
-
-        # run a few queries for demo purposes
-        print "Querying for Mozart"
-        n.get_page("Wolfgang Amadeus Mozart")
-
-        print "Querying for Bicycle"
-        n.get_page("Bicycle")
-        """
-
-
-        '''
-                    This code will be deleted when model is hoooked up
-        '''
-        node = Node(size=(100,100), pos=(200,450))
-        self.add_widget(node)
-        node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        for i in range(1,10):
-            x = Node(size=(100,100), pos=(0,i*100))
-            #x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-            x.label.text = self.uis.search_bar.text
-            self.add_widget(x)
-            self.add_edge(Edge(node,x))
-            node._bring_to_front()
-            x._bring_to_front()
-        
-
-
-        '''
-                            END DELETEION
-        '''
-        return
-
-
-
-    def add_node(self, *args):
-        if len(args) == 1:
-            model_node = args[0]
-        elif len(args) == 2:
-            model_node = args[1]
-        source=model_node.get_source() 
-        keyword = model_node.keyword
-        pos = model_node.get_pos()
-
-        to_be_added = Node(pos = pos)
-        to_be_added.display(source)
-        to_be_added.label.text= keyword
-        self.add_widget(to_be_added)
-
-    def add_edge(self, edge):
-        self.add_widget(edge)
-        return
-
-    def confirm_new_search(self):
-
-        self.add_widget(self.uipup)
-        self.do_translation = False
-        self.is_popup_displayed = True
-
-    def decline_new_search(self):
-        self.remove_widget(self.uipup)
-        self.do_translation = True
-        self.is_popup_displayed = False
-
-    def new_search(self):
-
-        self.scale = 1.0
-        self.do_translation = True
-        self.remove_widget(self.uis)
-        self.remove_widget(self.uipup)
-        self.is_popup_displayed = False
-        self.clear_widgets()
-        self.pos = (0,0)
-        self.add_widget(self.uis)
-        
-        
-
-        self.uis.disabled = False
-
-        self.uis.search_bar.font_size = self.uis.height - 20
-        self.uis.search_bar.font_name = 'DroidSans'
-
-        self.do_scale = False
-        self.do_translation= False
-
-        self.uis.search_bar.text  = 'Search a Word'
-
-        return
-
- 
-    def remove_widget(self, to_remove):
-        super(UIC, self).remove_widget(to_remove)
-        return 0
+########################## OVERRIDE FUNCTIONS##############################################
     def on_touch_down(self, touch):
         if self.is_popup_displayed:
             return False
@@ -390,6 +293,7 @@ class UIC(ScatterPlane):
             self._last_touch_pos[touch] = touch.pos
         if self.collide_point(x, y):
             return True
+
     def on_touch_up(self, touch):
         print " touch up uic"
         if self.is_popup_displayed:
@@ -417,6 +321,69 @@ class UIC(ScatterPlane):
             self._touches.remove(touch)
         if self.collide_point(x, y):
             return True
+############################################################################################
+
+
+    def display(self):   
+        self.uis.disabled= True
+        keyword= self.uis.search_bar.text 
+        self.remove_widget(self.uis)
+
+        
+ 
+        
+
+        self.do_scale = True
+        self.do_translation= True
+   
+
+        """
+        The code below is just to demonstrate how to
+        use the network to request new nodes from within the display.
+        
+        # get instance of Network object
+        print "Initing network object"
+        n = my_network.Network()
+
+        # you can create your own instance of the model
+        # or you can access it through the network instance:
+        print "Empty graph:"
+        n.model.print_graph()
+
+        # run a few queries for demo purposes
+        print "Querying for Mozart"
+        n.get_page("Wolfgang Amadeus Mozart")
+
+        print "Querying for Bicycle"
+        n.get_page("Bicycle")
+        """
+
+
+        '''
+                    This code will be deleted when model is hoooked up
+        '''
+        node = Node(size=(100,100), pos=(200,450))
+        self.add_widget(node)
+        node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
+        for i in range(1,10):
+            x = Node(size=(100,100), pos=(0,i*100))
+            #x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
+            x.label.text = self.uis.search_bar.text
+            self.add_widget(x)
+            self.add_widget(Edge(node,x))
+            node._bring_to_front()
+            x._bring_to_front()
+        
+
+
+        '''
+                            END DELETEION
+        '''
+        return
+    def on_add_node(self, model_node):
+        return
+
+
 
 
 
