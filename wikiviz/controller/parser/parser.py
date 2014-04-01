@@ -6,12 +6,7 @@ Translates keywords into related links, images, and text.
 
 from bs4 import BeautifulSoup
 from types import NoneType
-
-import numpy
-import nltk
-
-
-
+import summarizer
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:',
                      'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page')
@@ -166,5 +161,4 @@ function definitions
 
     def get_text_summary(self):
 
-        for item in self.soup.find_all('p', limit=5):
-            print item
+        print summarizer.summarize(str(self.soup))
