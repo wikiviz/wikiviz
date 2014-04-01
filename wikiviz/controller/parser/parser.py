@@ -6,6 +6,10 @@ Translates keywords into related links, images, and text.
 
 from bs4 import BeautifulSoup
 from types import NoneType
+import re
+import strip_tags
+
+
 import summarizer
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:',
@@ -161,4 +165,16 @@ function definitions
 
     def get_text_summary(self):
 
-        print summarizer.summarize(str(self.soup))
+        paragraphs = self.soup.find_all("p", limit=3)
+        soup_string = ""
+
+        for item in paragraphs:
+            item = str(item)
+            item = re.sub('<[^<]+?>', '', item)
+
+            #i know we had talked about not using concatenation, but i'm having trouble with join() at the moment
+            soup_string += (item + '\n\n')
+        print soup_string
+
+
+
