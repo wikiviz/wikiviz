@@ -7,10 +7,7 @@ Translates keywords into related links, images, and text.
 from bs4 import BeautifulSoup
 from types import NoneType
 import re
-import strip_tags
 
-
-import summarizer
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:',
                      'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page')
