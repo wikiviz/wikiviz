@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{51c60795-9941-4005-b031-4da979635293}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>wikiviz\WikiViz.py</StartupFile>
+    <SearchPath>\Kivy\kivy</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <InterpreterId>{e1e214d3-6353-4c3b-882a-07cc49f82e40}</InterpreterId>
+    <InterpreterVersion>2.7</InterpreterVersion>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="s5fyptsp.eby.txt" />
+    <Content Include="workfile.txt" />
+    <Content Include="notes\class_types.txt" />
+    <Content Include="notes\required libraries.txt" />
+    <Compile Include="tests\__init__.py" />
+    <Content Include="wikiviz\mag.jpg" />
+    <Content Include="wikiviz\share.jpg" />
+    <Content Include="wikiviz\startup.JPG" />
+    <Compile Include="wikiviz\WikiViz.py" />
+    <Content Include="docs\html\annotated.html" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_game.html" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_game-members.html" />
+    <Content Include="docs\html\classwikiviz_1_1network_1_1network_1_1_network-members.html" />
+    <Content Include="docs\html\classwikiviz_1_1parser_1_1parser_1_1_parser.html" />
+    <Content Include="docs\html\classwikiviz_1_1network_1_1network_1_1_network.html" />
+    <Content Include="docs\html\classes.html" />
+    <Content Include="docs\html\classwikiviz_1_1display_1_1display_1_1_display-members.html" />
+    <Content Include="docs\html\classwikiviz_1_1display_1_1display_1_1_display.html" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_app-members.html" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_app.html" />
+    <Content Include="docs\html\classwikiviz_1_1parser_1_1parser_1_1_parser-members.html" />
+    <Content Include="docs\html\dir_572890c148f68441e050f6560d78312b.html" />
+    <Content Include="docs\html\dir_c901c14b65aa229498a52b725b3d4a2c.html" />
+    <Content Include="docs\html\dir_e4fd3481c5e8112931e161ebbc5af0ff.html" />
+    <Content Include="docs\html\functions.html" />
+    <Content Include="docs\html\functions_func.html" />
+    <Content Include="docs\html\hierarchy.html" />
+    <Content Include="docs\html\index.html" />
+    <Content Include="docs\html\namespacewikiviz_1_1parser_1_1parser.html" />
+    <Content Include="docs\html\namespaces.html" />
+    <Content Include="docs\html\namespacewikiviz_1_1display_1_1display.html" />
+    <Content Include="docs\html\namespacewikiviz_1_1main.html" />
+    <Content Include="docs\html\namespacewikiviz_1_1network_1_1network.html" />
+    <Content Include="docs\html\doxygen.css" />
+    <Content Include="docs\html\navtree.css" />
+    <Content Include="docs\html\tabs.css" />
+    <Content Include="docs\html\annotated.js" />
+    <Content Include="docs\html\classwikiviz_1_1display_1_1display_1_1_display.js" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_app.js" />
+    <Content Include="docs\html\classwikiviz_1_1network_1_1network_1_1_network.js" />
+    <Content Include="docs\html\classwikiviz_1_1parser_1_1parser_1_1_parser.js" />
+    <Content Include="docs\html\dynsections.js" />
+    <Content Include="docs\html\hierarchy.js" />
+    <Content Include="docs\html\jquery.js" />
+    <Content Include="docs\html\namespaces.js" />
+    <Content Include="docs\html\namespacewikiviz_1_1display_1_1display.js" />
+    <Content Include="docs\html\namespacewikiviz_1_1main.js" />
+    <Content Include="docs\html\namespacewikiviz_1_1network_1_1network.js" />
+    <Content Include="docs\html\namespacewikiviz_1_1parser_1_1parser.js" />
+    <Content Include="docs\html\navtree.js" />
+    <Content Include="docs\html\navtreeindex0.js" />
+    <Content Include="docs\html\resize.js" />
+    <Content Include="docs\html\bc_s.png" />
+    <Content Include="docs\html\bdwn.png" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_app.png" />
+    <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_game.png" />
+    <Content Include="docs\html\closed.png" />
+    <Content Include="docs\html\doxygen.png" />
+    <Content Include="docs\html\ftv2blank.png" />
+    <Content Include="docs\html\ftv2cl.png" />
+    <Content Include="docs\html\ftv2doc.png" />
+    <Content Include="docs\html\ftv2folderclosed.png" />
+    <Content Include="docs\html\ftv2folderopen.png" />
+    <Content Include="docs\html\ftv2lastnode.png" />
+    <Content Include="docs\html\ftv2link.png" />
+    <Content Include="docs\html\ftv2mlastnode.png" />
+    <Content Include="docs\html\ftv2mnode.png" />
+    <Content Include="docs\html\ftv2mo.png" />
+    <Content Include="docs\html\ftv2node.png" />
+    <Content Include="docs\html\ftv2ns.png" />
+    <Content Include="docs\html\ftv2plastnode.png" />
+    <Content Include="docs\html\ftv2pnode.png" />
+    <Content Include="docs\html\ftv2splitbar.png" />
+    <Content Include="docs\html\ftv2vertline.png" />
+    <Content Include="docs\html\nav_f.png" />
+    <Content Include="docs\html\nav_g.png" />
+    <Content Include="docs\html\nav_h.png" />
+    <Content Include="docs\html\open.png" />
+    <Content Include="docs\html\sync_off.png" />
+    <Content Include="docs\html\sync_on.png" />
+    <Content Include="docs\html\tab_a.png" />
+    <Content Include="docs\html\tab_b.png" />
+    <Content Include="docs\html\tab_h.png" />
+    <Content Include="docs\html\tab_s.png" />
+    <Content Include="docs\html\search\all_5f.html" />
+    <Content Include="docs\html\search\all_62.html" />
+    <Content Include="docs\html\search\all_64.html" />
+    <Content Include="docs\html\search\all_6e.html" />
+    <Content Include="docs\html\search\all_70.html" />
+    <Content Include="docs\html\search\all_77.html" />
+    <Content Include="docs\html\search\classes_64.html" />
+    <Content Include="docs\html\search\classes_6e.html" />
+    <Content Include="docs\html\search\classes_70.html" />
+    <Content Include="docs\html\search\classes_77.html" />
+    <Content Include="docs\html\search\functions_5f.html" />
+    <Content Include="docs\html\search\functions_62.html" />
+    <Content Include="docs\html\search\namespaces_77.html" />
+    <Content Include="docs\html\search\nomatches.html" />
+    <Content Include="docs\html\search\search.css" />
+    <Content Include="docs\html\search\all_5f.js" />
+    <Content Include="docs\html\search\all_62.js" />
+    <Content Include="docs\html\search\all_64.js" />
+    <Content Include="docs\html\search\all_6e.js" />
+    <Content Include="docs\html\search\all_70.js" />
+    <Content Include="docs\html\search\all_77.js" />
+    <Content Include="docs\html\search\classes_64.js" />
+    <Content Include="docs\html\search\classes_6e.js" />
+    <Content Include="docs\html\search\classes_70.js" />
+    <Content Include="docs\html\search\classes_77.js" />
+    <Content Include="docs\html\search\functions_5f.js" />
+    <Content Include="docs\html\search\functions_62.js" />
+    <Content Include="docs\html\search\namespaces_77.js" />
+    <Content Include="docs\html\search\search.js" />
+    <Content Include="docs\html\search\close.png" />
+    <Content Include="docs\html\search\mag_sel.png" />
+    <Content Include="docs\html\search\search_l.png" />
+    <Content Include="docs\html\search\search_m.png" />
+    <Content Include="docs\html\search\search_r.png" />
+    <Compile Include="tests\functional_tests\test_functional.py" />
+    <Compile Include="tests\unit_tests\__init__.py" />
+    <Compile Include="tests\unit_tests\controller\__init__.py" />
+    <Compile Include="tests\unit_tests\display\test_display.py" />
+    <Compile Include="tests\unit_tests\display\__init__.py" />
+    <Compile Include="tests\unit_tests\model\__init__.py" />
+    <Compile Include="tests\unit_tests\controller\network\test_network.py" />
+    <Compile Include="tests\unit_tests\controller\network\__init__.py" />
+    <Content Include="tests\unit_tests\controller\parser\Ahmad_Khatib.html" />
+    <Content Include="tests\unit_tests\controller\parser\cercyon.html" />
+    <Content Include="tests\unit_tests\controller\parser\knitting.html" />
+    <Content Include="tests\unit_tests\controller\parser\rockabilly.html" />
+    <Content Include="tests\unit_tests\controller\parser\the_shock_of_the_old.html" />
+    <Compile Include="tests\unit_tests\controller\parser\test_parser.py" />
+    <Compile Include="tests\unit_tests\controller\parser\__init__.py" />
+    <Compile Include="wikiviz\common\singleton.py" />
+    <Compile Include="wikiviz\common\__init__.py" />
+    <Compile Include="wikiviz\controller\controller.py" />
+    <Compile Include="wikiviz\controller\__init__.py" />
+    <Compile Include="wikiviz\model\model.py" />
+    <Compile Include="wikiviz\model\__init__.py" />
+    <Compile Include="wikiviz\controller\network\network.py" />
+    <Compile Include="wikiviz\controller\network\__init__.py" />
+    <Content Include="wikiviz\controller\parser\workfile.txt" />
+    <Compile Include="wikiviz\controller\parser\inner_parsertest.py" />
+    <Compile Include="wikiviz\controller\parser\inner_test.py" />
+    <Compile Include="wikiviz\controller\parser\parser.py" />
+    <Compile Include="wikiviz\controller\parser\parser_2.py" />
+    <Compile Include="wikiviz\controller\parser\summarizer.py" />
+    <Compile Include="wikiviz\controller\parser\test.py" />
+    <Compile Include="wikiviz\controller\parser\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="docs\" />
+    <Folder Include="docs\html" />
+    <Folder Include="docs\html\search" />
+    <Folder Include="notes" />
+    <Folder Include="tests" />
+    <Folder Include="tests\functional_tests" />
+    <Folder Include="tests\unit_tests" />
+    <Folder Include="tests\unit_tests\controller" />
+    <Folder Include="tests\unit_tests\controller\network" />
+    <Folder Include="tests\unit_tests\controller\parser" />
+    <Folder Include="tests\unit_tests\display" />
+    <Folder Include="tests\unit_tests\model" />
+    <Folder Include="wikiviz" />
+    <Folder Include="wikiviz\common" />
+    <Folder Include="wikiviz\controller" />
+    <Folder Include="wikiviz\controller\network" />
+    <Folder Include="wikiviz\controller\parser" />
+    <Folder Include="wikiviz\model" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{e1e214d3-6353-4c3b-882a-07cc49f82e40}\2.7" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

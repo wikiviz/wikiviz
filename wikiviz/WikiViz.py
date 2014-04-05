@@ -1,3 +1,8 @@
+import os
+os.environ['GST_PLUGIN_PATH'] = r"C:\Kivy\gstreamer\lib\gstreamer-0.10"
+os.environ['GST_REGISTRY'] = r"C:\Kivy\gstreamer\registry.bin"
+os.environ['PATH'] = r"C:\Kivy;C:\Kivy\Python;C:\Kivy\gstreamer\bin;C:\Kivy\MinGW\bin;%PATH%"
+
 import kivy
 kivy.require('1.8.0')
 
@@ -22,7 +27,7 @@ from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilU
 from kivy.animation import Animation
 from kivy.core import window
 
-import wikiviz.controller.network.network as my_network
+import controller.network.network as my_network
 
 
 

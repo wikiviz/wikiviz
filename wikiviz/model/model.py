@@ -1,6 +1,6 @@
 # model.py
 from kivy.event import EventDispatcher
-import wikiviz.common.singleton as singleton
+import common.singleton as singleton
 # import wikiviz.display.display as display
 
 
