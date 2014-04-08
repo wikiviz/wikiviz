@@ -10,7 +10,7 @@ import re
 
 
 filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:',
-                     'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page')
+                     'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page', 'disambiguation', 'Enlarge')
 
 #remove this once this is hooked up to the network
 
@@ -31,16 +31,16 @@ class Parser(object):
 function definitions
 """
 
-    def __init__(self, raw_page_content, link_list = list(), image_list = list()):
+    def __init__(self, raw_page_content, link_list=list(), image_list=list(), high_priority_list=list()):
 
         self.soup = BeautifulSoup(raw_page_content)
         self.link_list = link_list
         self.image_list = image_list
+        self.high_priority_list = high_priority_list
 
     def extract_links(self):
 
-        """ get links from wiki article that have a type and are NOT anchors """
-        #link_list = list()
+        # get links from wiki article that have a type and are NOT anchors
 
         for anchor in self.soup.find_all('a'):
             link = anchor.get('href')
@@ -56,11 +56,8 @@ function definitions
         #use keywords list to filter out undesirable elements
         for keyword in filtered_keywords:
                 for item in self.link_list:
-                    if keyword in item.page_url:
+                    if keyword in item.page_url or keyword in item.page_name:
                         self.link_list.remove(item)
-
-        return self.link_list
-
 
     def extract_images(self):
 
@@ -76,11 +73,10 @@ function definitions
                 image_list.append(temp_img)
 
         for keyword in filtered_keywords:
-            for item in image_list:
-                if keyword in item.page_url:
-                    image_list.remove(item)
+                for item in self.image_list:
+                    if keyword in item.page_url:
+                        self.link_list.remove(item)
 
-        return image_list
 
     def get_links(self):
 
@@ -90,11 +86,10 @@ function definitions
 
         return self.image_list
 
-
-    #how to send this to model?
+    # sets priorities for all links, then creates a link of the highest priority items
+    # returns whole list and high priority list
     @staticmethod
     def prioritize_links(self, search_term):
-
 
         link_name_list = list()
 
@@ -103,9 +98,9 @@ function definitions
         occur_sum = 0
 
         #add priority points if search term in the page name
-        ##make case insensitive
         for word in self.link_list:
-            if search_term in word.page_name:
+            lower_page_name = word.page_name.lower()
+            if search_term in lower_page_name:
                 word.page_priority += 10
 
         #make list of page names for processing
@@ -127,37 +122,28 @@ function definitions
 
         average = occur_sum / len(num_occur)
 
-        #change priority according to average num of occurrences """
+        #change priority according to average num of occurrences
         for word in self.link_list:
             if word.occur_count > average:
                 word.page_priority += 4
             elif word.occur_count < average:
                 word.page_priority -= 4
 
-        return self.link_list
-
-
-    @staticmethod
-    def remove_duplicates(p_link_list):
-
+        #create distinct link list
         new_set = set()
         distinct_link_list = []
-        for item in p_link_list:
+        for item in self.link_list:
             if item.page_name not in new_set:
                 distinct_link_list.append(item)
                 new_set.add(item.page_name)
 
-        #second filter run through, shouldn't have to do this, still doesn't filter all!!
-        for keyword in filtered_keywords:
-                for item in distinct_link_list:
-                    if keyword in item.page_url:
-                        if keyword in item.page_url:
-                            distinct_link_list.remove(item)
+        self.link_list = distinct_link_list
 
-        return distinct_link_list
+        #create list of highest priority items, with a max of 10
+        for item in self.link_list:
+            if item.page_priority > 10 and len(self.high_priority_list) <= 10:
+                self.high_priority_list.append(item)
 
-
-    ###to extract sentences, prob need NLTK
 
 
     def get_text_summary(self):
@@ -171,6 +157,7 @@ function definitions
 
             #i know we had talked about not using concatenation, but i'm having trouble with join() at the moment
             soup_string += (item + '\n\n')
+
         print soup_string
 
 
