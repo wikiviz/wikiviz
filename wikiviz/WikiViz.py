@@ -156,11 +156,20 @@ class Node(Scatter):
 
     def on_touch_up(self, touch):   
         if (self.collide_point(touch.x, touch.y) and self.move < 10):
-            self.parent.parent.page = 2
-            self.parent.parent.do_layout()
-            self.parent.parent.summary.text = text1
-            self.parent.parent.uic.blocked = True
-
+            pagelayout = self.parent.parent
+            uic = pagelayout.uic
+            pagelayout.page = 2
+            pagelayout.do_layout()
+            pagelayout.summary.text = text1
+            uic.blocked = True
+            Animation(
+                x=(-self.x)*uic.scale+window.Window.width/2,
+                y=(-self.y)*uic.scale+window.Window.height/2,
+                d=.5, t='in_quad').start(self.parent.parent.uic)
+        if touch in self._touches:
+            touch.ungrab(self)
+            del self._last_touch_pos[touch]
+            self._touches.remove(touch)
         return super(Node, self).on_touch_up(touch)
 
 
@@ -247,6 +256,9 @@ class UIC(ScatterPlane):
 
         return
 
+
+
+
 ########################## OVERRIDE FUNCTIONS##############################################
     def on_touch_down(self, touch):
         if self.is_popup_displayed:
@@ -259,10 +271,11 @@ class UIC(ScatterPlane):
         touch.apply_transform_2d(self.to_local)
         for eachChild in self.children:
             if eachChild.collide_point(touch.x, touch.y):
+                #super(Scatter, self).on_touch_down(touch)
                 eachChild.on_touch_down(touch)
                 touch.pop()
                 self._bring_to_front()
-                return True
+                return False
 
         touch.pop()
         if not self.do_translation_x and \
@@ -288,9 +301,13 @@ class UIC(ScatterPlane):
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            if super(Scatter, self).on_touch_move(touch):
-                touch.pop()
-                return True
+            for eachChild in self.children:
+                if eachChild.collide_point(touch.x, touch.y):
+                    #super(Scatter, self).on_touch_up(touch)
+                    eachChild.on_touch_move(touch)
+                    touch.pop()
+                    self._bring_to_front()
+                    return False
             touch.pop()
         if touch in self._touches and touch.grab_current == self:
             if self.transform_with_touch(touch):
@@ -316,18 +333,19 @@ class UIC(ScatterPlane):
                 if eachChild.collide_point(touch.x, touch.y):
                     #super(Scatter, self).on_touch_up(touch)
                     eachChild.on_touch_up(touch)
-                    touch.pop()
                     self._bring_to_front()
-                    return True
+                    #touch.pop()
+                    self._bring_to_front()
+                    break
+
             touch.pop()
-        if touch in self._touches and touch.grab_state:
+        if touch in self._touches:
             touch.ungrab(self)
             del self._last_touch_pos[touch]
             self._touches.remove(touch)
         if self.collide_point(x, y):
             return True
 ############################################################################################
-
 
     def display(self):   
         self.uis.disabled= True
@@ -454,6 +472,7 @@ class Scatter_Summary_Widget(PageLayout):
         return self.children[len(self.children) -self.page-1].on_touch_move(touch)
 
     def on_touch_up(self, touch):
+        print "ROOT TOUCH UP"
         if (self.children[1].collide_point(touch.x, touch.y)):
             return self.children[1].on_touch_up(touch)
         return self.children[len(self.children) -self.page-1].on_touch_up(touch)
