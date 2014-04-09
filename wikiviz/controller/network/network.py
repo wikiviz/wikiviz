@@ -11,24 +11,25 @@ Retrieves data from wikipedia.
 from kivy.network.urlrequest import UrlRequest
 import urllib
 import model.model as mod
-import common.singleton as singleton
+
 import controller.parser.parser as parser
 from bs4 import BeautifulSoup
 
 class Network(object):
     """ Retrieve raw data from Wikipedia, return as page data """    
-    __metaclass__ = singleton.Singleton
     
-    def __init__(self):
+    def __init__(self, issued_request):
         # play nice with the Wikipedia API:
         self.headers = {'User-Agent': 'Wikiviz/0.1 (https://github.com/wikiviz/wikiviz; anrevl01@louisville.edu) Educational Use', 
                             'Content-type': 'application/json',
                             'Accept': 'text/plain' }
 
+        self.issued_request = issued_request
+
         self.model = mod.Model()
 
-
-    def get_page(self, keyword):
+    @staticmethod
+    def get_page( keyword, function):
         """
         Gets page from network using kivy's async urlrequest.
         Model notifies Display when update is complete.
@@ -41,18 +42,23 @@ class Network(object):
         print "keyword encoded: ", keyword
 
         # first search wikipedia for the wiki page url
-        self.search(keyword)
+        Network.search(keyword, function)
 
-
-    def search(self, keyword):
+    @staticmethod
+    def search( keyword, function):
+        headers = {'User-Agent': 'Wikiviz/0.1 (https://github.com/wikiviz/wikiviz; anrevl01@louisville.edu) Educational Use', 
+                            'Content-type': 'application/json',
+                            'Accept': 'text/plain' }
         url = "http://en.wikipedia.org/w/api.php?action=query&format=json&srprop=timestamp&list=search&srsearch=" + keyword
-        req = UrlRequest(url=url, on_success=self.on_search_success, on_error=self.on_error, req_headers=self.headers, decode=True)
+        req = UrlRequest(url=url, on_success=function, on_error=Network.on_error, req_headers=headers, decode=True)
 
+        print 'search'
 
-    def on_search_success(self, request, result):
+    @staticmethod
+    def on_search_success(request, result):
         # parse returned results, pick top one, fetch its page content
 
-
+ 
         results = result['query']['search']
         top_result = results[0]['title']
 
@@ -97,7 +103,7 @@ class Network(object):
         node = mod.Node(page_title, request.url, page_images, page_content, page_links, False)
         self.model.add_node(node)
         print "added node ", node
-
+    @staticmethod
     def on_error(self, request, error):
         print "Error!"
         print error

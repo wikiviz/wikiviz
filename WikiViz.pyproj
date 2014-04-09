@@ -26,6 +26,9 @@
     <Content Include="wikiviz\mag.jpg" />
     <Content Include="wikiviz\share.jpg" />
     <Content Include="wikiviz\startup.JPG" />
+    <Compile Include="wikiviz\image\image.py" />
+    <Compile Include="wikiviz\image\loader.py" />
+    <Compile Include="wikiviz\image\__init__.py" />
     <Compile Include="wikiviz\WikiViz.py" />
     <Content Include="docs\html\annotated.html" />
     <Content Include="docs\html\classwikiviz_1_1main_1_1_wikiviz_game.html" />
@@ -187,6 +190,7 @@
     <Folder Include="wikiviz\controller\network" />
     <Folder Include="wikiviz\controller\parser" />
     <Folder Include="wikiviz\model" />
+    <Folder Include="wikiviz\image\" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{e1e214d3-6353-4c3b-882a-07cc49f82e40}\2.7" />

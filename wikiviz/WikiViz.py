@@ -27,7 +27,8 @@ from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilU
 from kivy.animation import Animation
 from kivy.core import window
 
-import controller.network.network as my_network
+
+from controller.controller import Controller
 
 
 
@@ -66,6 +67,10 @@ Use data structure to retrieve teh text and images.
 
 2.Use model information to add nodes and edges.
 
+
+TIPS:
+If you cannot load the images change kivy.loader.py LoaderBase class
+change the line suffix = mimetype.guess_extension to None.
 
 '''
 
@@ -128,6 +133,10 @@ Contributions:\n
 
 
 '''
+class ProxyModelNode(object):
+    def __init__(self):
+        self.text = text1
+        self.source = ""
 
 
 
@@ -137,6 +146,8 @@ Contributions:\n
 class Node(Scatter):
     image = ObjectProperty(None)
     label = ObjectProperty(None)
+
+    model_node = ObjectProperty(None)
 
     move = NumericProperty(0)
     flag = NumericProperty(0)
@@ -148,7 +159,7 @@ class Node(Scatter):
         self.do_scale = False
         self.do_translation = False
         self.flag = 0
-        self.register_event_type("on_click")
+        
 
     def collide_point(self, x, y):
         x, y = self.to_local(x, y)
@@ -182,14 +193,17 @@ class Node(Scatter):
         self.move = 0
         return super(Node, self).on_touch_down(touch)
 
-
+    def on_node_creation(self):
+        self.model_node = ProxyModelNode()
 
     def display(self, link):
         self.image.source = link
         return
+    def create_children(self, model_node):
+        pagelayout = self.parent.parent
+        uic = pagelayout.uic
+        uic.dispatch("on_add_node", model_node)
 
-    def on_click(self):
-        return
 
 '''
                             END NODE CLASSES
@@ -237,6 +251,8 @@ class UIC(ScatterPlane):
     is_popup_displayed = BooleanProperty(False)
 
     blocked = BooleanProperty(False)
+
+    controller = ObjectProperty(None)
 
     def __init__(self, **kwargs):
 
@@ -359,27 +375,28 @@ class UIC(ScatterPlane):
         self.do_scale = True
         self.do_translation= True
    
-
-        """
-        The code below is just to demonstrate how to
-        use the network to request new nodes from within the display.
+        
+        
+        #The code below is just to demonstrate how to
+        #use the network to request new nodes from within the display.
         
         # get instance of Network object
         print "Initing network object"
-        n = my_network.Network()
+        self.controller = Controller()
 
         # you can create your own instance of the model
         # or you can access it through the network instance:
         print "Empty graph:"
-        n.model.print_graph()
+        self.controller.model.print_graph()
+     
 
         # run a few queries for demo purposes
         print "Querying for Mozart"
-        n.get_page("Wolfgang Amadeus Mozart")
-
+        self.controller.create_node(self, "Wolfgang Amadeus Mozart")
+        '''
         print "Querying for Bicycle"
         n.get_page("Bicycle")
-        """
+        '''
 
 
         '''
@@ -389,8 +406,8 @@ class UIC(ScatterPlane):
         self.add_widget(node)
         node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
         for i in range(1,10):
-            x = Node(size=(100,100), pos=(0,i*100))
-            #x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
+            x = Node(size=(100,100), pos=(0,i*100))  
+            x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
             x.label.text = self.uis.search_bar.text
             self.add_widget(x)
             self.add_widget(Edge(node,x))
@@ -432,33 +449,34 @@ class Scatter_Summary_Widget(PageLayout):
             if isinstance(c, BoxLayout):
                 continue
             if i < l_children:
-                width = self.width - self.border
+                height = self.height - self.border
             else:
-                width = self.width - 2 * self.border
+                height = self.height - 2 * self.border
 
             if i == 0:
                 self.uic.blocked = False
-                x = self.x
+                y = self.y
 
             elif i < self.page:
-                x = self.x
+                y = self.y
 
             elif i == self.page:
-                x = self.x + self.border
+                y = self.y + self.border
 
             elif i == self.page + 1:
-                x = self.right - self.border
+                y = self.top - self.border
 
             else:
-                x = self.right
+                y = self.top
 
-            c.height = self.height
-            c.width = width       
+
+            c.height = height
+            c.width = self.width       
             if i != 0:
                 Animation(
-                    x=x,
-                    y=self.y,
-                    d=.5, t='in_quad').start(c)
+                    x=self.x,
+                    y=y,
+                    d=0.5, t='in_quad').start(c)
 
     def on_touch_down(self, touch):
         print self.children
@@ -479,9 +497,15 @@ class Scatter_Summary_Widget(PageLayout):
 ############################################################################################
     
 class UISummary(ScrollView):
-
+    flag = BooleanProperty(False)
     text = StringProperty(None)
 ########################### OVERRIDE FUNCTIONS #############################################
+    def on_touch_up(self, touch):
+        if self.flag:
+            self.flag = False
+            self.parent.page = 0
+            self.parent.do_layout()
+        return super(UISummary, self).on_touch_up(touch) 
     def on_touch_move(self, touch):
         if self._get_uid('svavoid') in touch.ud:
             return
@@ -511,8 +535,7 @@ class UISummary(ScrollView):
                     self.effect_y.update(touch.y)
 
         if (touch.dy !=0 and abs(touch.dx/touch.dy) >1) or (touch.dy==0 and abs(touch.dx) > 3):
-            self.parent.page = 0
-            self.parent.do_layout()
+            self.flag = True
             return True
 
         if mode == 'unknown':
@@ -624,7 +647,6 @@ class WikiVizApp(App):
     def build(self):
 
         bkgrd= Scatter_Summary_Widget()
-
         return bkgrd
 
 if __name__=='__main__':
