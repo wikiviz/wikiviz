@@ -258,6 +258,10 @@ class UIC(ScatterPlane):
 
     controller = ObjectProperty(None)
 
+    uis = ObjectProperty(None)
+    uibc = ObjectProperty(None)
+    uipup = ObjectProperty(None)
+
     def __init__(self, **kwargs):
 
 
@@ -289,8 +293,11 @@ class UIC(ScatterPlane):
                 return False
         touch.push()
         touch.apply_transform_2d(self.to_local)
-        for eachChild in self.children:
-            if eachChild.collide_point(touch.x, touch.y):
+        if Controller().find_event_handler(touch, 'on_touch_down'):
+            return False
+        direct_children = [self.uis, self.uibc, self.uipup]
+        for eachChild in direct_children:
+            if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
                 #super(Scatter, self).on_touch_down(touch)
                 eachChild.on_touch_down(touch)
                 touch.pop()
@@ -321,8 +328,11 @@ class UIC(ScatterPlane):
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            for eachChild in self.children:
-                if eachChild.collide_point(touch.x, touch.y):
+            if Controller().find_event_handler(touch, 'on_touch_move'):
+                return False
+            direct_children = [self.uis, self.uibc, self.uipup]
+            for eachChild in direct_children:
+                if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
                     #super(Scatter, self).on_touch_up(touch)
                     eachChild.on_touch_move(touch)
                     touch.pop()
@@ -338,25 +348,31 @@ class UIC(ScatterPlane):
 
     def on_touch_up(self, touch):
         print " touch up uic"
+        x, y = touch.x, touch.y
         if self.is_popup_displayed:
-            touch.x, touch.y = self.to_local(touch.x,touch.y)
-            if self.uipup.collide_point( touch.x, touch.y ):
+            touch.x, touch.y = self.to_local(x,y)
+            if self.uipup.collide_point(x, y):
                 print " COLLISION"
                 self.uipup.on_touch_up(touch)
                 return True
             return False
-        x, y = touch.x, touch.y
+        flag = True
         if not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            for eachChild in self.children:
-                if eachChild.collide_point(touch.x, touch.y):
-                    #super(Scatter, self).on_touch_up(touch)
-                    eachChild.on_touch_up(touch)
-                    self._bring_to_front()
-                    #touch.pop()
-                    self._bring_to_front()
-                    break
+            if Controller().find_event_handler(touch, 'on_touch_up'):
+                flag = False
+            if flag:
+                direct_children = [self.uis, self.uibc, self.uipup]
+                for eachChild in direct_children:
+                    if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
+                        print eachChild
+                        #super(Scatter, self).on_touch_up(touch)
+                        eachChild.on_touch_up(touch)
+                        self._bring_to_front()
+                        #touch.pop()
+                        self._bring_to_front()
+                        break
 
             touch.pop()
         if touch in self._touches:
@@ -425,6 +441,10 @@ class UIC(ScatterPlane):
         x.display(model_node.get_source())
         x.label.text = model_node.get_keyword()
         self.add_widget(x)
+        model_node.set_id(x)
+        print " in create child"
+
+        
 
 
 
@@ -440,7 +460,7 @@ class Scatter_Summary_Widget(PageLayout):
     uibc = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(Scatter_Summary_Widget, self).__init__(**kwargs)
-
+        self.uic.uipup.disabled = True
         self.uic.remove_widget(self.uic.uipup)
         self.uibc.disabled = True
         self.uibc.opacity = 0

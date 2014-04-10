@@ -37,20 +37,23 @@ class Model(EventDispatcher):
         return (m,n)
 
     def find_event_handler(self, touch, function):
-
+        x , y = touch.x, touch.y
+        print "in event handler"
         for eachChild in self.nodes:
-            x = eachChild.get_ui_reference()
-            if x:
-                if x.collide_point(touch.x, touch.y):
+            node = eachChild.get_ui_reference()
+            if node:
+                print "in x"
+                if node.collide_point(x, y):
+                    print " in collision"
                     if function == 'on_touch_up':
-                        return eachChild.on_touch_up(touch)
+                        return node.on_touch_up(touch)
                     elif function == "on_touch_down":
-                        return eachChid.on_touch_down(touch)
+                        return node.on_touch_down(touch)
                     elif function == 'on_touch_move':
-                        return eachChild.on_touch_move(touch)
+                        return node.on_touch_move(touch)
                     else:
                         return False
-        return None
+        return False
 
 class Node():
     def __str__(self):
@@ -81,6 +84,7 @@ class Node():
     def set_id(self, ref):
         if self.parent == None:
             self.parent = ref
+
         self.ui_reference = ref
     def get_ui_reference(self):
         return self.ui_reference

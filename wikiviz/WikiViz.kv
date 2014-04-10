@@ -10,6 +10,7 @@
 
 <Node>:
 
+
 	pos: self.pos
 	size: self.size
 	image: image
@@ -67,9 +68,9 @@
 
 	UIC:
 		id: uic
+
 		uis: uis.__self__
 		uibc: uibc.__self__
-
 		uipup: uipup.__self__
 
 		on_add_node:
@@ -77,11 +78,11 @@
 			source=model_node.get_source() 
 			keyword = model_node.get_keyword()
 			pos = model_node.get_pos()
-
+			
+			to_be_added = Node(pos = pos)
 			model_node.set_id(to_be_added.id) # set model_node's data
 			parent = model_node.get_parent()
 
-			to_be_added = Node(pos = pos)
 			to_be_added.display(source)
 			to_be_added.label.text= keyword
 			#to_be_added.model_node = model_node alternate method
@@ -164,7 +165,8 @@
 					font_size: (uipup.height)/(7)
 					on_touch_up:
 						collided = yes.collide_point(args[1].x, args[1].y)
-						if collided: uibc.disabled = True;\
+						if collided: uipup.disabled = True;\
+						uibc.disabled = True;\
 						uibc.opacity = 0;\
 						uic.scale = 1.0;\
 						uic.do_translation = False;\
@@ -209,7 +211,8 @@
 
 			on_touch_down:
 				
-				if uic.blocked == False and uibc.collide_point(args[1].x, args[1].y): uic.add_widget(uipup);\
+				if uic.blocked == False and uibc.collide_point(args[1].x, args[1].y): uic.uipup.disabled = False;\
+				uic.add_widget(uipup);\
 				uic.do_translation = False;\
 				uic.is_popup_displayed = True
 
