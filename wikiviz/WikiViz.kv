@@ -52,6 +52,10 @@
 
 
 
+#uis
+#uipup
+#uibc
+
 
 <Scatter_Summary_Widget>:
 	id: ssw
@@ -64,23 +68,26 @@
 	UIC:
 		id: uic
 		uis: uis.__self__
-
+		uibc: uibc.__self__
 
 		uipup: uipup.__self__
 
 		on_add_node:
 			model_node = args[1]
 			source=model_node.get_source() 
-			keyword = model_node.keyword
+			keyword = model_node.get_keyword()
 			pos = model_node.get_pos()
+
+			model_node.set_id(to_be_added.id) # set model_node's data
 			parent = model_node.get_parent()
 
 			to_be_added = Node(pos = pos)
 			to_be_added.display(source)
 			to_be_added.label.text= keyword
+			#to_be_added.model_node = model_node alternate method
 			uic.add_widget(to_be_added)
 			uic.add_widget(Edge(parent, to_be_added)) # parent, child
-			model_node.set_id(to_be_added.id) # set model_node's data
+			
 
 
 		StartupImage:

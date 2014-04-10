@@ -170,6 +170,9 @@ class Node(Scatter):
             pagelayout = self.parent.parent
             uic = pagelayout.uic
             pagelayout.page = 2
+
+            Controller().create_node(self, self.label.text)
+
             pagelayout.do_layout()
             pagelayout.summary.text = text1
             uic.blocked = True
@@ -200,6 +203,7 @@ class Node(Scatter):
         self.image.source = link
         return
     def create_children(self, model_node):
+        print "creating child"
         pagelayout = self.parent.parent
         uic = pagelayout.uic
         uic.dispatch("on_add_node", model_node)
@@ -285,6 +289,8 @@ class UIC(ScatterPlane):
                 return False
         touch.push()
         touch.apply_transform_2d(self.to_local)
+
+        direct_children = [self.uis, self.uibc, self.uipup]
         for eachChild in self.children:
             if eachChild.collide_point(touch.x, touch.y):
                 #super(Scatter, self).on_touch_down(touch)
@@ -292,6 +298,10 @@ class UIC(ScatterPlane):
                 touch.pop()
                 self._bring_to_front()
                 return False
+        if Controller().find_event_handler(touch, "on_touch_down"):
+            touch.pop()
+            self._bring_to_front()
+            return False
 
         touch.pop()
         if not self.do_translation_x and \
@@ -317,13 +327,25 @@ class UIC(ScatterPlane):
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            for eachChild in self.children:
-                if eachChild.collide_point(touch.x, touch.y):
-                    #super(Scatter, self).on_touch_up(touch)
+            direct_children = [self.uis, self.uibc, self.uipup]
+            for eachChild in direct_children:
+                if eahChild.collide_point(touch.x, touch.y):
                     eachChild.on_touch_move(touch)
                     touch.pop()
                     self._bring_to_front()
                     return False
+
+            if Controller().find_event_handler(touch, "on_touch_move"):
+                touch.pop()
+                self._bring_to_front()
+                return False
+            #for eachChild in self.children:
+            #    if eachChild.collide_point(touch.x, touch.y):
+            #        #super(Scatter, self).on_touch_up(touch)
+            #        eachChild.on_touch_move(touch)
+            #        touch.pop()
+            #        self._bring_to_front()
+            #        return False
             touch.pop()
         if touch in self._touches and touch.grab_current == self:
             if self.transform_with_touch(touch):
@@ -342,17 +364,22 @@ class UIC(ScatterPlane):
                 return True
             return False
         x, y = touch.x, touch.y
+        flag = True
         if not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            for eachChild in self.children:
+            direct_children = [self.uis, self.uibc, self.uipup]  
+            for eachChild in direct_children:
                 if eachChild.collide_point(touch.x, touch.y):
                     #super(Scatter, self).on_touch_up(touch)
                     eachChild.on_touch_up(touch)
                     self._bring_to_front()
                     #touch.pop()
                     self._bring_to_front()
+                    flag = False
                     break
+            if Controller().find_event_handler(touch, "on_touch_up") and z:
+                self._bring_to_front()
 
             touch.pop()
         if touch in self._touches:
@@ -384,44 +411,22 @@ class UIC(ScatterPlane):
         print "Initing network object"
         self.controller = Controller()
 
-        # you can create your own instance of the model
-        # or you can access it through the network instance:
-        print "Empty graph:"
-        self.controller.model.print_graph()
      
 
         # run a few queries for demo purposes
-        print "Querying for Mozart"
-        self.controller.create_node(self, "Wolfgang Amadeus Mozart")
-        '''
-        print "Querying for Bicycle"
-        n.get_page("Bicycle")
-        '''
+        print "Querying for" + self.uis.search_bar.text
+        self.controller.create_node(self, self.uis.search_bar.text)
 
 
-        '''
-                    This code will be deleted when model is hoooked up
-        '''
-        node = Node(size=(100,100), pos=(200,450))
-        self.add_widget(node)
-        node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        for i in range(1,10):
-            x = Node(size=(100,100), pos=(0,i*100))  
-            x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-            x.label.text = self.uis.search_bar.text
-            self.add_widget(x)
-            self.add_widget(Edge(node,x))
-            node._bring_to_front()
-            x._bring_to_front()
-        
-
-
-        '''
-                            END DELETEION
-        '''
         return
     def on_add_node(self, model_node):
         return
+
+    def create_child(self, model_node):
+        x = Node(pos = model_node.get_pos())
+        x.display(model_node.get_source())
+        x.label.text = model_node.get_keyword()
+        self.add_widget(x)
 
 
 

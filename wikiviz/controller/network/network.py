@@ -15,10 +15,10 @@ import model.model as mod
 import controller.parser.parser as parser
 from bs4 import BeautifulSoup
 
-class Network(object):
+class NetworkRequest(object):
     """ Retrieve raw data from Wikipedia, return as page data """    
     
-    def __init__(self, issued_request):
+    def __init__(self, issued_request, callback):
         # play nice with the Wikipedia API:
         self.headers = {'User-Agent': 'Wikiviz/0.1 (https://github.com/wikiviz/wikiviz; anrevl01@louisville.edu) Educational Use', 
                             'Content-type': 'application/json',
@@ -28,8 +28,9 @@ class Network(object):
 
         self.model = mod.Model()
 
-    @staticmethod
-    def get_page( keyword, function):
+        self.callback = callback
+
+    def get_page(self, keyword):
         """
         Gets page from network using kivy's async urlrequest.
         Model notifies Display when update is complete.
@@ -42,20 +43,18 @@ class Network(object):
         print "keyword encoded: ", keyword
 
         # first search wikipedia for the wiki page url
-        Network.search(keyword, function)
+        self.search(keyword)
 
-    @staticmethod
-    def search( keyword, function):
-        headers = {'User-Agent': 'Wikiviz/0.1 (https://github.com/wikiviz/wikiviz; anrevl01@louisville.edu) Educational Use', 
-                            'Content-type': 'application/json',
-                            'Accept': 'text/plain' }
+   
+    def search(self, keyword):
+
         url = "http://en.wikipedia.org/w/api.php?action=query&format=json&srprop=timestamp&list=search&srsearch=" + keyword
-        req = UrlRequest(url=url, on_success=function, on_error=Network.on_error, req_headers=headers, decode=True)
+        req = UrlRequest(url=url, on_success=self.on_search_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
         print 'search'
 
-    @staticmethod
-    def on_search_success(request, result):
+    
+    def on_search_success(self, request, result):
         # parse returned results, pick top one, fetch its page content
 
  
@@ -100,10 +99,12 @@ class Network(object):
         page_links = soup.find_all('a')[:5]
         page_images = ""
 
-        node = mod.Node(page_title, request.url, page_images, page_content, page_links, False)
+        node = mod.Node(self.issued_request, request.url, page_images, page_content, page_links, False)
         self.model.add_node(node)
         print "added node ", node
-    @staticmethod
+        self.callback(self)
+    
     def on_error(self, request, error):
+        self.callback(self)
         print "Error!"
         print error

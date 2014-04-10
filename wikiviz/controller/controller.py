@@ -1,6 +1,6 @@
 # controller.py
 
-from network.network import Network
+from network.network import NetworkRequest
 import model.model as mod
 import common.singleton as singleton
 
@@ -17,12 +17,16 @@ class Controller():
         # the display will sends message that keyword has been entered
         # and this function will run, getting page from network async.
         # when get_page is finished, event is passed to display???
-        Network.get_page(keyword, self.on_search_success)
+        nr = NetworkRequest(issued_request, self.on_search_success)
+        nr.get_page(keyword)
+        self.requests.append(nr)
 
-    def on_search_success(self, request, result):
-        Network.on_search_success(request,result)
+    def on_search_success(self, completed_request):
+        self.requests.remove(completed_request)
 
     def get_related_nodes(self, keyword):
         pass
 
+    def find_event_handler(self, touch, function):
+        return self.model.find_event_handler(touch, function)
 

@@ -1,7 +1,7 @@
 # model.py
 from kivy.event import EventDispatcher
 import common.singleton as singleton
-# import wikiviz.display.display as display
+
 
 
 class Model(EventDispatcher):
@@ -11,53 +11,79 @@ class Model(EventDispatcher):
         """
          Creates empty model of nodes and edges, prepares to dispatch when updated
         """
-        self.register_event_type('on_update')
         super(Model, self).__init__(**kwargs)
         self.nodes = []
-        self.edges = []
-
+        self.x = 0
+        self.y = 100
     def add_node(self, node):
         self.nodes.append(node)
-        self.dispatch('on_update', node)
+        node.get_parent().create_child(node)
 
-    def add_edge(self, edge):
-        self.edges.append(edge)
+
 
     def print_graph(self):
         print "Printing graph in model"
         for n in self.nodes:
             print "Node: ", n
             print n.links, "\n"
-        for e in self.edges:
-            print "Edge: ", e
+
         print "\n"
 
-    def on_update(self, *args):
-        pass
-        # print "updated - event was dispatched", args
-        # TODO: Re-hookup display notifications
-        # d = display.Display()
-        # d.trigger_update()
+    def calculate_pos(self):
+        m = self.x
+        n = self.y
+        self.x +=100
+        self.y+=100
+        return (m,n)
 
+    def find_event_handler(self, touch, function):
+
+        for eachChild in self.nodes:
+            x = eachChild.get_ui_reference()
+            if x:
+                if x.collide_point(touch.x, touch.y):
+                    if function == 'on_touch_up':
+                        return eachChild.on_touch_up(touch)
+                    elif function == "on_touch_down":
+                        return eachChid.on_touch_down(touch)
+                    elif function == 'on_touch_move':
+                        return eachChild.on_touch_move(touch)
+                    else:
+                        return False
+        return None
 
 class Node():
     def __str__(self):
         return ':\t'.join([self.keyword, self.href])
 
-    def __init__(self, keyword, href, img_src, text, links, has_visited=False):
+    def __init__(self, parent, keyword, href, img_src, text, links, has_visited=False):
+
+        self.pos = Model().calculate_pos()
+        self.parent = parent #UI NODE not MODEL NODE
         self.keyword = keyword
         self.href = href
         self.img_src = img_src
         self.text = text
         self.links = links
         self.has_visited = has_visited
+        self.ui_reference = None
+
+    def get_parent(self):
+        return self.parent
+    def get_keyword(self):
+        return self.keyword
+    def get_source(self):
+        return self.img_src
+    def get_text(self):
+        return self.text
+    def get_pos(self):
+        return self.pos
+    def set_id(self, ref):
+        if self.parent == None:
+            self.parent = ref
+        self.ui_reference = ref
+    def get_ui_reference(self):
+        return self.ui_reference
 
 
-class Edge():
-    def __str__(self):
-        return ', '.join([self.source, self.destination])
-
-    def __init__(self, source, destination):
-        self.source = source
-        self.destination = destination
 
