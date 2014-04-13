@@ -9,8 +9,9 @@ from types import NoneType
 import re
 
 
-filtered_keywords = ('Help:', 'Category:', 'Talk:', 'Special:', 'Wikipedia:', 'bits.wikimedia.org', 'File:',
-                     'en/thumb/', '.svg.', 'Portal:', 'Template:', 'Template_', '/Main_Page', 'disambiguation', 'Enlarge')
+filtered_keywords = ('help:', 'category:', 'talk:', 'special:', 'wikipedia:', 'bits.wikimedia.org', 'file:',
+                     'en/thumb/', '.svg.', 'portal:', 'template:', 'template_', '/main_page', 'disambiguation',
+                     'enlarge')
 
 #remove this once this is hooked up to the network
 
@@ -31,12 +32,14 @@ class Parser(object):
 function definitions
 """
 
-    def __init__(self, raw_page_content, link_list=list(), image_list=list(), high_priority_list=list()):
+    def __init__(self, raw_page_content, link_list=list(), image_list=list(), high_priority_list=list(),
+                 text_summary=None):
 
         self.soup = BeautifulSoup(raw_page_content)
         self.link_list = link_list
         self.image_list = image_list
         self.high_priority_list = high_priority_list
+        self.text_summary = text_summary
 
     def extract_links(self):
 
@@ -54,10 +57,17 @@ function definitions
 
 
         #use keywords list to filter out undesirable elements
+
         for keyword in filtered_keywords:
                 for item in self.link_list:
-                    if keyword in item.page_url or keyword in item.page_name:
+                    if keyword in item.page_url.lower() or keyword in item.page_name.lower():
+                        print item.page_url + ": bad word"
                         self.link_list.remove(item)
+        print "*******************************"
+
+        for item in self.link_list:
+            print item.page_url
+
 
     def extract_images(self):
 
@@ -76,7 +86,6 @@ function definitions
                 for item in self.image_list:
                     if keyword in item.page_url:
                         self.link_list.remove(item)
-
 
     def get_links(self):
 
@@ -141,24 +150,23 @@ function definitions
 
         #create list of highest priority items, with a max of 10
         for item in self.link_list:
-            if item.page_priority > 10 and len(self.high_priority_list) <= 10:
-                self.high_priority_list.append(item)
+            if item.page_priority > 10:
+                if len(self.high_priority_list) <= 10:
+                    self.high_priority_list.append(item)
 
 
-
+    #make filtered keyword lists here
     def get_text_summary(self):
 
-        paragraphs = self.soup.find_all("p", limit=3)
-        soup_string = ""
+        div = self.soup.find("div", attrs={"id": "mw-content-text"})
+        self.text_summary = ""
 
-        for item in paragraphs:
-            item = str(item)
-            item = re.sub('<[^<]+?>', '', item)
-
-            #i know we had talked about not using concatenation, but i'm having trouble with join() at the moment
-            soup_string += (item + '\n\n')
-
-        print soup_string
-
+        for item in div.contents:
+            if "<p>" in unicode(item) or "<li>" in unicode(item):
+                item = unicode(item)
+                item = re.sub('<[^<]+?>', '', item)
+                self.text_summary += item + "\n\n"
+            if "<h2>" in unicode(item):
+                break
 
 
