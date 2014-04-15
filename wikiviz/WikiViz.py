@@ -471,34 +471,32 @@ class Scatter_Summary_Widget(PageLayout):
         for i, c in enumerate(reversed(self.children)):
             if isinstance(c, BoxLayout):
                 continue
-            if i < l_children:
-                height = self.height - self.border
-            else:
-                height = self.height - 2 * self.border
+            width = self.width 
+
 
             if i == 0:
                 self.uic.blocked = False
-                y = self.y
+                x = self.x
 
             elif i < self.page:
-                y = self.y
+                x = self.x
 
             elif i == self.page:
-                y = self.y + self.border
+                x = self.x
 
             elif i == self.page + 1:
-                y = self.top - self.border
+                x = self.right
 
             else:
-                y = self.top
+                x = self.right
 
 
-            c.height = height
-            c.width = self.width       
+            c.width = width
+            c.height = self.height       
             if i != 0:
                 Animation(
-                    x=self.x,
-                    y=y,
+                    x=x,
+                    y=self.y,
                     d=0.5, t='in_quad').start(c)
 
     def on_touch_down(self, touch):

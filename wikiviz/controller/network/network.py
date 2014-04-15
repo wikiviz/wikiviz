@@ -56,9 +56,10 @@ class NetworkRequest(object):
     
     def on_search_success(self, request, result):
         # parse returned results, pick top one, fetch its page content
-
  
         results = result['query']['search']
+        if results == []:
+            return self.on_error(request, "no results")
         top_result = results[0]['title']
 
         top_result = urllib.quote(top_result)
