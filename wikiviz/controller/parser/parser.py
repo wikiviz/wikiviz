@@ -11,7 +11,7 @@ import re
 
 filtered_keywords = ('help:', 'category:', 'talk:', 'special:', 'wikipedia:', 'bits.wikimedia.org', 'file:',
                      'en/thumb/', '.svg.', 'portal:', 'template:', 'template_', '/main_page', 'disambiguation',
-                     'enlarge')
+                     'enlarge', 'user:')
 
 #remove this once this is hooked up to the network
 
@@ -41,7 +41,12 @@ function definitions
         self.high_priority_list = high_priority_list
         self.text_summary = text_summary
 
+
     def extract_links(self):
+
+        def contains_keyword(item):
+
+            return any(keyword in item.page_url.lower() for keyword in filtered_keywords)
 
         # get links from wiki article that have a type and are NOT anchors
 
@@ -50,23 +55,44 @@ function definitions
 
             if type(link) is not NoneType and link.startswith("/wiki"):
                 if anchor.get('title') is not None:
-                    page_url = link
-                    page_name = anchor.get('title')
-                    temp_link = PageLink(page_url, page_name)
-                    self.link_list.append(temp_link)
+                    if link not in filtered_keywords:
+                        page_url = link
+                        page_name = anchor.get('title')
+                        temp_link = PageLink(page_url, page_name)
+                        self.link_list.append(temp_link)
 
 
         #use keywords list to filter out undesirable elements
 
-        for keyword in filtered_keywords:
-                for item in self.link_list:
-                    if keyword in item.page_url.lower() or keyword in item.page_name.lower():
-                        print item.page_url + ": bad word"
-                        self.link_list.remove(item)
-        print "*******************************"
+        # for keyword in filtered_keywords:
+        #         for item in self.link_list:
+        #             if keyword in item.page_url.lower() or keyword in item.page_name.lower():
+        #                 print item.page_url + ": bad word"
+        #                 self.link_list.remove(item)
+        #                 continue
 
-        for item in self.link_list:
-            print item.page_url
+        # stripped_page_urls = []
+        # filtered = []
+        #
+        # for item in self.link_list:
+        #     stripped_page_urls.append(item.page_url)
+        #
+        # filtered = [l for l in self.link_list if not contains_keyword(l)]
+        #
+        # for beep in filtered:
+        #     print filtered.page_url
+
+        # for item in self.link_list:
+        #     if item.page_url.lower() in blah
+        #         if blah in self.link_list:
+        #     self.link_list.remove(item)
+        #
+        # for boop in self.link_list:
+        #     print boop.page_url
+        # print "*******************************"
+        #
+        # for item in self.link_list:
+        #     print item.page_url
 
 
     def extract_images(self):
