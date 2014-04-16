@@ -71,7 +71,7 @@
 
 		uis: uis.__self__
 		uibc: uibc.__self__
-		uipup: uipup.__self__
+
 
 		on_add_node:
 			model_node = args[1]
@@ -140,65 +140,13 @@
 						
 
 
-		Popup:
-			id: uipup
-			content: uicc
-			title: "Would you like to reset your search?"
-			title_size: str(14/uic.scale)+'px'
-			size: root.width/(2*uic.scale), root.height/(7*uic.scale)
-			separator_height: 0
-			center: (uic.width/2 - uic.x)/uic.scale, (uic.height/2 - uic.y)/uic.scale
 
-
-
-			Widget:
-				id: uicc
-				size: uipup.width, uipup.height/2
-				yes_button: yes
-				no_button: no 
-				pos: uipup.pos
-				Button:
-					id: yes
-					text: "YES"
-					pos: uicc.pos
-					size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
-					font_size: (uipup.height)/(7)
-					on_touch_up:
-						collided = yes.collide_point(args[1].x, args[1].y)
-						if collided: uipup.disabled = True;\
-						uibc.disabled = True;\
-						uibc.opacity = 0;\
-						uic.scale = 1.0;\
-						uic.do_translation = False;\
-						uic.do_scale = False;\
-						uic.remove_widget(uis);\
-						uic.remove_widget(uipup);\
-						uic.is_popup_displayed = False;\
-						uic.clear_widgets();\
-						uic.pos = (0,0);\
-						uic.add_widget(uis);\
-						uis.disabled = False;\
-						search_text_field.font_size = uis.height - 20;\
-						search_text_field.font_name = 'DroidSans';\
-						search_text_field.text = 'Search a Word'
-							
-	
-				Button:
-					id: no
-					text: "NO"
-					pos: uicc.x + uicc.width/2, uicc.y 
-					size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
-					font_size: (uipup.height)/(7)
-					on_touch_up:
-						
-						if no.collide_point(args[1].x, args[1].y): uic.remove_widget(uipup);\
-						uic.do_translation = True;\
-						uic.is_popup_displayed = False
 
 
 
 	BoxLayout:
 		id: uibc
+		uipup: uipup
 		size: 100, 100
 		spacing: str(5) + 'px'
 		pos: (root.width - uibc.width) , (uic.height - uibc.height)
@@ -211,10 +159,70 @@
 
 			on_touch_down:
 				
-				if uic.blocked == False and uibc.collide_point(args[1].x, args[1].y): uic.uipup.disabled = False;\
-				uic.add_widget(uipup);\
+				if uic.blocked == False and uibc.collide_point(args[1].x, args[1].y): uipup.disabled = False;\
+				uipup.opacity = 1;\
 				uic.do_translation = False;\
-				uic.is_popup_displayed = True
+				uic.is_popup_displayed = True;\
+				ssw.page = 2
+			Popup:
+				id: uipup
+				content: uicc
+				title: "Would you like to reset your search?"
+				title_size: str(14)+'px'
+				size: root.width/2, root.height/7
+				separator_height: 0
+				center: root.center
+
+
+				Widget:
+					id: uicc
+					size: uipup.width, uipup.height/2
+					yes_button: yes
+					no_button: no 
+					pos: uipup.pos
+
+					Button:
+						id: yes
+						text: "YES"
+						pos: uicc.pos
+						size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
+						font_size: (uipup.height)/(7)
+						on_touch_up:
+							collided = yes.collide_point(args[1].x, args[1].y)
+							if collided: uibc.disabled = True;\
+							uibc.opacity = 0;\
+							uic.scale = 1.0;\
+							uic.do_translation = False;\
+							uic.do_scale = False;\
+							uic.remove_widget(uis);\
+
+							uipup.disabled = True;\
+							uipup.opacity = 0;\
+							ssw.page = 0;\
+
+							uic.is_popup_displayed = False;\
+							uic.clear_widgets();\
+							uic.pos = (0,0);\
+							uic.add_widget(uis);\
+							uis.disabled = False;\
+							search_text_field.font_size = uis.height - 20;\
+							search_text_field.font_name = 'DroidSans';\
+							search_text_field.text = 'Search a Word'
+							
+	
+					Button:
+						id: no
+						text: "NO"
+						pos: uicc.x + uicc.width/2, uicc.y 
+						size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
+						font_size: (uipup.height)/(7)
+						on_touch_up:
+						
+							if no.collide_point(args[1].x, args[1].y): uipup.disabled = True;\
+							uipup.opacity = 0;\
+							uic.do_translation = True;\
+							uic.is_popup_displayed = False;\
+							ssw.page = 0
 
 		Image:
 			id: share_button

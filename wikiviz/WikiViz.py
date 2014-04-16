@@ -169,7 +169,7 @@ class Node(Scatter):
         if (self.collide_point(touch.x, touch.y) and self.move < 10):
             pagelayout = self.parent.parent
             uic = pagelayout.uic
-            pagelayout.page = 2
+            pagelayout.page +=1
 
             Controller().create_node(self, self.label.text)
 
@@ -259,8 +259,7 @@ class UIC(ScatterPlane):
     controller = ObjectProperty(None)
 
     uis = ObjectProperty(None)
-    uibc = ObjectProperty(None)
-    uipup = ObjectProperty(None)
+
 
     def __init__(self, **kwargs):
 
@@ -295,7 +294,7 @@ class UIC(ScatterPlane):
         touch.apply_transform_2d(self.to_local)
         if Controller().find_event_handler(touch, 'on_touch_down'):
             return False
-        direct_children = [self.uis, self.uibc, self.uipup]
+        direct_children = [self.uis]
         for eachChild in direct_children:
             if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
                 #super(Scatter, self).on_touch_down(touch)
@@ -330,7 +329,7 @@ class UIC(ScatterPlane):
             touch.apply_transform_2d(self.to_local)
             if Controller().find_event_handler(touch, 'on_touch_move'):
                 return False
-            direct_children = [self.uis, self.uibc, self.uipup]
+            direct_children = [self.uis]
             for eachChild in direct_children:
                 if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
                     #super(Scatter, self).on_touch_up(touch)
@@ -350,11 +349,6 @@ class UIC(ScatterPlane):
         print " touch up uic"
         x, y = touch.x, touch.y
         if self.is_popup_displayed:
-            touch.x, touch.y = self.to_local(x,y)
-            if self.uipup.collide_point(x, y):
-                print " COLLISION"
-                self.uipup.on_touch_up(touch)
-                return True
             return False
         flag = True
         if not touch.grab_current == self:
@@ -363,7 +357,7 @@ class UIC(ScatterPlane):
             if Controller().find_event_handler(touch, 'on_touch_up'):
                 flag = False
             if flag:
-                direct_children = [self.uis, self.uibc, self.uipup]
+                direct_children = [self.uis]
                 for eachChild in direct_children:
                     if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
                         print eachChild
@@ -458,17 +452,26 @@ class Scatter_Summary_Widget(PageLayout):
     uic = ObjectProperty(None)
     summary = ObjectProperty(None)
     uibc = ObjectProperty(None)
+
+
     def __init__(self, **kwargs):
         super(Scatter_Summary_Widget, self).__init__(**kwargs)
-        self.uic.uipup.disabled = True
-        self.uic.remove_widget(self.uic.uipup)
+        self.uibc.uipup.disabled = True
+        self.uibc.uipup.opacity = 0
         self.uibc.disabled = True
         self.uibc.opacity = 0
 
+        uic = self.children.pop()
+        uibc = self.children.pop()
+        summ = self.children.pop()
+        self.children.append(uic)
+        self.children.append(summ)
+        self.children.append(uibc)
+        
 ########################## OVERRIDE FUNCTIONS##############################################
     def do_layout(self, *largs):
         l_children = len(self.children)
-        for i, c in enumerate(reversed(self.children)):
+        for i, c in enumerate(self.children):
             if isinstance(c, BoxLayout):
                 continue
             width = self.width 
@@ -479,7 +482,7 @@ class Scatter_Summary_Widget(PageLayout):
                 x = self.x
 
             elif i < self.page:
-                x = self.x
+                x = self.right
 
             elif i == self.page:
                 x = self.x
@@ -500,21 +503,28 @@ class Scatter_Summary_Widget(PageLayout):
                     d=0.5, t='in_quad').start(c)
 
     def on_touch_down(self, touch):
-        print self.children
-        if (self.children[1].collide_point(touch.x, touch.y)):
-            return self.children[1].on_touch_down(touch)
-        return self.children[len(self.children) - self.page-1].on_touch_down(touch)
+
+        print (self.children)[self.page]
+        print self.children[2].collide_point(touch.x, touch.y)
+        if (self.children[2].collide_point(touch.x, touch.y)):
+            return self.children[2].on_touch_down(touch)
+        return (self.children)[self.page].on_touch_down(touch)
 
     def on_touch_move(self, touch):
-        if (self.children[1].collide_point(touch.x, touch.y)):
-            return self.children[1].on_touch_move(touch)
-        return self.children[len(self.children) -self.page-1].on_touch_move(touch)
+
+        print (self.children)[self.page]
+        print self.children[2].collide_point(touch.x, touch.y)
+        if (self.children[2].collide_point(touch.x, touch.y)):
+            return self.children[2].on_touch_move(touch)
+        return (self.children)[self.page].on_touch_move(touch)
 
     def on_touch_up(self, touch):
         print "ROOT TOUCH UP"
-        if (self.children[1].collide_point(touch.x, touch.y)):
-            return self.children[1].on_touch_up(touch)
-        return self.children[len(self.children) -self.page-1].on_touch_up(touch)
+        print self.children[2].collide_point(touch.x, touch.y)
+        print (self.children)[self.page]
+        if (self.children[2].collide_point(touch.x, touch.y)):
+            return self.children[2].on_touch_up(touch)
+        return (self.children)[self.page].on_touch_up(touch)
 ############################################################################################
     
 class UISummary(ScrollView):
@@ -524,8 +534,9 @@ class UISummary(ScrollView):
     def on_touch_up(self, touch):
         if self.flag:
             self.flag = False
-            self.parent.page = 0
-            self.parent.do_layout()
+            self.parent.page -=1
+            #self.parent.do_layout()
+
         return super(UISummary, self).on_touch_up(touch) 
     def on_touch_move(self, touch):
         if self._get_uid('svavoid') in touch.ud:
