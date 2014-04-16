@@ -156,8 +156,10 @@ class Node(Scatter):
         
         super(Node, self).__init__(kwargs)
         self.do_rotation = False
-        self.do_scale = False
-        self.do_translation = False
+        self.do_scale = True
+        self.do_translation = True
+        self.scale_min = .5
+        self.scale_max = 1.5
         self.flag = 0
         
 
@@ -165,16 +167,19 @@ class Node(Scatter):
         x, y = self.to_local(x, y)
         return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
-    def on_touch_up(self, touch):   
-        if (self.collide_point(touch.x, touch.y) and self.move < 10):
+    def on_touch_up(self, touch, text, source):   
+        if (self.move < 10):
             pagelayout = self.parent.parent
             uic = pagelayout.uic
             pagelayout.page +=1
 
             Controller().create_node(self, self.label.text)
+            print text
+            raw_input("stuff")
+            pagelayout.summary.text = text
+            pagelayout.summary.image.source=source
 
             pagelayout.do_layout()
-            pagelayout.summary.text = text1
             uic.blocked = True
             Animation(
                 x=(-self.x)*uic.scale+window.Window.width/2,
@@ -184,17 +189,43 @@ class Node(Scatter):
             touch.ungrab(self)
             del self._last_touch_pos[touch]
             self._touches.remove(touch)
-        return super(Node, self).on_touch_up(touch)
+        return True
 
 
     def on_touch_move(self, touch):
         self.move +=1
-        return super(Node, self).on_touch_move(touch)
+
+        x, y = touch.x, touch.y
+        if self.collide_point(x, y) and not touch.grab_current == self:
+            touch.push()
+            touch.apply_transform_2d(self.to_local)
+            touch.pop()
+        if touch in self._touches and touch.grab_current == self:
+            if self.transform_with_touch(touch):
+                self.dispatch('on_transform_with_touch', touch)
+            self._last_touch_pos[touch] = touch.pos
+        return True
 
 
     def on_touch_down(self, touch):
         self.move = 0
-        return super(Node, self).on_touch_down(touch)
+
+        x, y = touch.x, touch.y     
+
+
+        touch.push()
+        touch.apply_transform_2d(self.to_local)
+        touch.pop()
+
+        self._bring_to_front()
+        if self._touches != []:
+            return True
+        touch.grab(self)
+
+        self._touches.append(touch)
+        self._last_touch_pos[touch] = touch.pos
+
+        return True
 
     def on_node_creation(self):
         self.model_node = ProxyModelNode()
@@ -271,6 +302,9 @@ class UIC(ScatterPlane):
         self.do_rotation = False
         self.do_scale = False
         self.do_translation= False
+
+        self.scale_max = 1.5
+        self.scale_min = .5
 
         self.register_event_type("on_add_node")
 
@@ -405,27 +439,6 @@ class UIC(ScatterPlane):
         self.controller.create_node(self, self.uis.search_bar.text)
 
 
-
-        '''
-                    This code will be deleted when model is hoooked up
-        '''
-        node = Node(size=(100,100), pos=(200,450))
-        self.add_widget(node)
-        node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-        for i in range(1,10):
-            x = Node(size=(100,100), pos=(0,i*100))  
-            x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
-            x.label.text = self.uis.search_bar.text
-            self.add_widget(x)
-            self.add_widget(Edge(node,x))
-            node._bring_to_front()
-            x._bring_to_front()
-        
-
-
-        '''
-                            END DELETEION
-        '''
         return
     def on_add_node(self, model_node):
         return

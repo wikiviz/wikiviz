@@ -46,7 +46,7 @@ class Model(EventDispatcher):
                 if node.collide_point(x, y):
                     print " in collision"
                     if function == 'on_touch_up':
-                        return node.on_touch_up(touch)
+                        return node.on_touch_up(touch, eachChild.get_text(), eachChild.get_source())
                     elif function == "on_touch_down":
                         return node.on_touch_down(touch)
                     elif function == 'on_touch_move':

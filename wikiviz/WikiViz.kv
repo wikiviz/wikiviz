@@ -16,6 +16,8 @@
 	image: image
 	label: label
 
+
+
 	Widget:
 		
 		canvas:
@@ -45,7 +47,7 @@
 
 	canvas:
 		Color:
-			rgb: r.random(), r.random(),r.random()
+			rgb: .45, .45,.45
 
 		Line:
 			points: self.p.center_x, self.p.center_y , self.c.center_x, self.c.center_y
@@ -61,7 +63,7 @@
 <Scatter_Summary_Widget>:
 	id: ssw
 	uic: uic.__self__
-	summary: rst.__self__
+	summary: summ.__self__
 	uibc: uibc.__self__
 	border: 0
 
@@ -85,7 +87,7 @@
 
 			to_be_added.display(source)
 			to_be_added.label.text= keyword
-			#to_be_added.model_node = model_node alternate method
+
 			uic.add_widget(to_be_added)
 			uic.add_widget(Edge(parent, to_be_added)) # parent, child
 			
@@ -93,8 +95,8 @@
 
 		StartupImage:
 			id: startup_image
-			size: win.Window.width, win.Window.height
-			center: win.Window.center
+			size: win.Window.width/uic.scale, win.Window.height/uic.scale
+			center: (uic.width/2-uic.x)/uic.scale, (uic.height/2-uic.y)/uic.scale
 			source: 'startup.jpg'
 
 		Widget:
@@ -122,7 +124,6 @@
 				on_enter:
 					blocked_and_collided = not uic.disabled
 					if blocked_and_collided: uibc.disabled = False;\
-					uic.remove_widget(startup_image);\
 					uibc.opacity = 1;\
 					uic.display()					
 
@@ -135,7 +136,6 @@
 					blocked_and_collided = ((uic.blocked == False) and (search_button.collide_point(args[1].x, args[1].y)))
 					if blocked_and_collided: uibc.disabled = False;\
 					uibc.opacity = 1;\
-					uic.remove_widget(startup_image);\
 					uic.display()
 						
 
@@ -233,7 +233,8 @@
 							
 	UISummary:
 
-		id: rst
+		id: summ
+		image: sum_pic
 		text: ''
 
 
@@ -242,7 +243,7 @@
 			size_hint: None, None
 			height: 50*36+3*win.Window.size[1]/8
 			width: root.width
-			pos: rst.pos
+			pos: summ.pos
 			Widget:
 				pos: tsum.pos
 				canvas:
@@ -260,7 +261,7 @@
 				source: "http://minnesota.publicradio.org/collections/special/columns/comparing_notes/wolfgang_amadeus_mozart.gif"
 			Label:
 				id: summary
-				text: rst.text
+				text: summ.text
 				markup: True
 				center: tsum.center_x ,tsum.y+ (tsum.height-1.5*sum_pic.height)/2
 
