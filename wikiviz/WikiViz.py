@@ -427,7 +427,7 @@ class UIC(ScatterPlane):
 
         to_be_added = Node(pos = pos)
         model_node.set_id(to_be_added) # set model_node's data
-        parent = model_node.get_parent()
+        parent = model_node.get_parent_ui_reference()
 
         to_be_added.source =source
         to_be_added.text= keyword

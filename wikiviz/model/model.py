@@ -48,14 +48,14 @@ class Model(EventDispatcher):
                     return eachChild
         return False
 
-class Node():
+class Node:
     def __str__(self):
         return ':\t'.join([self.keyword, self.href])
 
     def __init__(self, parent, keyword, href, img_src, text, links, has_visited=False):
 
         self.pos = Model().calculate_pos()
-        self.parent = parent #UI NODE not MODEL NODE
+        self.parent = parent #MODEL NODE
         self.keyword = keyword
         self.href = href
         self.img_src = img_src
@@ -82,6 +82,8 @@ class Node():
         self.ui_reference = ref
     def get_ui_reference(self):
         return self.ui_reference
+    def get_parent_ui_reference(self):
+        return self.parent.get_ui_reference()
 
 
 

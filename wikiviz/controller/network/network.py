@@ -28,7 +28,7 @@ class NetworkRequest(object):
 
         self.model = mod.Model()
 
-        self.callback = callback
+        self.callback = callback #controller routine to handle compeleted requests
 
     def get_page(self, keyword):
         """
