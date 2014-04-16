@@ -9,6 +9,7 @@
 
 
 <Node>:
+	id: node
 
 
 	pos: self.pos
@@ -16,6 +17,8 @@
 	image: image
 	label: label
 
+	source: ''
+	text: ''
 
 
 	Widget:
@@ -28,6 +31,7 @@
 				pos:self.x-15 , self.y-15
 	AsyncImage:
 		id: image
+		source: node.source
 		canvas:
 			Ellipse:
 				size: self.height+20, self.width+20
@@ -37,7 +41,7 @@
 	Label:
 		id: label
 		pos: image.x, image.y+image.height+5
-		text: ""
+		text: node.text
 		font_size: root.height/2 
 		
 <Edge>:
@@ -68,28 +72,11 @@
 	border: 0
 
 
-	UIC:
+	UIC: #ui container, page = 0
 		id: uic
 
 		uis: uis.__self__
 		uibc: uibc.__self__
-
-
-		on_add_node:
-			model_node = args[1]
-			source=model_node.get_source() 
-			keyword = model_node.get_keyword()
-			pos = model_node.get_pos()
-			
-			to_be_added = Node(pos = pos)
-			model_node.set_id(to_be_added.id) # set model_node's data
-			parent = model_node.get_parent()
-
-			to_be_added.display(source)
-			to_be_added.label.text= keyword
-
-			uic.add_widget(to_be_added)
-			uic.add_widget(Edge(parent, to_be_added)) # parent, child
 			
 
 
@@ -144,7 +131,7 @@
 
 
 
-	BoxLayout:
+	BoxLayout: #button container, page =1
 		id: uibc
 		uipup: uipup
 		size: 100, 100
@@ -231,7 +218,7 @@
 			
 							
 							
-	UISummary:
+	UISummary: #node summary scroll view, page =2
 
 		id: summ
 		image: sum_pic

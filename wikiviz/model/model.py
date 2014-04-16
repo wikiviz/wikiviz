@@ -17,7 +17,7 @@ class Model(EventDispatcher):
         self.y = 100
     def add_node(self, node):
         self.nodes.append(node)
-        node.get_parent().create_child(node)
+        print "added node"
 
 
 
@@ -36,7 +36,7 @@ class Model(EventDispatcher):
         self.y+=100
         return (m,n)
 
-    def find_event_handler(self, touch, function):
+    def find_event_handler(self, touch):
         x , y = touch.x, touch.y
         print "in event handler"
         for eachChild in self.nodes:
@@ -45,14 +45,7 @@ class Model(EventDispatcher):
                 print "in x"
                 if node.collide_point(x, y):
                     print " in collision"
-                    if function == 'on_touch_up':
-                        return node.on_touch_up(touch, eachChild.get_text(), eachChild.get_source())
-                    elif function == "on_touch_down":
-                        return node.on_touch_down(touch)
-                    elif function == 'on_touch_move':
-                        return node.on_touch_move(touch)
-                    else:
-                        return False
+                    return eachChild
         return False
 
 class Node():
@@ -82,6 +75,7 @@ class Node():
     def get_pos(self):
         return self.pos
     def set_id(self, ref):
+        print "ref",ref
         if self.parent == None:
             self.parent = ref
 

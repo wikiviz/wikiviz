@@ -102,8 +102,7 @@ class NetworkRequest(object):
 
         node = mod.Node(self.issued_request, request.url, page_images, page_content, page_links, False)
         self.model.add_node(node)
-        print "added node ", node
-        self.callback(self)
+        self.callback(self, node)
     
     def on_error(self, request, error):
         self.callback(self)

@@ -147,10 +147,12 @@ class Node(Scatter):
     image = ObjectProperty(None)
     label = ObjectProperty(None)
 
+    source = StringProperty(None)
+    text = StringProperty(None)
+
     model_node = ObjectProperty(None)
 
     move = NumericProperty(0)
-    flag = NumericProperty(0)
 
     def __init_(self, **kwargs):
         
@@ -160,7 +162,6 @@ class Node(Scatter):
         self.do_translation = True
         self.scale_min = .5
         self.scale_max = 1.5
-        self.flag = 0
         
 
     def collide_point(self, x, y):
@@ -173,9 +174,6 @@ class Node(Scatter):
             uic = pagelayout.uic
             pagelayout.page +=1
 
-            Controller().create_node(self, self.label.text)
-            print text
-            raw_input("stuff")
             pagelayout.summary.text = text
             pagelayout.summary.image.source=source
 
@@ -227,17 +225,16 @@ class Node(Scatter):
 
         return True
 
-    def on_node_creation(self):
-        self.model_node = ProxyModelNode()
-
     def display(self, link):
         self.image.source = link
         return
-    def create_children(self, model_node):
-        print "creating child"
-        pagelayout = self.parent.parent
-        uic = pagelayout.uic
-        uic.dispatch("on_add_node", model_node)
+
+    def user_wants_summary(self):
+        if self.move < 10:
+            return True
+        return False
+
+
 
 
 '''
@@ -307,10 +304,7 @@ class UIC(ScatterPlane):
         self.scale_min = .5
 
         self.register_event_type("on_add_node")
-
-
-       
-
+        self.controller = Controller(self.on_add_node)
         return
 
 
@@ -326,7 +320,7 @@ class UIC(ScatterPlane):
                 return False
         touch.push()
         touch.apply_transform_2d(self.to_local)
-        if Controller().find_event_handler(touch, 'on_touch_down'):
+        if self.controller.find_event_handler(touch, 'on_touch_down'):
             return False
         direct_children = [self.uis]
         for eachChild in direct_children:
@@ -361,7 +355,7 @@ class UIC(ScatterPlane):
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            if Controller().find_event_handler(touch, 'on_touch_move'):
+            if self.controller.find_event_handler(touch, 'on_touch_move'):
                 return False
             direct_children = [self.uis]
             for eachChild in direct_children:
@@ -388,7 +382,7 @@ class UIC(ScatterPlane):
         if not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            if Controller().find_event_handler(touch, 'on_touch_up'):
+            if self.controller.find_event_handler(touch, 'on_touch_up'):
                 flag = False
             if flag:
                 direct_children = [self.uis]
@@ -416,40 +410,31 @@ class UIC(ScatterPlane):
         keyword= self.uis.search_bar.text 
         self.remove_widget(self.uis)
 
-        
- 
-        
-
         self.do_scale = True
         self.do_translation= True
    
         
-        
-        #The code below is just to demonstrate how to
-        #use the network to request new nodes from within the display.
-        
-        # get instance of Network object
-        print "Initing network object"
-        self.controller = Controller()
-
      
-
-        # run a few queries for demo purposes
-        print "Querying for" + self.uis.search_bar.text
-        self.controller.create_node(self, self.uis.search_bar.text)
+        self.controller.create_node(None, self.uis.search_bar.text)
 
 
         return
+
     def on_add_node(self, model_node):
-        return
+        source=model_node.get_source() 
+        keyword = model_node.get_keyword()
+        pos = model_node.get_pos()
 
-    def create_child(self, model_node):
-        x = Node(pos = model_node.get_pos())
-        x.display(model_node.get_source())
-        x.label.text = model_node.get_keyword()
-        self.add_widget(x)
-        model_node.set_id(x)
-        print " in create child"
+        to_be_added = Node(pos = pos)
+        model_node.set_id(to_be_added) # set model_node's data
+        parent = model_node.get_parent()
+
+        to_be_added.source =source
+        to_be_added.text= keyword
+
+        self.add_widget(to_be_added)
+        self.add_widget(Edge(parent, to_be_added)) # parent, child
+
 
         
 
