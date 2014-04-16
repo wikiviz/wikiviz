@@ -6,7 +6,7 @@ os.environ['PATH'] = r"C:\Kivy;C:\Kivy\Python;C:\Kivy\gstreamer\bin;C:\Kivy\MinG
 import kivy
 kivy.require('1.8.0')
 
-from random import random 
+from random import random
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -141,7 +141,7 @@ class ProxyModelNode(object):
 
 
 '''
-                                NODE CLASSES
+NODE CLASSES
 '''
 class Node(Scatter):
     image = ObjectProperty(None)
@@ -165,7 +165,7 @@ class Node(Scatter):
         x, y = self.to_local(x, y)
         return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
-    def on_touch_up(self, touch):   
+    def on_touch_up(self, touch):
         if (self.collide_point(touch.x, touch.y) and self.move < 10):
             pagelayout = self.parent.parent
             uic = pagelayout.uic
@@ -210,15 +210,15 @@ class Node(Scatter):
 
 
 '''
-                            END NODE CLASSES
-''' 
+END NODE CLASSES
+'''
 
 
 
 
 class Edge(Widget):
     p = ObjectProperty(None)
-    c = ObjectProperty(None)  
+    c = ObjectProperty(None)
 
     def __init__(self,parent, child, **kwargs):
         self.p = parent
@@ -287,7 +287,7 @@ class UIC(ScatterPlane):
     def on_touch_down(self, touch):
         if self.is_popup_displayed:
             return False
-        x, y = touch.x, touch.y     
+        x, y = touch.x, touch.y
         if not self.do_collide_after_children:
             if not self.collide_point(x, y):
                 return False
@@ -383,9 +383,9 @@ class UIC(ScatterPlane):
             return True
 ############################################################################################
 
-    def display(self):   
+    def display(self):
         self.uis.disabled= True
-        keyword= self.uis.search_bar.text 
+        keyword= self.uis.search_bar.text
         self.remove_widget(self.uis)
 
         
@@ -413,13 +413,13 @@ class UIC(ScatterPlane):
 
 
         '''
-                    This code will be deleted when model is hoooked up
-        '''
+This code will be deleted when model is hoooked up
+'''
         node = Node(size=(100,100), pos=(200,450))
         self.add_widget(node)
         node.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
         for i in range(1,10):
-            x = Node(size=(100,100), pos=(0,i*100))  
+            x = Node(size=(100,100), pos=(0,i*100))
             x.display("http://i1164.photobucket.com/albums/q572/marshill2/sun_zps0fa10dc5.jpg")
             x.label.text = self.uis.search_bar.text
             self.add_widget(x)
@@ -430,8 +430,8 @@ class UIC(ScatterPlane):
 
 
         '''
-                            END DELETEION
-        '''
+END DELETEION
+'''
         return
     def on_add_node(self, model_node):
         return
@@ -471,34 +471,32 @@ class Scatter_Summary_Widget(PageLayout):
         for i, c in enumerate(reversed(self.children)):
             if isinstance(c, BoxLayout):
                 continue
-            if i < l_children:
-                height = self.height - self.border
-            else:
-                height = self.height - 2 * self.border
+            width = self.width
+
 
             if i == 0:
                 self.uic.blocked = False
-                y = self.y
+                x = self.x
 
             elif i < self.page:
-                y = self.y
+                x = self.x
 
             elif i == self.page:
-                y = self.y + self.border
+                x = self.x
 
             elif i == self.page + 1:
-                y = self.top - self.border
+                x = self.right
 
             else:
-                y = self.top
+                x = self.right
 
 
-            c.height = height
-            c.width = self.width       
+            c.width = width
+            c.height = self.height
             if i != 0:
                 Animation(
-                    x=self.x,
-                    y=y,
+                    x=x,
+                    y=self.y,
                     d=0.5, t='in_quad').start(c)
 
     def on_touch_down(self, touch):
@@ -528,7 +526,7 @@ class UISummary(ScrollView):
             self.flag = False
             self.parent.page = 0
             self.parent.do_layout()
-        return super(UISummary, self).on_touch_up(touch) 
+        return super(UISummary, self).on_touch_up(touch)
     def on_touch_move(self, touch):
         if self._get_uid('svavoid') in touch.ud:
             return
@@ -624,17 +622,17 @@ class MyTextInput(TextInput):
             self._hide_cut_copy_paste()
             self._win.remove_widget(self._handle_middle)
             if is_shortcut:
-                if key == ord('x'):  # cut selection
+                if key == ord('x'): # cut selection
                     self._cut(self.selection_text)
-                elif key == ord('c'):  # copy selection
+                elif key == ord('c'): # copy selection
                     self._copy(self.selection_text)
-                elif key == ord('v'):  # paste selection
+                elif key == ord('v'): # paste selection
                     self._paste()
-                elif key == ord('a'):  # select all
+                elif key == ord('a'): # select all
                     self.select_all()
-                elif key == ord('z'):  # undo
+                elif key == ord('z'): # undo
                     self.do_undo()
-                elif key == ord('r'):  # redo
+                elif key == ord('r'): # redo
                     self.do_redo()
             else:
                 if self._selection:
@@ -644,10 +642,10 @@ class MyTextInput(TextInput):
             return
 
 
-        if key == 27:  # escape
+        if key == 27: # escape
             self.focus = False
             return True
-        elif key == 9:  # tab
+        elif key == 9: # tab
             self.insert_text(u'\t')
             return True
         elif key == 13: # enter
@@ -674,4 +672,3 @@ class WikiVizApp(App):
 
 if __name__=='__main__':
     WikiVizApp().run()
-        
