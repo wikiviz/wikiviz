@@ -16,8 +16,11 @@ import controller.parser.parser as parser
 from bs4 import BeautifulSoup
 
 class NetworkRequest(object):
-    """ Retrieve raw data from Wikipedia, return as page data """    
-    
+    """
+    Retrieves raw data from Wikipedia based on keyword or URL,
+    parses results and adds Nodes to Model
+    """
+
     def __init__(self, issued_request, callback):
         # play nice with the Wikipedia API:
         self.headers = {'User-Agent': 'Wikiviz/0.1 (https://github.com/wikiviz/wikiviz; anrevl01@louisville.edu) Educational Use', 
@@ -31,10 +34,9 @@ class NetworkRequest(object):
 
     def get_page_by_keyword(self, keyword):
         """
-            first request is user inputted keyword.
-            we have to retrieve the url of the page by searching wikipedia
+            First request is user inputted keyword.
+            We have to retrieve the url of the page by searching wikipedia
         """
-
         # sanitize keyword
         keyword = urllib.quote(keyword)
         print "keyword encoded: ", keyword
@@ -46,9 +48,10 @@ class NetworkRequest(object):
 
 
     def on_search_success(self, request, result):
-        """ called when keyword search returns data """
-
-        # parse returned results, fetch its page content
+        """
+        Called when keyword search returns data.
+        Picks top search result and fetches its page content
+        """
         try:
             results = result['query']['search']
         except:
@@ -64,8 +67,8 @@ class NetworkRequest(object):
 
     def get_page_by_url(self, url):
         """
-            called when we already know the url of the node we want to create.
-            used for keyword and child nodes
+        Called when we already know the url of the node we want to create.
+        Used for keyword and child nodes
         """
         print "Retrieving page data from", url
         req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
@@ -76,7 +79,6 @@ class NetworkRequest(object):
         Called when UrlRequest returns with page data for keyword
         Takes raw page data, runs through parser, creates model node
         """
-
         print "Page successfully retrieved from Wikipedia"
         page_content = ""
         page_title = ""
