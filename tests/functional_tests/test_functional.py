@@ -1,21 +1,22 @@
-# functionaltest.py
-
-
-""" functional end-to-end tests """
+"""
+    integration and end-to-end tests
+    run with 'nosetests test_functional.py'
+"""
 
 import unittest
 import wikiviz.controller.network.network as network
-import wikiviz.display.display as display
 
 
 class FunctionalTests(unittest.TestCase):
-    
-    def test_app(self):
-        wnetwork = network.Network()
-        wnetwork.get_page("Pacific_Southwest_Airlines")
-        self.assertTrue(wnetwork)
+    def setUp(self):
+        "set up test fixtures; run automatically"
+        self.wnetwork = network.NetworkRequest(None, None)
 
+    def testNetwork(self):
+        self.assertTrue(self.wnetwork)
 
+    def testNetworkGetPage(self):
+        self.wnetwork.get_page("Pacific_Southwest_Airlines")
 
 if __name__ == '__main__': 
     unittest.main() 

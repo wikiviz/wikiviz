@@ -10,9 +10,9 @@ Retrieves data from wikipedia.
 
 from kivy.network.urlrequest import UrlRequest
 import urllib
-import model.model as mod
+import wikiviz.model.model as mod
 
-import controller.parser.parser as parser
+import wikiviz.controller.parser.parser as parser
 from bs4 import BeautifulSoup
 
 class NetworkRequest(object):
