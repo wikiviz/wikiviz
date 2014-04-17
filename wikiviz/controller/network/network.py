@@ -109,7 +109,8 @@ class NetworkRequest(object):
         print "page_links:", page_links
         print "page_images:", page_images
 
-        node = mod.Node(self.issued_request, request.url, page_images, page_content, page_links, False)
+        node = mod.Node(None, request.url, page_images, page_content, page_links, False)
+        node.set_id(node)
         self.model.add_node(node)
         self.callback(self, node)
     
