@@ -7,6 +7,7 @@ Translates keywords into related links, images, and text.
 from bs4 import BeautifulSoup
 from types import NoneType
 import re
+import textwrap
 
 
 filtered_keywords = ('help:', 'category:', 'talk:', 'special:', 'wikipedia:', 'bits.wikimedia.org','en.wikipedia.org', 'file:',
@@ -152,6 +153,7 @@ function definitions
         div = self.soup.find("div", attrs={"id": "mw-content-text"})
         self.text_summary = ""
 
+
         for item in div.contents:
             if "<p>" in unicode(item) or "<li>" in unicode(item):
                 item = unicode(item)
@@ -159,5 +161,14 @@ function definitions
                 self.text_summary += item + "\n\n"
             if "<h2>" in unicode(item):
                 break
+
+        wrapped_summary = ""
+        wrapped_lines =  textwrap.wrap(self.text_summary, 50)
+        print type(wrapped_lines)
+
+        for line in wrapped_lines:
+            wrapped_summary += line + "\n"
+
+        print wrapped_summary
 
 
