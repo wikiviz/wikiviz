@@ -24,6 +24,8 @@ class Controller():
         self.requests.append(nr)
 
     def on_search_success(self, completed_request, model_node):
+        if not model_node:
+            return
         self.node_creation_callback(model_node)
         self.requests.remove(completed_request) #network request completed so remove
 

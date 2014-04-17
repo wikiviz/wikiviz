@@ -71,8 +71,8 @@
 	uibc: uibc.__self__
 	border: 0
 
-
-	UIC: #ui container, page = 0
+	#ui container, page = 0
+	UIC: 
 		id: uic
 
 		uis: uis.__self__
@@ -112,7 +112,7 @@
 					blocked_and_collided = not uic.disabled
 					if blocked_and_collided: uibc.disabled = False;\
 					uibc.opacity = 1;\
-					uic.display()					
+					uic.initial_search()					
 
 			Image:
 				id: search_button
@@ -123,15 +123,15 @@
 					blocked_and_collided = ((uic.blocked == False) and (search_button.collide_point(args[1].x, args[1].y)))
 					if blocked_and_collided: uibc.disabled = False;\
 					uibc.opacity = 1;\
-					uic.display()
+					uic.initial_search()
 						
 
 
 
 
 
-
-	BoxLayout: #button container, page =1
+	#button container, page =2
+	BoxLayout:
 		id: uibc
 		uipup: uipup
 		size: 100, 100
@@ -217,12 +217,13 @@
 			size: uibc.width-5, uibc.height
 			
 							
-							
-	UISummary: #node summary scroll view, page =2
+	#node summary scroll view, page =1					
+	UISummary: 
 
 		id: summ
 		image: sum_pic
 		text: ''
+		source: ''
 
 
 		Widget:
@@ -245,7 +246,7 @@
 				size: win.Window.size[0]/2, win.Window.size[1]/4
 				center_x: tsum.x + tsum.width/2
 				y: tsum.y + tsum.height- 1.5* self.height
-				source: "http://minnesota.publicradio.org/collections/special/columns/comparing_notes/wolfgang_amadeus_mozart.gif"
+				source: summ.source
 			Label:
 				id: summary
 				text: summ.text

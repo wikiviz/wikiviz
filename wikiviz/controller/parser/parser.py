@@ -70,11 +70,9 @@ function definitions
         self.image_list = image_filtered
 
     def get_links(self):
-
         return self.link_list
 
     def get_images(self):
-
         return self.image_list
 
     # sets priorities for all links, then creates a link of the highest priority items

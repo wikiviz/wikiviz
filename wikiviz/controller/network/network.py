@@ -89,22 +89,21 @@ class NetworkRequest(object):
             page_title = value["title"]
 
         # TODO: replace BS with parser instance
-        soup = BeautifulSoup(page_content, from_encoding="UTF-8")
-        # p = parser.Parser(soup)
-        # page_links = p.get_links(soup)
-        # page_links = p.prioritize_links(page_links, page_title)
-        # page_links = p.remove_duplicates(page_links)
+        p = parser.Parser(page_content)
+        page_links = p.get_links()
+        page_links = p.prioritize_links(page_links, page_title)
+        page_links = p.remove_duplicates(page_links)
         # print page_links
-        # page_images = p.get_images()
+        page_images = p.get_images()
 
-        page_links = soup.find_all('a')[:5]
-        page_images = ""
+        #page_links = soup.find_all('a')[:5]
+        #page_images = ""
 
         node = mod.Node(self.issued_request, request.url, page_images, page_content, page_links, False)
         self.model.add_node(node)
         self.callback(self, node)
     
     def on_error(self, request, error):
-        self.callback(self)
+        self.callback(self, False)
         print "Error!"
         print error

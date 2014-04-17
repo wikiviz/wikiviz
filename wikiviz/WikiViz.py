@@ -175,7 +175,7 @@ class Node(Scatter):
             pagelayout.page +=1
 
             pagelayout.summary.text = text
-            pagelayout.summary.image.source=source
+            pagelayout.summary.source=source
 
             pagelayout.do_layout()
             uic.blocked = True
@@ -348,6 +348,8 @@ class UIC(ScatterPlane):
 
         return True
 
+
+
     def on_touch_move(self, touch):
         if self.is_popup_displayed:
             return False
@@ -360,7 +362,6 @@ class UIC(ScatterPlane):
             direct_children = [self.uis]
             for eachChild in direct_children:
                 if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
-                    #super(Scatter, self).on_touch_up(touch)
                     eachChild.on_touch_move(touch)
                     touch.pop()
                     self._bring_to_front()
@@ -372,6 +373,8 @@ class UIC(ScatterPlane):
             self._last_touch_pos[touch] = touch.pos
         if self.collide_point(x, y):
             return True
+
+
 
     def on_touch_up(self, touch):
         print " touch up uic"
@@ -405,20 +408,15 @@ class UIC(ScatterPlane):
             return True
 ############################################################################################
 
-    def display(self):   
+    def initial_search(self):  #only called once after the initial search 
         self.uis.disabled= True
         keyword= self.uis.search_bar.text 
         self.remove_widget(self.uis)
-
         self.do_scale = True
-        self.do_translation= True
-   
-        
-     
+        self.do_translation= True  
         self.controller.create_node(None, self.uis.search_bar.text)
-
-
         return
+
 
     def on_add_node(self, model_node):
         source=model_node.get_source() 
@@ -458,7 +456,9 @@ class Scatter_Summary_Widget(PageLayout):
         self.uibc.uipup.opacity = 0
         self.uibc.disabled = True
         self.uibc.opacity = 0
-
+        
+        #children are created in reverse order
+        #reverse order of children in self.children to align with self.page
         uic = self.children.pop()
         uibc = self.children.pop()
         summ = self.children.pop()
@@ -478,16 +478,12 @@ class Scatter_Summary_Widget(PageLayout):
             if i == 0:
                 self.uic.blocked = False
                 x = self.x
-
             elif i < self.page:
                 x = self.right
-
             elif i == self.page:
                 x = self.x
-
             elif i == self.page + 1:
                 x = self.right
-
             else:
                 x = self.right
 
@@ -500,29 +496,41 @@ class Scatter_Summary_Widget(PageLayout):
                     y=self.y,
                     d=0.5, t='in_quad').start(c)
 
-    def on_touch_down(self, touch):
 
+
+
+
+    def on_touch_down(self, touch):
         print (self.children)[self.page]
         print self.children[2].collide_point(touch.x, touch.y)
         if (self.children[2].collide_point(touch.x, touch.y)):
             return self.children[2].on_touch_down(touch)
         return (self.children)[self.page].on_touch_down(touch)
 
-    def on_touch_move(self, touch):
 
+
+
+
+
+    def on_touch_move(self, touch):
         print (self.children)[self.page]
         print self.children[2].collide_point(touch.x, touch.y)
         if (self.children[2].collide_point(touch.x, touch.y)):
             return self.children[2].on_touch_move(touch)
         return (self.children)[self.page].on_touch_move(touch)
 
+
+
+
     def on_touch_up(self, touch):
-        print "ROOT TOUCH UP"
         print self.children[2].collide_point(touch.x, touch.y)
         print (self.children)[self.page]
         if (self.children[2].collide_point(touch.x, touch.y)):
             return self.children[2].on_touch_up(touch)
         return (self.children)[self.page].on_touch_up(touch)
+
+
+
 ############################################################################################
     
 class UISummary(ScrollView):
@@ -533,7 +541,6 @@ class UISummary(ScrollView):
         if self.flag:
             self.flag = False
             self.parent.page -=1
-            #self.parent.do_layout()
 
         return super(UISummary, self).on_touch_up(touch) 
     def on_touch_move(self, touch):
