@@ -45,12 +45,10 @@ function definitions
         # so our return values wil be correct
         self.extract_links()
 
-
-    def extract_links(self):
-
-        def contains_keyword(item):
+    def contains_keyword(self, item):
             return any(keyword in item.lower() for keyword in filtered_keywords)
 
+    def extract_links(self):
         # get links from wiki article that have a type and are NOT anchors
         for anchor in self.soup.find_all('a'):
             link = anchor.get('href')
@@ -60,31 +58,32 @@ function definitions
                         page_name = anchor.get('title')
                         temp_link = PageLink(page_url, page_name)
                         self.link_list.append(temp_link)
-        filtered = [l for l in self.link_list if not contains_keyword(l.page_url)]
+        filtered = [l for l in self.link_list if not self.contains_keyword(l.page_url)]
         self.link_list = filtered
 
         #get images, filter
         for image in self.soup.find_all('img'):
-            image_url = image.get('src')
+            image_url =  image.get('src')
             if type(image_url) is not NoneType:
-                temp_img = PageLink(image_url)
+                temp_img = PageLink("en.wikipedia.org" + image_url)
                 self.image_list.append(temp_img)
 
-        image_filtered = [i for i in self.image_list if not contains_keyword(i.page_url)]
+        image_filtered = [i for i in self.image_list if not self.contains_keyword(i.page_url)]
         self.image_list = image_filtered
+
 
     def get_links(self, max_links):
         # we only need the source urls, not the link objects
         urls = []
         for link in self.link_list[:max_links]:
-            urls.append(link.page_url)
+            urls.append("en.wikipedia.org" + link.page_url)
         return urls
 
     def get_images(self, max_images):
         # we only need the source urls, not the link objects
         img_srcs = []
         for img in self.image_list[:max_images]:
-            img_srcs.append(img.page_url)
+            img_srcs.append("en.wikipedia.org" + img.page_url)
         return img_srcs
 
     # sets priorities for all links, then creates a link of the highest priority items
