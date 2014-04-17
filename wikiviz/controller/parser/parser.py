@@ -41,6 +41,10 @@ function definitions
         self.high_priority_list = high_priority_list
         self.text_summary = text_summary
 
+        # now we have to process the input data
+        # so our return values wil be correct
+        self.extract_links()
+
 
     def extract_links(self):
 
@@ -69,11 +73,19 @@ function definitions
         image_filtered = [i for i in self.image_list if not contains_keyword(i.page_url)]
         self.image_list = image_filtered
 
-    def get_links(self):
-        return self.link_list
+    def get_links(self, max_links):
+        # we only need the source urls, not the link objects
+        urls = []
+        for link in self.link_list[:max_links]:
+            urls.append(link.page_url)
+        return urls
 
-    def get_images(self):
-        return self.image_list
+    def get_images(self, max_images):
+        # we only need the source urls, not the link objects
+        img_srcs = []
+        for img in self.image_list[:max_images]:
+            img_srcs.append(img.page_url)
+        return img_srcs
 
     # sets priorities for all links, then creates a link of the highest priority items
     # returns whole list and high priority list

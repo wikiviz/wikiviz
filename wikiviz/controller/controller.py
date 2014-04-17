@@ -20,7 +20,7 @@ class Controller():
     def create_node(self, issued_request, keyword):
 
         nr = NetworkRequest(issued_request, self.on_search_success)
-        nr.get_page(keyword)
+        nr.get_page_by_keyword(keyword)
         self.requests.append(nr)
 
     def on_search_success(self, completed_request, model_node):

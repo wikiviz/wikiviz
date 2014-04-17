@@ -24,49 +24,68 @@ class NetworkRequest(object):
                             'Content-type': 'application/json',
                             'Accept': 'text/plain' }
 
-        self.issued_request = issued_request
+        self.issued_request = issued_request # reference to parent model node
         self.model = mod.Model()
-        self.callback = callback #controller routine to handle compeleted requests
+        self.callback = callback # controller routine to handle completed requests
 
 
-    def get_page(self, keyword):
+    def get_page_by_keyword(self, keyword):
+        """
+            first request is user inputted keyword.
+            we have to retrieve the url of the page by searching wikipedia
+        """
+
         # sanitize keyword
         keyword = urllib.quote(keyword)
         print "keyword encoded: ", keyword
 
-        # search wikipedia first to get the wiki page title
-        print "Searching wikipedia for", keyword
+        # search wikipedia for keyword
         url = "http://en.wikipedia.org/w/api.php?action=query&format=json&srprop=timestamp&list=search&srsearch=" + keyword
+        print "Searching wikipedia for", keyword, ": ", url
         req = UrlRequest(url=url, on_success=self.on_search_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
 
     def on_search_success(self, request, result):
-        # parse returned results, pick top one, fetch its page content
+        """ called when keyword search returns data """
+
+        # parse returned results, fetch its page content
         try:
             results = result['query']['search']
         except:
             return self.on_error(request, "no results found")
 
+        # pick top result
         top_result = urllib.quote(results[0]['title'])
+
+        # fetch page content from url
         url = "http://en.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&rvparse=1&titles=" + top_result
-        print "Retrieving page data for", top_result
+        self.get_page_by_url(url)
+
+
+    def get_page_by_url(self, url):
+        """
+            called when we already know the url of the node we want to create.
+            used for keyword and child nodes
+        """
+        print "Retrieving page data from", url
         req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
 
     def on_success(self, request, result):
         """
         Called when UrlRequest returns with page data for keyword
-        Takes raw page data, runs through parser, then stores in model.
+        Takes raw page data, runs through parser, creates model node
         """
-        print "Page retrieved from Wikipedia"
 
+        print "Page successfully retrieved from Wikipedia"
         page_content = ""
         page_title = ""
 
         try:
-            pages = result["query"]["pages"]
+            # wiki api returns json object
+            pages = result['query']['pages']
         except TypeError:
-            # if result not found in returned result
+            # if result not found in returned data
             print "Error page returned!"
             self.on_error(None, None)
             return
@@ -83,8 +102,8 @@ class NetworkRequest(object):
 
         # right now the parser doesn't return anything
         p = parser.Parser(page_content)
-        page_links = p.get_links()
-        page_images = p.get_images()
+        page_links = p.get_links(5)
+        page_images = p.get_images(5)
         print "page_links:", page_links
         print "page_images:", page_images
 
