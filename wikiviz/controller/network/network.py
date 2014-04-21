@@ -66,7 +66,7 @@ class NetworkRequest(EventDispatcher):
             return self.on_error(request, "no results found")
 
         # pick top result
-        top_result = urllib.quote(results[0]['title'])
+        top_result = urllib.quote( results[0]['title'].encode("utf8") )
 
         # fetch page content from url
         url = "http://en.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&rvparse=1&titles=" + top_result
