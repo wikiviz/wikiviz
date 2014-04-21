@@ -1,5 +1,5 @@
 # model.py
-from kivy.event import EventDispatcher
+
 import common.singleton as singleton
 from kivy.core.window import Window
 from random import random
@@ -7,7 +7,7 @@ import math
 
 
 
-class Model(EventDispatcher):
+class Model(object):
     __metaclass__ = singleton.Singleton
 
     def __init__(self, **kwargs):
@@ -52,6 +52,15 @@ class Model(EventDispatcher):
                     return eachChild
         return False
 
+    def has_been_explored_yet(self, keyword):
+        for eachNode in self.nodes:
+            if keyword==eachNode.get_keyword():
+                return True
+        return False
+    def dump_nodes(self):
+        self.nodes = []
+        self.x = 0
+        self.y = 0
 class Node:
 
     def __init__(self, parent, keyword, href, img_src, summary, pagecontent, links, has_visited=False):

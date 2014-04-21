@@ -20,12 +20,12 @@ class Controller():
 
         if issued_request == None:
             nr = NetworkRequest(issued_request, self.root_creation_callback)
-            nr.get_page_by_keyword(keyword)
+            nr.dispatch("on_get_page_by_keyword", keyword)
             self.requests.append(nr)
         else:
             for eachKeyword in issued_request.links:
                 nr = NetworkRequest(issued_request, self.on_success)
-                nr.get_page_by_keyword(eachKeyword)
+                nr.dispatch("on_get_page_by_keyword", eachKeyword)
                 self.requests.append(nr)
 
 
@@ -45,7 +45,7 @@ class Controller():
         self.requests.remove(completed_request) #network request completed so remove
         for eachKeyword in model_node.links:
             nr = NetworkRequest(model_node, self.on_success)
-            nr.get_page_by_keyword(eachKeyword)
+            nr.dispatch("on_get_page_by_keyword", eachKeyword)
             self.requests.append(nr)
         self.node_creation_callback(model_node)
 
@@ -70,4 +70,5 @@ class Controller():
         else:
             return False
 
-
+    def dump_nodes(self):
+        self.model.dump_nodes()
