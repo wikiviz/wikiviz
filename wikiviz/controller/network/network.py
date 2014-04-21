@@ -12,11 +12,12 @@ from kivy.network.urlrequest import UrlRequest
 import urllib
 import model.model as mod
 import re
+from kivy.event import EventDispatcher
 
 import controller.parser.parser as parser
 from bs4 import BeautifulSoup
 
-class NetworkRequest(object):
+class NetworkRequest(EventDispatcher):
     """
     Retrieves raw data from Wikipedia based on keyword or URL,
     parses results and adds Nodes to Model
@@ -33,12 +34,17 @@ class NetworkRequest(object):
         self.callback = callback # controller routine to handle completed requests
         self.keyword = None
 
-    def get_page_by_keyword(self, keyword):
+        self.register_event_type("on_get_page_by_keyword")
+
+    def on_get_page_by_keyword(self, keyword):
         """
             First request is user inputted keyword.
             We have to retrieve the url of the page by searching wikipedia
         """
         # sanitize keyword
+        if self.model.has_been_explored_yet(keyword):
+            return;
+
         self.keyword = keyword
         keyword = urllib.quote(keyword)
         print "keyword encoded: ", keyword
