@@ -15,7 +15,7 @@ from controller.parser import parser
 #remove once we can get the summary from the network
 current_path = os.path.dirname(os.path.realpath(__file__))
 
-url = current_path + "\knitting.html"
+url = current_path + "\Knitting.html"
 opened_url = open(url)
 
 p = parser.Parser(raw_page_content=opened_url)
