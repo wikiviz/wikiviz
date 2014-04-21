@@ -133,10 +133,6 @@ Contributions:\n
 
 
 '''
-class ProxyModelNode(object):
-    def __init__(self):
-        self.text = text1
-        self.source = ""
 
 
 
@@ -149,8 +145,6 @@ class Node(Scatter):
 
     source = StringProperty(None)
     text = StringProperty(None)
-
-    model_node = ObjectProperty(None)
 
     move = NumericProperty(0)
 
@@ -170,12 +164,16 @@ class Node(Scatter):
 
     def on_touch_up(self, touch, text, source):   
         if (self.move < 10):
+            print self.model_node
+            raw_input("help")
             pagelayout = self.parent.parent
             uic = pagelayout.uic
             pagelayout.page +=1
-
+            print text
             pagelayout.summary.text = text
             pagelayout.summary.source=source
+
+
 
             pagelayout.do_layout()
             uic.blocked = True
@@ -414,7 +412,7 @@ class UIC(ScatterPlane):
         self.remove_widget(self.uis)
         self.do_scale = True
         self.do_translation= True  
-        self.controller.create_node(None, self.uis.search_bar.text)
+        self.controller.search_by_keyword(None, self.uis.search_bar.text)
         return
 
 
@@ -495,10 +493,6 @@ class Scatter_Summary_Widget(PageLayout):
                     x=x,
                     y=self.y,
                     d=0.5, t='in_quad').start(c)
-
-
-
-
 
     def on_touch_down(self, touch):
         print (self.children)[self.page]

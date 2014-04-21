@@ -14,23 +14,38 @@ class Controller():
         self.model = mod.Model()
         self.requests = [] #holds network request objects
 
-        print creation_callback
         self.node_creation_callback =  creation_callback
 
-    def create_node(self, issued_request, keyword):
+    def search_by_keyword(self, issued_request, keyword):
 
-        nr = NetworkRequest(issued_request, self.on_search_success)
-        nr.get_page_by_keyword(keyword)
-        self.requests.append(nr)
+        if issued_request == None:
+            nr = NetworkRequest(issued_request, self.root_creation_callback)
+            nr.get_page_by_keyword(keyword)
+            self.requests.append(nr)
+        else:
+            for eachLink in issued_request.links:
+                nr = NetworkRequest(issued_request, self.on_success)
+                nr.get_page_by_url(eachLink)
+                self.requests.append(nr)
 
-    def on_search_success(self, completed_request, model_node):
+
+
+    def on_success(self, completed_request, model_node):
+        self.requests.remove(completed_request) #network request completed so remove
         if not model_node:
             return
         self.node_creation_callback(model_node)
-        self.requests.remove(completed_request) #network request completed so remove
 
-    def get_related_nodes(self, keyword):
-        pass
+
+
+    def root_creation_callback(self, completed_request, model_node):
+        self.requests.remove(completed_request) #network request completed so remove
+        for eachLink in model_node.links:
+            nr = NetworkRequest(model_node, on_success)
+            nr.get_page_by_url(eachLink)
+            self.requests.append(nr)
+        self.node_creation_callback(model_node)
+
 
     def find_event_handler(self, touch, function):
         model_node= self.model.find_event_handler(touch)
