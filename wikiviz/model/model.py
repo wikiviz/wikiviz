@@ -1,6 +1,9 @@
 # model.py
 from kivy.event import EventDispatcher
 import common.singleton as singleton
+from kivy.core.window import Window
+from random import random
+import math
 
 
 
@@ -13,28 +16,29 @@ class Model(EventDispatcher):
         """
         super(Model, self).__init__(**kwargs)
         self.nodes = []
-        self.x = 0
-        self.y = 100
+        self.children_per_node = 5
+        self.distance_to_child = 200
+
+
     def add_node(self, node):
         self.nodes.append(node)
         print "added node"
 
 
-
-    # def print_graph(self):
-    #     print "Printing graph in model"
-    #     for n in self.nodes:
-    #         print "Node: ", n
-    #         print n.links, "\n"
-    #
-    #     print "\n"
-
     def calculate_pos(self):
-        m = self.x
-        n = self.y
-        self.x +=100
-        self.y+=100
-        return (m,n)
+        center_point = (Window.width/2 - 50, Window.height/2 - 50)
+        if len(self.nodes) == 0:
+            return center_point
+        else:
+            # assume we're adding the last item to the list
+            current_node = self.nodes[-1]
+            count = len(self.nodes)
+            degrees_each = 360/self.children_per_node
+            radians_each = math.radians(degrees_each)
+            rads = radians_each * count
+            x_pos = self.distance_to_child * math.cos(rads) + center_point[0]
+            y_pos = self.distance_to_child * math.sin(rads) + center_point[1]
+            return (x_pos,y_pos)
 
     def find_event_handler(self, touch):
         x , y = touch.x, touch.y
@@ -61,7 +65,7 @@ class Node:
         self.page_content = pagecontent
         self.links = links
         self.has_visited = has_visited
-        self.ui_reference = None
+        self.ui_reference = None        
 
     def get_parent(self):
         return self.parent
