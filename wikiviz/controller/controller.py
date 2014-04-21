@@ -23,9 +23,9 @@ class Controller():
             nr.get_page_by_keyword(keyword)
             self.requests.append(nr)
         else:
-            for eachLink in issued_request.links:
+            for eachKeyword in issued_request.links:
                 nr = NetworkRequest(issued_request, self.on_success)
-                nr.get_page_by_url(eachLink)
+                nr.get_page_by_keyword(eachKeyword)
                 self.requests.append(nr)
 
 
@@ -39,10 +39,13 @@ class Controller():
 
 
     def root_creation_callback(self, completed_request, model_node):
+        if not model_node:
+            print "No Root Model Node"
+            assert(False)
         self.requests.remove(completed_request) #network request completed so remove
-        for eachLink in model_node.links:
-            nr = NetworkRequest(model_node, on_success)
-            nr.get_page_by_url(eachLink)
+        for eachKeyword in model_node.links:
+            nr = NetworkRequest(model_node, self.on_success)
+            nr.get_page_by_keyword(eachKeyword)
             self.requests.append(nr)
         self.node_creation_callback(model_node)
 
@@ -52,12 +55,13 @@ class Controller():
         if not model_node:
             return False
         node = model_node.get_ui_reference()
-        text = model_node.get_text()
+        text = model_node.get_summary()
         source = model_node.get_source()
-
+        print text
+        print source
         if function == 'on_touch_up':
             if node.user_wants_summary():
-                self.create_node(model_node, model_node.get_keyword())
+                self.search_by_keyword(model_node, model_node.get_keyword())
             return node.on_touch_up(touch, text, source)
         elif function == "on_touch_down":
             return node.on_touch_down(touch)

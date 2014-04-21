@@ -50,14 +50,15 @@ class Model(EventDispatcher):
 
 class Node:
 
-    def __init__(self, parent, keyword, href, img_src, text, links, has_visited=False):
+    def __init__(self, parent, keyword, href, img_src, summary, pagecontent, links, has_visited=False):
 
         self.pos = Model().calculate_pos()
         self.parent = parent #MODEL NODE
         self.keyword = keyword
         self.href = href
         self.img_src = img_src
-        self.text = text
+        self.summary = summary
+        self.page_content = pagecontent
         self.links = links
         self.has_visited = has_visited
         self.ui_reference = None
@@ -68,8 +69,8 @@ class Node:
         return self.keyword
     def get_source(self):
         return self.img_src
-    def get_text(self):
-        return self.text
+    def get_summary(self):
+        return self.summary
     def get_pos(self):
         return self.pos
     def set_id(self, ref):

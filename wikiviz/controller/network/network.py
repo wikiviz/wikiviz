@@ -11,6 +11,7 @@ Retrieves data from wikipedia.
 from kivy.network.urlrequest import UrlRequest
 import urllib
 import model.model as mod
+import re
 
 import controller.parser.parser as parser
 from bs4 import BeautifulSoup
@@ -30,7 +31,7 @@ class NetworkRequest(object):
         self.issued_request = issued_request # reference to parent model node
         self.model = mod.Model()
         self.callback = callback # controller routine to handle completed requests
-
+        self.keyword = None
 
     def get_page_by_keyword(self, keyword):
         """
@@ -38,6 +39,7 @@ class NetworkRequest(object):
             We have to retrieve the url of the page by searching wikipedia
         """
         # sanitize keyword
+        self.keyword = keyword
         keyword = urllib.quote(keyword)
         print "keyword encoded: ", keyword
 
@@ -46,7 +48,7 @@ class NetworkRequest(object):
         print "Searching wikipedia for", keyword, ": ", url
         req = UrlRequest(url=url, on_success=self.on_search_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
-
+        
     def on_search_success(self, request, result):
         """
         Called when keyword search returns data.
@@ -70,6 +72,8 @@ class NetworkRequest(object):
         Called when we already know the url of the node we want to create.
         Used for keyword and child nodes
         """
+        if u'http://' not in url:
+            url = u'http://'+url
         print "Retrieving page data from", url
         req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
@@ -82,6 +86,9 @@ class NetworkRequest(object):
         print "Page successfully retrieved from Wikipedia"
         page_content = ""
         page_title = ""
+
+        
+
 
         try:
             # wiki api returns json object
@@ -98,19 +105,31 @@ class NetworkRequest(object):
             page_content = value["revisions"][0]["*"]
             page_title = value["title"]
 
-        # print "Raw page content:"
-        # print page_content
+
         # print "\n"
 
         # right now the parser doesn't return anything
         p = parser.Parser(page_content)
         page_links = p.get_links(5)
         page_images = p.get_images(5)
+        
+        #everett added re because the link doesn't resturn results in ****result['query']****** format
+        links = []
+        for eachPageLink in page_links:
+            child_keyword = re.search(u'[0-9A-Za-z]*$', eachPageLink)
+            links.append(child_keyword.group(0))
+
+        page_links = links
         print "page_links:", page_links
         print "page_images:", page_images
-        raw_input("stop")
-        node = mod.Node(self.issued_request, request.url, page_images, page_content, page_links, False)
-        #def __init__(self, parent, keyword, href, img_src, text, links, has_visited=False):
+
+        ##################################################
+        #the page summary from parser goes in page_summary
+        page_summary = self.keyword
+        ##################################################
+
+        node = mod.Node(self.issued_request, self.keyword, request.url, page_images, page_summary, page_content, page_links, False)
+        #def __init__(self, parent, keyword, href, img_src, summary, page_content, links, has_visited=False):
         node.set_id(node)
         self.model.add_node(node)
         self.callback(self, node)

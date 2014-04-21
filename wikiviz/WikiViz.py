@@ -28,6 +28,7 @@ from kivy.animation import Animation
 from kivy.core import window
 
 
+
 from controller.controller import Controller
 
 
@@ -144,7 +145,7 @@ class Node(Scatter):
     label = ObjectProperty(None)
 
     source = StringProperty(None)
-    text = StringProperty(None)
+    keyword = StringProperty(None)
 
     move = NumericProperty(0)
 
@@ -162,14 +163,15 @@ class Node(Scatter):
         x, y = self.to_local(x, y)
         return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
-    def on_touch_up(self, touch, text, source):   
+    def on_touch_up(self, touch, text, source): 
+        if source == []:
+            source = ''  
         if (self.move < 10):
-            print self.model_node
-            raw_input("help")
+
             pagelayout = self.parent.parent
             uic = pagelayout.uic
             pagelayout.page +=1
-            print text
+   
             pagelayout.summary.text = text
             pagelayout.summary.source=source
 
@@ -425,8 +427,11 @@ class UIC(ScatterPlane):
         model_node.set_id(to_be_added) # set model_node's data
         parent = model_node.get_parent_ui_reference()
 
+        if source == []:
+            source = ''
+
         to_be_added.source =source
-        to_be_added.text= keyword
+        to_be_added.keyword= keyword
 
         self.add_widget(to_be_added)
         self.add_widget(Edge(parent, to_be_added)) # parent, child
