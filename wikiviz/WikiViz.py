@@ -171,7 +171,13 @@ class Node(Scatter):
             pagelayout = self.parent.parent
             uic = pagelayout.uic
             pagelayout.page +=1
-   
+      
+            if len(source) == 0:
+                source = ''
+            else:
+                # images is stored as a list; we just want the first one
+                source = source[0]
+
             pagelayout.summary.text = text
             pagelayout.summary.source=source
 
@@ -427,8 +433,11 @@ class UIC(ScatterPlane):
         model_node.set_id(to_be_added) # set model_node's data
         parent = model_node.get_parent_ui_reference()
 
-        if source == []:
+        if len(source) == 0:
             source = ''
+        else:
+            # images is stored as a list; we just want the first one
+            source = source[0]
 
         to_be_added.source =source
         to_be_added.keyword= keyword

@@ -23,6 +23,7 @@ class Controller():
             nr.dispatch("on_get_page_by_keyword", keyword)
             self.requests.append(nr)
         else:
+            print issued_request
             for eachKeyword in issued_request.links:
                 nr = NetworkRequest(issued_request, self.on_success)
                 nr.dispatch("on_get_page_by_keyword", eachKeyword)
