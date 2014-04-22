@@ -72,13 +72,15 @@ class Node:
         self.img_src = img_src
         self.summary = summary
         self.page_content = pagecontent
-        self.links = links
+        self.links = links # dict -- keyword: url
         self.has_visited = has_visited
         self.ui_reference = None        
 
     def get_parent(self):
         return self.parent
     def get_keyword(self):
+        if not self.keyword:
+            return self.href
         return self.keyword
     def get_source(self):
         return self.img_src

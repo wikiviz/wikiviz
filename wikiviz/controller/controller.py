@@ -47,9 +47,10 @@ class Controller():
             print "No Root Model Node"
             assert(False)
         self.requests.remove(completed_request) #network request completed so remove
-        for eachKeyword in model_node.links:
-            nr = NetworkRequest(model_node, self.on_success)
-            nr.dispatch("on_get_page_by_keyword", eachKeyword)
+        for eachLink in model_node.links:
+            nr = NetworkRequest(model_node, self.on_success)            
+            url = eachLink.items()[0][1]
+            nr.dispatch("on_get_page_by_url", url)
             self.requests.append(nr)
         self.node_creation_callback(model_node)
 

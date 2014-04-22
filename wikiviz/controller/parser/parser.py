@@ -75,17 +75,18 @@ function definitions
 
 
     def get_links(self, max_links):
-        # we only need the source urls, not the link objects
+        # we need a list of dicts -- keyword: url 
         urls = []
         for link in self.link_list[:max_links]:
-            urls.append("en.wikipedia.org" + link.page_url)
+            link_dict = { link.page_name: "http://en.wikipedia.org"+link.page_url }
+            urls.append(link_dict)
         return urls
 
     def get_images(self, max_images):
         # we only need the source urls, not the link objects
         img_srcs = []
         for img in self.image_list[:max_images]:
-            img_srcs.append("en.wikipedia.org" + img.page_url)
+            img_srcs.append("http:" + img.page_url)
         return img_srcs
 
     # sets priorities for all links, then creates a link of the highest priority items

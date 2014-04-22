@@ -13,6 +13,7 @@ import urllib
 import model.model as mod
 import re
 from kivy.event import EventDispatcher
+import sys
 
 import controller.parser.parser as parser
 from bs4 import BeautifulSoup
@@ -35,6 +36,7 @@ class NetworkRequest(EventDispatcher):
         self.keyword = None
 
         self.register_event_type("on_get_page_by_keyword")
+        self.register_event_type("on_get_page_by_url")
 
     def on_get_page_by_keyword(self, keyword):
         """
@@ -70,16 +72,14 @@ class NetworkRequest(EventDispatcher):
 
         # fetch page content from url
         url = "http://en.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&rvprop=content&rvparse=1&titles=" + top_result
-        self.get_page_by_url(url)
+        self.on_get_page_by_url(url)
 
 
-    def get_page_by_url(self, url):
+    def on_get_page_by_url(self, url):
         """
         Called when we already know the url of the node we want to create.
         Used for keyword and child nodes
-        """
-        if u'http://' not in url:
-            url = u'http://'+url
+        """        
         print "Retrieving page data from", url
         req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
@@ -89,43 +89,53 @@ class NetworkRequest(EventDispatcher):
         Called when UrlRequest returns with page data for keyword
         Takes raw page data, runs through parser, creates model node
         """
-        print "Page successfully retrieved from Wikipedia"
+        print "Page successfully retrieved from Wikipedia, request:", request
         page_content = ""
         page_title = ""
-
         
-
-
         try:
             # wiki api returns json object
             pages = result['query']['pages']
+
+            # page data is stored by key; key =page id
+            for key, value in pages.items():
+                print "Page id:", key
+                page_content = value["revisions"][0]["*"]
+                page_title = value["title"]
         except TypeError:
-            # if result not found in returned data
-            print "Error page returned!"
-            self.on_error(None, None)
+            # if result is not in json format a type error occurs and 
+            # that means get_page_by_url is calling and the result is plain HTML
+            print "Non-API page returned"            
+            soup = BeautifulSoup(result)            
+            page_content = soup.body.get_text()
+            page_title = soup.title.get_text()
+            page_title = page_title.replace(" - Wikipedia, the free encyclopedia", "")
+
+        except:
+            # something else went wrong
+            print "An error occurred while processing the request result"
+            print "request: ", request
+            # print "result: ", result
+            print "Unexpected error:", sys.exc_info()[0]
+            self.on_error(request, None)
             return
-
-        # page data is stored by key; key =page id
-        for key, value in pages.items():
-            print "Page id:", key
-            page_content = value["revisions"][0]["*"]
-            page_title = value["title"]
-
-
-        # print "\n"
-
-        # right now the parser doesn't return anything
+        
+        if page_content == None or page_title == None:
+            print "no page or title content"
+            self.on_error(request, None)     
+            return           
+        
         p = parser.Parser(page_content)
         page_links = p.get_links(5)
         page_images = p.get_images(5)
         
         #everett added re because the link doesn't resturn results in ****result['query']****** format
-        links = []
-        for eachPageLink in page_links:
-            child_keyword = re.search(u'[0-9A-Za-z]*$', eachPageLink)
-            links.append(child_keyword.group(0))
+        # links = []
+        # for eachPageLink in page_links:
+        #     child_keyword = re.search(u'[0-9A-Za-z]*$', eachPageLink)
+        #     links.append(child_keyword.group(0))
 
-        page_links = links
+        # page_links = links
         print "page_links:", page_links
         print "page_images:", page_images
 
@@ -134,7 +144,7 @@ class NetworkRequest(EventDispatcher):
         page_summary = self.keyword
         ##################################################
 
-        node = mod.Node(self.issued_request, self.keyword, request.url, page_images, page_summary, page_content, page_links, False)
+        node = mod.Node(self.issued_request, page_title, request.url, page_images, page_summary, page_content, page_links, False)
         #def __init__(self, parent, keyword, href, img_src, summary, page_content, links, has_visited=False):
         node.set_id(node)
         self.model.add_node(node)
