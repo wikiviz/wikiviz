@@ -65,8 +65,9 @@ function definitions
         #get images, filter
         for image in self.soup.find_all('img'):
             image_url =  image.get('src')
+            
             if type(image_url) is not NoneType:
-                temp_img = PageLink("en.wikipedia.org" + image_url)
+                temp_img = PageLink(image_url)
                 self.image_list.append(temp_img)
 
         image_filtered = [i for i in self.image_list if not self.contains_keyword(i.page_url)]
@@ -146,8 +147,6 @@ function definitions
                 if len(self.high_priority_list) <= 10:
                     self.high_priority_list.append(item)
 
-
-    #make filtered keyword lists here
     def get_text_summary(self):
 
         div = self.soup.find("div", attrs={"id": "mw-content-text"})
@@ -162,13 +161,10 @@ function definitions
             if "<h2>" in unicode(item):
                 break
 
-        wrapped_summary = ""
+      
         wrapped_lines =  textwrap.wrap(self.text_summary, 50)
-        print type(wrapped_lines)
-
-        for line in wrapped_lines:
-            wrapped_summary += line + "\n"
-
-        print wrapped_summary
+        self.text_summary = '\n'.join(wrapped_lines)
+  
+        return self.text_summary
 
 
