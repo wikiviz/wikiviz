@@ -22,13 +22,13 @@ class Controller():
             nr = NetworkRequest(issued_request, self.root_creation_callback)
             nr.dispatch("on_get_page_by_keyword", keyword)
             self.requests.append(nr)
-        else:    
+        else:    # if request makes it here. keyword is keyword for url
             for eachKeyword in issued_request.links.keys():
                 # TODO: should this instead fetch the URL directly
                 # with get_page_by_url instead of on_get_page_by_keyword?
                 # otherwise the search api is used for all requests
                 # search 'turing' to see an example
-                nr = NetworkRequest(issued_request, self.on_success)
+                nr = NetworkRequest(issued_request, self.on_success, issued_request.get_keyword())
                 print eachKeyword
                 nr.dispatch("on_get_page_by_url", issued_request.links[eachKeyword])
                 self.requests.append(nr)
@@ -66,10 +66,12 @@ class Controller():
         print text
         print source
         if function == 'on_touch_up':
-            if node.user_wants_summary():
+            if node.user_wants_summary() and not model_node.has_visited:
                 self.search_by_keyword(model_node, model_node.get_keyword())
-            if text == None:
-                return node.on_touch_up(touch, '', source)
+                model_node.has_visited = True
+                return True
+            elif not node.user_wants_summary():
+                return node.on_touch_up(touch)
             return node.on_touch_up(touch, text, source)
         elif function == "on_touch_down":
             return node.on_touch_down(touch)

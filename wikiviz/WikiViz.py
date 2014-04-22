@@ -163,10 +163,19 @@ class Node(Scatter):
         x, y = self.to_local(x, y)
         return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
-    def on_touch_up(self, touch, text, source): 
-        if source == []:
-            source = ''  
-        if (self.move < 10):
+    def on_touch_up(self, touch, *args): 
+        source = None
+        text = None
+        print "move=", self.move
+        if args:          
+            text = args[0]
+            source = args[1]
+
+        if not source or source==[]:
+            source = '' 
+        if not text:
+            text = '' 
+        if (self.move < 10 and args):
 
             pagelayout = self.parent.parent
             uic = pagelayout.uic

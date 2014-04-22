@@ -24,7 +24,7 @@ class NetworkRequest(EventDispatcher):
     parses results and adds Nodes to Model
     """
 
-    def __init__(self, issued_request, callback):
+    def __init__(self, issued_request, callback, keyword = None):
         # play nice with the Wikipedia API:
         self.headers = {'User-Agent': 'Wikiviz/0.1 (https://github.com/wikiviz/wikiviz; anrevl01@louisville.edu) Educational Use', 
                             'Content-type': 'application/json',
@@ -33,7 +33,7 @@ class NetworkRequest(EventDispatcher):
         self.issued_request = issued_request # reference to parent model node
         self.model = mod.Model()
         self.callback = callback # controller routine to handle completed requests
-        self.keyword = None
+        self.keyword = keyword
 
         self.register_event_type("on_get_page_by_keyword")
         self.register_event_type("on_get_page_by_url")
@@ -44,8 +44,6 @@ class NetworkRequest(EventDispatcher):
             We have to retrieve the url of the page by searching wikipedia
         """
         # sanitize keyword
-        if self.model.has_been_explored_yet(keyword):
-            return;
 
         self.keyword = keyword
         keyword = urllib.quote(keyword)
@@ -79,7 +77,11 @@ class NetworkRequest(EventDispatcher):
         """
         Called when we already know the url of the node we want to create.
         Used for keyword and child nodes
-        """        
+        """     
+        
+        if self.model.has_been_explored_yet(self.keyword):
+            return;
+         
         print "Retrieving page data from", url
         req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
