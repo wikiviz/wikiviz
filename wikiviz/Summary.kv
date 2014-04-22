@@ -1,14 +1,24 @@
 #:kivy 1.8.0
 
 <SummaryBox>
+	
+	#first image from list	
+	canvas:
+		Rectangle:
+			source: root.image
+			size: 500,500
+			pos: self.pos
 
+	#mimics text summary box
 	canvas:
 		Color:
 			rgb: .5,.5,.5
 		Rectangle:
 			pos: self.center_x-250, self.center_y-250
 			size: 500,500
-    Label:
-        text: root.summary_box
+
+	#actual text summary
+	Label:
+		text: root.summary_box
 		pos: 300,250
 		
