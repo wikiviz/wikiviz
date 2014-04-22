@@ -148,7 +148,7 @@ function definitions
                     self.high_priority_list.append(item)
 
     def get_text_summary(self):
-        div = sou.find("div", attrs={"id": "mw-content-text"})
+        div = self.soup.find("div", attrs={"id": "mw-content-text"})
         self.text_summary = ""
         if div == None:
             return
