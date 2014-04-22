@@ -22,9 +22,12 @@ class Controller():
             nr = NetworkRequest(issued_request, self.root_creation_callback)
             nr.dispatch("on_get_page_by_keyword", keyword)
             self.requests.append(nr)
-        else:
-            print issued_request
+        else:    
             for eachKeyword in issued_request.links:
+                # TODO: should this instead fetch the URL directly
+                # with get_page_by_url instead of on_get_page_by_keyword?
+                # otherwise the search api is used for all requests
+                # search 'turing' to see an example
                 nr = NetworkRequest(issued_request, self.on_success)
                 nr.dispatch("on_get_page_by_keyword", eachKeyword)
                 self.requests.append(nr)
