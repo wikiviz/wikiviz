@@ -68,6 +68,8 @@ class Controller():
         if function == 'on_touch_up':
             if node.user_wants_summary():
                 self.search_by_keyword(model_node, model_node.get_keyword())
+            if text == None:
+                return node.on_touch_up(touch, '', source)
             return node.on_touch_up(touch, text, source)
         elif function == "on_touch_down":
             return node.on_touch_down(touch)
