@@ -76,10 +76,9 @@ function definitions
 
     def get_links(self, max_links):
         # we need a list of dicts -- keyword: url 
-        urls = []
+        urls= {}
         for link in self.link_list[:max_links]:
-            link_dict = { link.page_name: "http://en.wikipedia.org"+link.page_url }
-            urls.append(link_dict)
+            urls[link.page_name] = "http://en.wikipedia.org"+link.page_url
         return urls
 
     def get_images(self, max_images):

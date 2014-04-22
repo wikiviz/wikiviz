@@ -23,13 +23,14 @@ class Controller():
             nr.dispatch("on_get_page_by_keyword", keyword)
             self.requests.append(nr)
         else:    
-            for eachKeyword in issued_request.links:
+            for eachKeyword in issued_request.links.keys():
                 # TODO: should this instead fetch the URL directly
                 # with get_page_by_url instead of on_get_page_by_keyword?
                 # otherwise the search api is used for all requests
                 # search 'turing' to see an example
                 nr = NetworkRequest(issued_request, self.on_success)
-                nr.dispatch("on_get_page_by_keyword", eachKeyword)
+                print eachKeyword
+                nr.dispatch("on_get_page_by_url", issued_request.links[eachKeyword])
                 self.requests.append(nr)
 
 
@@ -47,10 +48,10 @@ class Controller():
             print "No Root Model Node"
             assert(False)
         self.requests.remove(completed_request) #network request completed so remove
-        for eachLink in model_node.links:
+        for eachKeyword in model_node.links.keys():
             nr = NetworkRequest(model_node, self.on_success)            
-            url = eachLink.items()[0][1]
-            nr.dispatch("on_get_page_by_url", url)
+            
+            nr.dispatch("on_get_page_by_url", model_node.links[eachKeyword])
             self.requests.append(nr)
         self.node_creation_callback(model_node)
 

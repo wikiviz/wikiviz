@@ -141,7 +141,7 @@ class NetworkRequest(EventDispatcher):
 
         ##################################################
         #the page summary from parser goes in page_summary
-        page_summary = self.keyword
+        page_summary = p.get_text_summary()
         ##################################################
 
         node = mod.Node(self.issued_request, page_title, request.url, page_images, page_summary, page_content, page_links, False)
