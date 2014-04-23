@@ -18,25 +18,23 @@ class Controller():
 
     def search_by_keyword(self, issued_request, keyword):
 
+        # if this is the root node
         if issued_request == None:
             nr = NetworkRequest(issued_request, self.root_creation_callback)
             nr.dispatch("on_get_page_by_keyword", keyword)
             self.requests.append(nr)
-        else:    # if request makes it here. keyword is keyword for url
-            for eachKeyword in issued_request.links.keys():
-                # TODO: should this instead fetch the URL directly
-                # with get_page_by_url instead of on_get_page_by_keyword?
-                # otherwise the search api is used for all requests
-                # search 'turing' to see an example
-                nr = NetworkRequest(issued_request, self.on_success, issued_request.get_keyword())
-                print eachKeyword
-                nr.dispatch("on_get_page_by_url", issued_request.links[eachKeyword])
-                self.requests.append(nr)
-
+        # else:
+        #     # this is a child node
+        #     for eachKeyword in issued_request.links.keys():
+        #         nr = NetworkRequest(issued_request, self.on_success, issued_request.get_keyword())
+        #         print eachKeyword
+        #         nr.dispatch("on_get_page_by_url", issued_request.links[eachKeyword])
+        #         self.requests.append(nr)
 
 
     def on_success(self, completed_request, model_node):
-        self.requests.remove(completed_request) #network request completed so remove
+        # called when child nodes are loaded
+        self.requests.remove(completed_request) # network request completed so remove
         if not model_node:
             return
         self.node_creation_callback(model_node)
@@ -49,8 +47,7 @@ class Controller():
             assert(False)
         self.requests.remove(completed_request) #network request completed so remove
         for eachKeyword in model_node.links.keys():
-            nr = NetworkRequest(model_node, self.on_success)            
-            
+            nr = NetworkRequest(model_node, self.on_success)
             nr.dispatch("on_get_page_by_url", model_node.links[eachKeyword])
             self.requests.append(nr)
         self.node_creation_callback(model_node)

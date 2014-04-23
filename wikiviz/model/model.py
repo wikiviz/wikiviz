@@ -22,7 +22,7 @@ class Model(object):
 
     def add_node(self, node):
         self.nodes.append(node)
-        print "added node"
+        print "added node in model"
 
 
     def calculate_pos(self):
@@ -89,7 +89,7 @@ class Node:
     def get_pos(self):
         return self.pos
     def set_id(self, ref):
-        print "ref",ref
+        # print "ref",ref
         if self.parent == None:
             self.parent = ref
 

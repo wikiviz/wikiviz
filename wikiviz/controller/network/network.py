@@ -50,7 +50,7 @@ class NetworkRequest(EventDispatcher):
         print "keyword encoded: ", keyword
 
         # search wikipedia for keyword
-        url = "http://en.wikipedia.org/w/api.php?action=query&format=json&srprop=timestamp&list=search&srsearch=" + keyword
+        url = "http://en.wikipedia.org/w/api.php?action=query&format=json&srprop=timestamp&list=search&srsearch=" + keyword + "&redirects"
         print "Searching wikipedia for", keyword, ": ", url
         req = UrlRequest(url=url, on_success=self.on_search_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 
@@ -107,11 +107,11 @@ class NetworkRequest(EventDispatcher):
         except TypeError:
             # if result is not in json format a type error occurs and 
             # that means get_page_by_url is calling and the result is plain HTML
-            print "Non-API page returned"            
             soup = BeautifulSoup(result)            
-            page_content = soup.body.get_text()
+            page_content = str(soup.body)
             page_title = soup.title.get_text()
             page_title = page_title.replace(" - Wikipedia, the free encyclopedia", "")
+            print "Non-API page returned", page_title
 
         except:
             # something else went wrong
@@ -130,27 +130,22 @@ class NetworkRequest(EventDispatcher):
         p = parser.Parser(page_content)
         page_links = p.get_links(5)
         page_images = p.get_images(5)
-        
-        #everett added re because the link doesn't resturn results in ****result['query']****** format
-        # links = []
-        # for eachPageLink in page_links:
-        #     child_keyword = re.search(u'[0-9A-Za-z]*$', eachPageLink)
-        #     links.append(child_keyword.group(0))
+        page_summary = p.get_text_summary()
 
-        # page_links = links
+        print "----"
+        print "page_url:", page_title
+        print "page_url:", request.url
         print "page_links:", page_links
         print "page_images:", page_images
-
-        ##################################################
-        #the page summary from parser goes in page_summary
-        page_summary = p.get_text_summary()
-        ##################################################
+        print "page_summary:", page_summary
+        print "----"
 
         node = mod.Node(self.issued_request, page_title, request.url, page_images, page_summary, page_content, page_links, False)
         #def __init__(self, parent, keyword, href, img_src, summary, page_content, links, has_visited=False):
         node.set_id(node)
         self.model.add_node(node)
         self.callback(self, node)
+
     
     def on_error(self, request, error):
         self.callback(self, False)

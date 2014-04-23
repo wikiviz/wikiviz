@@ -33,18 +33,18 @@ class Parser(object):
 function definitions
 """
 
-    def __init__(self, raw_page_content, link_list=list(), image_list=list(), high_priority_list=list(),
-                 text_summary=None):
+    def __init__(self, raw_page_content):
 
         self.soup = BeautifulSoup(raw_page_content)
-        self.link_list = link_list
-        self.image_list = image_list
-        self.high_priority_list = high_priority_list
-        self.text_summary = text_summary
+        self.link_list = []
+        self.image_list = []
+        self.high_priority_list = []
+        self.text_summary = ""
 
         # now we have to process the input data
         # so our return values wil be correct
         self.extract_links()
+
 
     def contains_keyword(self, item):
             return any(keyword in item.lower() for keyword in filtered_keywords)
