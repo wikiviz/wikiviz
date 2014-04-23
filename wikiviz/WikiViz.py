@@ -284,6 +284,7 @@ class StartupImage(Image):
     def collide_point(self, x, y):
         return False
     def on_touch_down(self, touch):
+
         return
     def on_touch_up(self, touch):
         return
@@ -302,7 +303,6 @@ class UIC(ScatterPlane):
     controller = ObjectProperty(None)
 
     uis = ObjectProperty(None)
-
 
     def __init__(self, **kwargs):
 
@@ -344,6 +344,7 @@ class UIC(ScatterPlane):
                 eachChild.on_touch_down(touch)
                 touch.pop()
                 self._bring_to_front()
+                
                 return False
 
         touch.pop()

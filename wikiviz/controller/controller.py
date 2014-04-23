@@ -3,7 +3,7 @@
 from network.network import NetworkRequest
 import model.model as mod
 import common.singleton as singleton
-
+from kivy.clock import Clock
 
 
 
@@ -14,6 +14,8 @@ class Controller():
         self.model = mod.Model()
         self.requests = [] #holds network request objects
 
+        self.pending_requests = []
+
         self.node_creation_callback =  creation_callback
 
     def search_by_keyword(self, issued_request, keyword):
@@ -21,15 +23,15 @@ class Controller():
         # if this is the root node
         if issued_request == None:
             nr = NetworkRequest(issued_request, self.root_creation_callback)
-            nr.dispatch("on_get_page_by_keyword", keyword)
+            nr.on_get_page_by_keyword(keyword)
             self.requests.append(nr)
-        # else:
-        #     # this is a child node
-        #     for eachKeyword in issued_request.links.keys():
-        #         nr = NetworkRequest(issued_request, self.on_success, issued_request.get_keyword())
-        #         print eachKeyword
-        #         nr.dispatch("on_get_page_by_url", issued_request.links[eachKeyword])
-        #         self.requests.append(nr)
+        else:
+            # this is a child node
+            for eachKeyword in issued_request.links.keys():
+                nr = NetworkRequest(issued_request, self.on_success, issued_request.get_keyword())
+                print eachKeyword
+                nr.on_get_page_by_url(issued_request.links[eachKeyword])
+                self.requests.append(nr)
 
 
     def on_success(self, completed_request, model_node):
@@ -39,6 +41,15 @@ class Controller():
             return
         self.node_creation_callback(model_node)
 
+    def handle_get_page_by_url_requests(self, *args):
+        print "Args",args
+        if self.pending_requests:
+            nr, url = self.pending_requests.pop()
+            nr.on_get_page_by_url(url)
+            self.requests.append(nr)
+        else:
+            Clock.unschedule(self.handle_get_page_by_url_requests)
+        return
 
 
     def root_creation_callback(self, completed_request, model_node):
@@ -46,10 +57,13 @@ class Controller():
             print "No Root Model Node"
             assert(False)
         self.requests.remove(completed_request) #network request completed so remove
+        model_node.has_visited = True
+        Clock.schedule_interval(self.handle_get_page_by_url_requests, 3.)
         for eachKeyword in model_node.links.keys():
             nr = NetworkRequest(model_node, self.on_success)
-            nr.dispatch("on_get_page_by_url", model_node.links[eachKeyword])
-            self.requests.append(nr)
+            #nr.on_get_page_by_url(model_node.links[eachKeyword])
+            #self.requests.append(nr)
+            self.pending_requests.append((nr,model_node.links[eachKeyword]))
         self.node_creation_callback(model_node)
 
 

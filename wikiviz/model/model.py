@@ -55,6 +55,8 @@ class Model(object):
     def has_been_explored_yet(self, keyword):
         for eachNode in self.nodes:
             if keyword==eachNode.get_keyword():
+                if eachNode.has_visited == False:
+                    return False
                 return True
         return False
     def dump_nodes(self):

@@ -25,7 +25,7 @@
     <Compile Include="tests\__init__.py" />
     <Content Include="wikiviz\mag.jpg" />
     <Content Include="wikiviz\share.jpg" />
-    <Content Include="wikiviz\startup.JPG" />
+    <Content Include="wikiviz\startup.jpg" />
     <Compile Include="wikiviz\image\image.py" />
     <Compile Include="wikiviz\image\loader.py" />
     <Compile Include="wikiviz\image\__init__.py" />

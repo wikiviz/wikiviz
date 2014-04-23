@@ -73,9 +73,10 @@
 		uis: uis.__self__
 		uibc: uibc.__self__
 
+
 		StartupImage:
 			id: startup_image
-			size: win.Window.width/uic.scale, win.Window.height/uic.scale
+			size: (win.Window.width)/(uic.scale), win.Window.height/(uic.scale)
 			center: (uic.width/2-uic.x)/uic.scale, (uic.height/2-uic.y)/uic.scale
 			source: 'assets/bg.jpg'
 
