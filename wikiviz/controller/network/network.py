@@ -135,7 +135,8 @@ class NetworkRequest(EventDispatcher):
         print "----"
         print "page_url:", page_title
         print "page_url:", request.url
-        print "page_links:", page_links
+       # some unicode characters break the terminal with this line
+       # print "page_links:", page_links
         print "page_images:", page_images
         print "page_summary:", page_summary
         print "----"
