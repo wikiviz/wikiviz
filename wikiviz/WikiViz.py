@@ -188,7 +188,7 @@ class Node(Scatter):
                 source = source[0]
 
             pagelayout.summary.text = text
-            pagelayout.summary.source=source
+            pagelayout.summary.source = source
 
 
 

@@ -132,13 +132,16 @@ class NetworkRequest(EventDispatcher):
         page_images = p.get_images(5)
         page_summary = p.get_text_summary()
 
+        if len(page_images) == 0:
+            page_images = ['assets/placeholder.gif']
+
         print "----"
         print "page_url:", page_title
         print "page_url:", request.url
        # some unicode characters break the terminal with this line
        # print "page_links:", page_links
         print "page_images:", page_images
-        print "page_summary:", page_summary
+        # print "page_summary:", page_summary
         print "----"
 
         node = mod.Node(self.issued_request, page_title, request.url, page_images, page_summary, page_content, page_links, False)
