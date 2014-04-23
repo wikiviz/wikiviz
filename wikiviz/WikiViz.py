@@ -1,3 +1,10 @@
+"""
+Application entry point.
+Loads KV file and calls controller on user events.
+"""
+
+# environment variables needed by our team members
+import sys
 import os
 os.environ['GST_PLUGIN_PATH'] = r"C:\Kivy\gstreamer\lib\gstreamer-0.10"
 os.environ['GST_REGISTRY'] = r"C:\Kivy\gstreamer\registry.bin"
@@ -5,152 +12,43 @@ os.environ['PATH'] = r"C:\Kivy;C:\Kivy\Python;C:\Kivy\gstreamer\bin;C:\Kivy\MinG
 
 import kivy
 kivy.require('1.8.0')
-
-from random import random 
 from kivy.app import App
-from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
 from kivy.uix.scatter import ScatterPlane, Scatter
 from kivy.uix.pagelayout import PageLayout
 from kivy.uix.image import Image
-from kivy.uix.image import AsyncImage
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
-from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty, BooleanProperty
-from kivy.graphics import Line, Color
-from kivy.graphics.transformation import Matrix
-from kivy.graphics.stencil_instructions import StencilPush, StencilPop, StencilUse
 from kivy.animation import Animation
 from kivy.core import window
-
-
+from kivy.utils import platform
 
 from controller.controller import Controller
 
-
-
-import sys
-from kivy.utils import boundary, platform
-
-
+# config variables
 _platform = platform
-
-# for reloading, we need to keep a list of textinput to retrigger the rendering
-
-# cache the result
 _is_osx = sys.platform == 'darwin'
-
-# When we are generating documentation, Config doesn't exist
 _is_desktop = False
 
 
 
-'''
-To Do
-
-1. slider
-2. Work on Model
-
-Model needs a data structure to hold the nodes.
-?Possibly use binary tree.
-?Restructure tree using traversal and number of nodes in tree.
-
-?Possibly position buckets using a dict
-
-?Possibly double linked list and bubble sort.
-
-1.Use data structure to test for collisions
-Use data structure to retrieve teh text and images.
-
-2.Use model information to add nodes and edges.
-
-
-TIPS:
-If you cannot load the images change kivy.loader.py LoaderBase class
-change the line suffix = mimetype.guess_extension to None.
-
-'''
-
-
-
-
-
-
-text1='''
-
-[b]Mozart\n[/b]
-Musican\n
-01234567890123456789012345678901234567890123456789\n
-[color=#3333ff]died:\n[/color]
-Location\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-Mozart\n
-Musican\n
-born:\n
-died:\n
-Location\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-Mozart\n
-Musican\n
-born:\n
-died:\n
-Location\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-Mozart\n
-Musican\n
-born:\n
-died:\n
-Location\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-Musican\n
-born:\n
-died:\n
-Location\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-Musican\n
-born:\n
-died:\n
-Location\n
-Works:\n
-Acomplishments:\n
-Contributions:\n
-
-
-'''
-
-
-
-'''
-                                NODE CLASSES
-'''
 class Node(Scatter):
+    '''
+    @class Node
+    UI Node. Represents a vertex in the graph, with ref to model node for data.
+    '''
     image = ObjectProperty(None)
     label = ObjectProperty(None)
-
     source = StringProperty(None)
     keyword = StringProperty(None)
-
     move = NumericProperty(0)
 
+
     def __init_(self, **kwargs):
-        
+        ''' Set initial scale and rotation controls
+        '''
         super(Node, self).__init__(kwargs)
         self.do_rotation = False
         self.do_scale = True
@@ -160,10 +58,16 @@ class Node(Scatter):
         
 
     def collide_point(self, x, y):
+        ''' Determine whether a point is within the safe area of the screen (?)
+        '''
         x, y = self.to_local(x, y)
         return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
-    def on_touch_up(self, touch, *args): 
+
+    def on_touch_up(self, touch, *args):
+        ''' Determine whether touch is intending to move or tap the node
+            then call appropriate event
+        '''
         source = None
         text = None
         print "move=", self.move
@@ -176,38 +80,39 @@ class Node(Scatter):
         if not text:
             text = '' 
         if (self.move < 10 and args):
-
             pagelayout = self.parent.parent
             uic = pagelayout.uic
-            pagelayout.page +=1
-      
+            pagelayout.page += 1
             if len(source) == 0:
+                # needs empty string not empty list
                 source = ''
             else:
-                # images is stored as a list; we just want the first one
+                # images are stored as a list; we just want the first one
                 source = source[0]
 
             pagelayout.summary.text = text
             pagelayout.summary.source = source
 
-
-
+            # do the layout animation (?)
             pagelayout.do_layout()
             uic.blocked = True
             Animation(
                 x=(-self.x)*uic.scale+window.Window.width/2,
                 y=(-self.y)*uic.scale+window.Window.height/2,
                 d=.5, t='in_quad').start(self.parent.parent.uic)
+
         if touch in self._touches:
             touch.ungrab(self)
             del self._last_touch_pos[touch]
             self._touches.remove(touch)
+
         return True
 
 
     def on_touch_move(self, touch):
+        ''' Move the node along with the touch
+        '''
         self.move +=1
-
         x, y = touch.x, touch.y
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
@@ -221,49 +126,53 @@ class Node(Scatter):
 
 
     def on_touch_down(self, touch):
+        ''' record initial touch for later processing
+        '''
         self.move = 0
-
-        x, y = touch.x, touch.y     
-
-
+        x, y = touch.x, touch.y
         touch.push()
         touch.apply_transform_2d(self.to_local)
         touch.pop()
-
         self._bring_to_front()
         if self._touches != []:
             return True
         touch.grab(self)
-
         self._touches.append(touch)
         self._last_touch_pos[touch] = touch.pos
-
         return True
 
+
     def display(self, link):
+        ''' Set Node's image source to the link parameter
+         @param The link to use as the node's image source
+        '''
         self.image.source = link
         return
 
     def user_wants_summary(self):
+        ''' Determine whether to user intends to get summary
+            based on distance travelled
+            @returns bool
+        '''
         if self.move < 10:
             return True
         return False
 
 
 
-
-'''
-                            END NODE CLASSES
-''' 
-
-
-
-
 class Edge(Widget):
+    ''' @class Edge
+        Represents a connection between Nodes.
+        Draws a line between vertices.
+    '''
     p = ObjectProperty(None)
     c = ObjectProperty(None)  
 
-    def __init__(self,parent, child, **kwargs):
+    def __init__(self, parent, child, **kwargs):
+        '''
+        @param parent Reference to parent Node object
+        @param child Reference to child Node object
+        '''
         self.p = parent
         self.c = child
 
@@ -271,7 +180,6 @@ class Edge(Widget):
 
     def collide_point(self, x, y):
         return False
-
     def on_touch_down(self, touch):
         return
     def on_touch_up(self, touch):
@@ -280,7 +188,10 @@ class Edge(Widget):
         return
 
 
+
 class StartupImage(Image):
+    ''' The image that's shown on the startup screen
+    '''
     def collide_point(self, x, y):
         return False
     def on_touch_down(self, touch):
@@ -292,55 +203,64 @@ class StartupImage(Image):
 
 
 
-
 class UIC(ScatterPlane):
-
+    '''
+    Modified ScatterPlane layout
+    Contains Nodes and Edges and Controller
+    '''
     is_popup_displayed = BooleanProperty(False)
-
     blocked = BooleanProperty(False)
-
     controller = ObjectProperty(None)
-
     uis = ObjectProperty(None)
 
 
     def __init__(self, **kwargs):
-
-
-
-        super(UIC, self).__init__(**kwargs)
-        
-
+        # rotation and scale controls
         self.do_rotation = False
         self.do_scale = False
         self.do_translation= False
-
         self.scale_max = 1.5
         self.scale_min = .5
 
+        # register event
         self.register_event_type("on_add_node")
+
+        # reference to Controller, with callback function
         self.controller = Controller(self.on_add_node)
+
+        super(UIC, self).__init__(**kwargs)
         return
 
 
+    #
+    # TOUCH FUNCTIONS
+    #
 
-
-########################## OVERRIDE FUNCTIONS##############################################
     def on_touch_down(self, touch):
+        '''
+        Determine action on touch based on current state
+        '''
+
+        # do nothing if popup displayed
         if self.is_popup_displayed:
             return False
-        x, y = touch.x, touch.y     
+
+        # do nothing if touch causes children to exceed screen bounds (?)
+        x, y = touch.x, touch.y
         if not self.do_collide_after_children:
             if not self.collide_point(x, y):
                 return False
-        touch.push()
-        touch.apply_transform_2d(self.to_local)
+
+        # do nothing if controller is already handling the event (?)
         if self.controller.find_event_handler(touch, 'on_touch_down'):
             return False
+
+        # otherwise respond to touch
+        touch.push()
+        touch.apply_transform_2d(self.to_local)
         direct_children = [self.uis]
         for eachChild in direct_children:
             if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):
-                #super(Scatter, self).on_touch_down(touch)
                 eachChild.on_touch_down(touch)
                 touch.pop()
                 self._bring_to_front()
@@ -356,13 +276,13 @@ class UIC(ScatterPlane):
         if self.do_collide_after_children:
             if not self.collide_point(x, y):
                 return False
+
         self._bring_to_front()
         touch.grab(self)
         self._touches.append(touch)
         self._last_touch_pos[touch] = touch.pos
 
         return True
-
 
 
     def on_touch_move(self, touch):
@@ -388,7 +308,6 @@ class UIC(ScatterPlane):
             self._last_touch_pos[touch] = touch.pos
         if self.collide_point(x, y):
             return True
-
 
 
     def on_touch_up(self, touch):
@@ -421,11 +340,17 @@ class UIC(ScatterPlane):
             self._touches.remove(touch)
         if self.collide_point(x, y):
             return True
-############################################################################################
 
-    def initial_search(self):  #only called once after the initial search 
+
+    #
+    # FUNCTIONS CALLED BY EVENTS
+    #
+
+    def initial_search(self):
+        ''' Called once for the initial search
+            Pulls keyword from search bar text
+        '''
         self.uis.disabled= True
-        keyword= self.uis.search_bar.text 
         self.remove_widget(self.uis)
         self.do_scale = True
         self.do_translation= True  
@@ -434,38 +359,44 @@ class UIC(ScatterPlane):
 
 
     def on_add_node(self, model_node):
-        source=model_node.get_source() 
+        ''' Callback function. Called when network returns with model data.
+         @param Model Node reference
+        '''
+
+        # retrieve data from model node
+        source = model_node.get_source()
         keyword = model_node.get_keyword()
         pos = model_node.get_pos()
 
-        to_be_added = Node(pos = pos)
-        model_node.set_id(to_be_added) # set model_node's data
+        # create new UI Node
+        to_be_added = Node(pos=pos)
+        model_node.set_id(to_be_added) #set model_node's reference to UI node
         parent = model_node.get_parent_ui_reference()
 
+        # change image to format we need in UI
+        # images is stored as a list; we just want the first one
         if len(source) == 0:
             source = ''
         else:
-            # images is stored as a list; we just want the first one
             source = source[0]
 
-        to_be_added.source =source
-        to_be_added.keyword= keyword
+        to_be_added.source = source
+        to_be_added.keyword = keyword
 
+        # add UI Node and Edge to the screen
         self.add_widget(to_be_added)
         self.add_widget(Edge(parent, to_be_added)) # parent, child
 
 
-        
 
-
-
-
-
-
-
-
+#
+# CONTAINER LAYOUT
+#
 
 class Scatter_Summary_Widget(PageLayout):
+    ''' Container layout for application.
+    Contains UIContainer, Summary, and uibc (?)
+    '''
     uic = ObjectProperty(None)
     summary = ObjectProperty(None)
     uibc = ObjectProperty(None)
@@ -487,14 +418,15 @@ class Scatter_Summary_Widget(PageLayout):
         self.children.append(summ)
         self.children.append(uibc)
         
-########################## OVERRIDE FUNCTIONS##############################################
+
     def do_layout(self, *largs):
-        l_children = len(self.children)
+        ''' Override do_layout.
+            Slide screen in from left with animation.
+        '''
         for i, c in enumerate(self.children):
             if isinstance(c, BoxLayout):
                 continue
             width = self.width 
-
 
             if i == 0:
                 self.uic.blocked = False
@@ -508,16 +440,19 @@ class Scatter_Summary_Widget(PageLayout):
             else:
                 x = self.right
 
-
             c.width = width
             c.height = self.height       
+
             if i != 0:
                 Animation(
                     x=x,
                     y=self.y,
                     d=0.5, t='in_quad').start(c)
 
+
     def on_touch_down(self, touch):
+        ''' Debug printing right now.
+        '''
         print (self.children)[self.page]
         print self.children[2].collide_point(touch.x, touch.y)
         if (self.children[2].collide_point(touch.x, touch.y)):
@@ -525,11 +460,9 @@ class Scatter_Summary_Widget(PageLayout):
         return (self.children)[self.page].on_touch_down(touch)
 
 
-
-
-
-
     def on_touch_move(self, touch):
+        ''' Debug printing right now.
+        '''
         print (self.children)[self.page]
         print self.children[2].collide_point(touch.x, touch.y)
         if (self.children[2].collide_point(touch.x, touch.y)):
@@ -537,9 +470,9 @@ class Scatter_Summary_Widget(PageLayout):
         return (self.children)[self.page].on_touch_move(touch)
 
 
-
-
     def on_touch_up(self, touch):
+        ''' Debug printing right now.
+        '''
         print self.children[2].collide_point(touch.x, touch.y)
         print (self.children)[self.page]
         if (self.children[2].collide_point(touch.x, touch.y)):
@@ -548,18 +481,22 @@ class Scatter_Summary_Widget(PageLayout):
 
 
 
-############################################################################################
+#
+# SUMMARY SCROLL VIEW
+#
     
 class UISummary(ScrollView):
     flag = BooleanProperty(False)
     text = StringProperty(None)
-########################### OVERRIDE FUNCTIONS #############################################
+
+
     def on_touch_up(self, touch):
         if self.flag:
             self.flag = False
             self.parent.page -=1
+        return super(UISummary, self).on_touch_up(touch)
 
-        return super(UISummary, self).on_touch_up(touch) 
+
     def on_touch_move(self, touch):
         if self._get_uid('svavoid') in touch.ud:
             return
@@ -624,14 +561,24 @@ class UISummary(ScrollView):
             ud['user_stopped'] = True
 
         return True
-############################################################################################
+
+
+
+#
+# TEXT INPUT
+#
 
 class MyTextInput(TextInput):
+    ''' Custom TextInput class
+    '''
     def __init__(self, **kwargs):
         super(MyTextInput, self).__init__(**kwargs)
         self.register_event_type("on_enter")
-########################### OVERRIDE FUNCTIONS #############################################
+
     def _keyboard_on_key_down(self, window, keycode, text, modifiers):
+        ''' Override keyboard events to allow for easy editing of text
+        '''
+
         # Keycodes on OSX:
         ctrl, cmd = 64, 1024
         key, key_str = keycode
@@ -671,9 +618,7 @@ class MyTextInput(TextInput):
                 if self._selection:
                     self.delete_selection()
                 self.insert_text(text)
-            #self._recalc_size()
             return
-
 
         if key == 27:  # escape
             self.focus = False
@@ -689,20 +634,26 @@ class MyTextInput(TextInput):
         if k:
             key = (None, None, k, 1)
             self._key_down(key)
-############################################################################################
+
+
     def on_enter(self):
         return
 
-class WikiVizApp(App):
 
+
+#
+# APPLICATION ENTRY POINT
+#
+
+class WikiVizApp(App):
+    ''' Main Application. Entry point for Kivy.
+    '''
     bkgrd = ObjectProperty(None)
 
-
     def build(self):
-
-        bkgrd= Scatter_Summary_Widget()
+        bkgrd = Scatter_Summary_Widget()
         return bkgrd
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     WikiVizApp().run()
-        
