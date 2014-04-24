@@ -16,7 +16,7 @@ class Model(object):
         super(Model, self).__init__(**kwargs)
         self.nodes = []
         self.children_per_node = 5
-        self.distance_to_child = 200
+        self.distance_to_child = 250
 
 
     def add_node(self, node):
@@ -32,11 +32,18 @@ class Model(object):
             # assume we're adding the last item to the list
             current_node = self.nodes[-1]
             count = len(self.nodes)
+
+            ring = (count-1) / self.children_per_node
+            child_dist = self.distance_to_child
+            print 'ring:', ring
+            if ring > 0:
+                child_dist = child_dist / 1.5
+
             degrees_each = 360/self.children_per_node
             radians_each = math.radians(degrees_each)
             rads = radians_each * count
-            x_pos = self.distance_to_child * math.cos(rads) + center_point[0]
-            y_pos = self.distance_to_child * math.sin(rads) + center_point[1]
+            x_pos = child_dist * math.cos(rads) + center_point[0]
+            y_pos = child_dist * math.sin(rads) + center_point[1]
             return (x_pos,y_pos)
 
     def find_event_handler(self, touch):
@@ -62,6 +69,9 @@ class Model(object):
         self.nodes = []
         self.x = 0
         self.y = 0
+
+
+
 class Node:
 
     def __init__(self, parent, keyword, href, img_src, summary, pagecontent, links, has_visited=False):
