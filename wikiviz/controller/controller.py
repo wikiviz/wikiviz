@@ -10,13 +10,14 @@ from kivy.clock import Clock
 class Controller():
 
 
-    def __init__(self, creation_callback):
+    def __init__(self, creation_callback, red_edge_creation_callback):
         self.model = mod.Model()
         self.requests = [] #holds network request objects
 
         self.pending_requests = []
 
         self.node_creation_callback =  creation_callback
+        self.make_red_edge = red_edge_creation_callback
 
     def search_by_keyword(self, issued_request, keyword):
 
@@ -78,6 +79,7 @@ class Controller():
         print source
         if function == 'on_touch_up':
             if node.user_wants_summary() and not model_node.has_visited:
+                self.make_red_edge(model_node)
                 self.search_by_keyword(model_node, model_node.get_keyword())
                 model_node.has_visited = True
                 return node.on_touch_up(touch)

@@ -25,6 +25,8 @@ from kivy.animation import Animation
 from kivy.core import window
 from kivy.utils import platform
 
+from kivy.graphics import Color, Line
+
 from controller.controller import Controller
 
 # config variables
@@ -91,6 +93,7 @@ class Node(Scatter):
                 source = source[0]
 
             pagelayout.summary.text = text
+            pagelayout.summary.label.top = pagelayout.summary.top - pagelayout.summary.image.pos[1] - 20
             pagelayout.summary.source = source
 
             # do the layout animation (?)
@@ -223,12 +226,11 @@ class UIC(ScatterPlane):
         self.do_translation= False
         self.scale_max = 1.5
         self.scale_min = .5
-
         # register event
         self.register_event_type("on_add_node")
 
         # reference to Controller, with callback function
-        self.controller = Controller(self.on_add_node)
+        self.controller = Controller(self.on_add_node, self.add_red_edge)
 
         
         return
@@ -355,6 +357,7 @@ class UIC(ScatterPlane):
         ''' Called once for the initial search
             Pulls keyword from search bar text
         '''
+        self.pos = (self.width/2,self.height/2)
         self.uis.disabled= True
         self.remove_widget(self.uis)
         self.do_scale = True
@@ -392,7 +395,14 @@ class UIC(ScatterPlane):
         self.add_widget(to_be_added)
         self.add_widget(Edge(parent, to_be_added)) # parent, child
 
-
+    def add_red_edge(self, child_model_node):
+        child_ui = child_model_node.get_ui_reference()
+        parent_ui = child_model_node.get_parent().get_ui_reference()
+        red_edge = Edge(parent_ui,child_ui)
+        with red_edge.canvas:
+            Color(1,0,0)
+            Line(points= (red_edge.p.center_x, red_edge.p.center_y , red_edge.c.center_x, red_edge.c.center_y), width = 5)
+        self.add_widget(red_edge)
 
 #
 # CONTAINER LAYOUT
@@ -494,6 +504,8 @@ class UISummary(ScrollView):
     flag = BooleanProperty(False)
     text = StringProperty(None)
 
+    label = ObjectProperty(None)
+    image = ObjectProperty(None)
 
     def on_touch_up(self, touch):
         if self.flag:

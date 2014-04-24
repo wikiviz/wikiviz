@@ -1,7 +1,6 @@
 # model.py
 
 import common.singleton as singleton
-from kivy.core.window import Window
 from random import random
 import math
 
@@ -25,8 +24,8 @@ class Model(object):
         print "added node in model"
 
 
-    def calculate_pos(self):
-        center_point = (Window.width/2 - 50, Window.height/2 - 50)
+    def calculate_pos(self, parent_coords):
+        center_point = (parent_coords[0], parent_coords[1])
         if len(self.nodes) == 0:
             return center_point
         else:
@@ -66,8 +65,10 @@ class Model(object):
 class Node:
 
     def __init__(self, parent, keyword, href, img_src, summary, pagecontent, links, has_visited=False):
-
-        self.pos = Model().calculate_pos()
+        if parent == None:
+            self.pos = Model().calculate_pos((0,0))
+        else:
+            self.pos = Model().calculate_pos(parent.get_pos())
         self.parent = parent #MODEL NODE
         self.keyword = keyword
         self.href = href
@@ -89,7 +90,7 @@ class Node:
     def get_summary(self):
         return self.summary
     def get_pos(self):
-        return self.pos
+        return self.get_ui_reference().pos
     def set_id(self, ref):
         # print "ref",ref
         if self.parent == None:
