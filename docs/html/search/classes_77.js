@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['wikivizapp',['WikivizApp',['../classwikiviz_1_1main_1_1_wikiviz_app.html',1,'wikiviz::main']]],
-  ['wikivizgame',['WikivizGame',['../classwikiviz_1_1main_1_1_wikiviz_game.html',1,'wikiviz::main']]]
+  ['widget',['Widget',['../classimage_1_1image_1_1_widget.html',1,'image::image']]],
+  ['wikivizapp',['WikiVizApp',['../class_wiki_viz_1_1_wiki_viz_app.html',1,'WikiViz']]]
 ];

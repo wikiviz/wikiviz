@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['build',['build',['../classwikiviz_1_1main_1_1_wikiviz_app.html#a88c8dc79517720662e41763a0afe1877',1,'wikiviz::main::WikivizApp']]]
+  ['build',['build',['../class_summary_box_1_1_summary_app.html#a4928e9131c3aad0a5dc002430b62f268',1,'SummaryBox.SummaryApp.build()'],['../class_wiki_viz_1_1_wiki_viz_app.html#a39c857cb1937fe96979e5f348a5e08ae',1,'WikiViz.WikiVizApp.build()']]]
 ];
