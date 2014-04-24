@@ -211,7 +211,8 @@
 		image: sum_pic
 		text: ''
 		source: ''
-
+		label: summary
+		image: sum_pic
 		Widget:
 			id: tsum
 			size_hint: None, None
@@ -238,7 +239,7 @@
 				id: summary
 				text: summ.text
 				markup: True
-				center: tsum.center_x ,tsum.y+ (tsum.height-1.5*sum_pic.height)/2
+				center: tsum.center_x ,tsum.y+ (tsum.height-1.5*sum_pic.height-self.height)
 
 
 
