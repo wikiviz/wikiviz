@@ -215,7 +215,9 @@ class UIC(ScatterPlane):
     uis = ObjectProperty(None)
 
     def __init__(self, **kwargs):
+        super(UIC, self).__init__(**kwargs)
         # rotation and scale controls
+
         self.do_rotation = False
         self.do_scale = False
         self.do_translation= False
@@ -228,7 +230,7 @@ class UIC(ScatterPlane):
         # reference to Controller, with callback function
         self.controller = Controller(self.on_add_node)
 
-        super(UIC, self).__init__(**kwargs)
+        
         return
 
 
@@ -251,13 +253,15 @@ class UIC(ScatterPlane):
             if not self.collide_point(x, y):
                 return False
 
+        # otherwise respond to touch
+        touch.push()
+        touch.apply_transform_2d(self.to_local)
+
         # do nothing if controller is already handling the event (?)
         if self.controller.find_event_handler(touch, 'on_touch_down'):
             return False
 
-        # otherwise respond to touch
-        touch.push()
-        touch.apply_transform_2d(self.to_local)
+
         direct_children = [self.uis]
         for eachChild in direct_children:
             if eachChild.disabled == False and eachChild.collide_point(touch.x, touch.y):

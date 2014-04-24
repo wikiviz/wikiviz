@@ -80,7 +80,7 @@ class Controller():
             if node.user_wants_summary() and not model_node.has_visited:
                 self.search_by_keyword(model_node, model_node.get_keyword())
                 model_node.has_visited = True
-                return True
+                return node.on_touch_up(touch)
             elif not node.user_wants_summary():
                 return node.on_touch_up(touch)
             return node.on_touch_up(touch, text, source)
