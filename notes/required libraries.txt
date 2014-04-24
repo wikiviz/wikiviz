@@ -1,6 +1,0 @@
-HTML parser
-  Beautiful Soup 4: http://www.crummy.com/software/BeautifulSoup/bs4/doc/
-UI (runs in a Python environment)
-  Kivy: http://kivy.org/#home
-Graph
-  igraph: http://igraph.sourceforge.net/
