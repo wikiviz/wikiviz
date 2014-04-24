@@ -128,6 +128,8 @@ class NetworkRequest(object):
         page_images = p.get_images(5)
         page_summary = p.get_text_summary()
 
+        if len(page_images) == 0:
+            page_images = ['assets/placeholder.gif']
         print "----"
         print "page_url:", page_title
         print "page_url:", request.url
