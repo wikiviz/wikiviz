@@ -151,7 +151,8 @@ function definitions
         div = self.soup.find("div", attrs={"id": "mw-content-text"})
         self.text_summary = ""
         if div == None:
-            return
+            self.text_summary = self.soup.get_text()
+            return self.text_summary
 
         for item in div.contents:
             if "<p>" in unicode(item) or "<li>" in unicode(item):

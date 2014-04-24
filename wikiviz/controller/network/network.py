@@ -136,10 +136,10 @@ class NetworkRequest(object):
        # some unicode characters break the terminal with this line
        # print "page_links:", page_links
         print "page_images:", page_images
-        try:
-            print "page_summary:", page_summary
-        except:
-            page_summary = ''
+        # try:
+        #     print "page_summary:", page_summary
+        # except:
+        #     page_summary = ''
         print "----"
 
         node = mod.Node(self.issued_request, page_title, request.url, page_images, page_summary, page_content, page_links, False)
