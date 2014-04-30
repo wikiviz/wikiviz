@@ -5,8 +5,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1fb717b6-634f-42b8-bda3-4945b5c83f95}</ProjectGuid>
     <ProjectHome />
-    <StartupFile />
-    <SearchPath />
+    <StartupFile>wikiviz\WikiViz.py</StartupFile>
+    <SearchPath>\Kivy\kivy</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <InterpreterId>{e1e214d3-6353-4c3b-882a-07cc49f82e40}</InterpreterId>
