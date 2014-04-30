@@ -148,21 +148,27 @@ function definitions
                     self.high_priority_list.append(item)
 
     def get_text_summary(self):
+        summary_length = 400 # max number of characters
+        temp_summary = ""
         div = self.soup.find("div", attrs={"id": "mw-content-text"})
-        self.text_summary = ""
-        if div == None:
-            return
+        try:
+            # div will be found if node is child node (not API json format)
+            for item in div.contents:
+                if "<p>" in unicode(item) or "<li>" in unicode(item):
+                    item = unicode(item)
+                    item = re.sub('<[^<]+?>', '', item)
+                    temp_summary += item + "\n\n"
+                # break summary at next subheading or after max length
+                if "<h2>" in unicode(item) or len(self.text_summary > summary_length):
+                    break
+        except:
+            # for root node, json format is returned.
+            # we use get_text() to get only text from it.
+            temp_summary = unicode(self.soup.get_text())
+            temp_summary = temp_summary[:summary_length] + '...'
 
-        for item in div.contents:
-            if "<p>" in unicode(item) or "<li>" in unicode(item):
-                item = unicode(item)
-                item = re.sub('<[^<]+?>', '', item)
-                self.text_summary += item + "\n\n"
-            if "<h2>" in unicode(item):
-                break
-
-      
-        wrapped_lines =  textwrap.wrap(self.text_summary, 50)
+        # kivy requires us to wrap the lines manually
+        wrapped_lines = textwrap.wrap(temp_summary, 50)
         self.text_summary = '\n'.join(wrapped_lines)
   
         return self.text_summary
