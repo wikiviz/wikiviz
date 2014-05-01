@@ -105,7 +105,6 @@ class Node:
         # print "ref",ref
         if self.parent == None:
             self.parent = ref
-
         self.ui_reference = ref
     def get_ui_reference(self):
         return self.ui_reference

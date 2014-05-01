@@ -75,9 +75,7 @@ class NetworkRequest(object):
         Used for keyword and child nodes
         """     
         
-        if self.model.has_been_explored_yet(self.keyword):
-            return;
-         
+
         print "Retrieving page data from", url
         req = UrlRequest(url=url, on_success=self.on_success, on_error=self.on_error, req_headers=self.headers, decode=True)
 

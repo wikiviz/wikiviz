@@ -21,19 +21,19 @@ class Controller():
 
     def search_by_keyword(self, issued_request, keyword):
 
-        # if this is the root node
-        if issued_request == None:
-            nr = NetworkRequest(issued_request, self.root_creation_callback)
-            nr.on_get_page_by_keyword(keyword)
-            self.requests.append(nr)
-        else:
-            # this is a child node
-            for eachKeyword in issued_request.links.keys():
-                nr = NetworkRequest(issued_request, self.on_success, issued_request.get_keyword())
-                print eachKeyword
-                nr.on_get_page_by_url(issued_request.links[eachKeyword])
-                self.requests.append(nr)
+        # this is the root node
+        nr = NetworkRequest(issued_request, self.root_creation_callback)
+        nr.on_get_page_by_keyword(keyword)
+        self.requests.append(nr)
 
+
+    def search_by_url(self, model_node):
+        if self.pending_requests == []:
+            Clock.schedule_interval(self.handle_get_page_by_url_requests, 3.)
+        for eachKeyword in model_node.links.keys():
+            nr = NetworkRequest(model_node, self.on_success, model_node.get_keyword())
+            print eachKeyword
+            self.pending_requests.append((nr, model_node.links[eachKeyword]))
 
     def on_success(self, completed_request, model_node):
         # called when child nodes are loaded
@@ -60,11 +60,7 @@ class Controller():
         self.requests.remove(completed_request) #network request completed so remove
         model_node.has_visited = True
         Clock.schedule_interval(self.handle_get_page_by_url_requests, 3.)
-        for eachKeyword in model_node.links.keys():
-            nr = NetworkRequest(model_node, self.on_success)
-            #nr.on_get_page_by_url(model_node.links[eachKeyword])
-            #self.requests.append(nr)
-            self.pending_requests.append((nr,model_node.links[eachKeyword]))
+        self.search_by_url(model_node)
         self.node_creation_callback(model_node)
 
 
@@ -80,7 +76,7 @@ class Controller():
         if function == 'on_touch_up':
             if node.user_wants_summary() and not model_node.has_visited:
                 self.make_red_edge(model_node)
-                self.search_by_keyword(model_node, model_node.get_keyword())
+                self.search_by_url(model_node)
                 model_node.has_visited = True
                 return node.on_touch_up(touch)
             elif not node.user_wants_summary():

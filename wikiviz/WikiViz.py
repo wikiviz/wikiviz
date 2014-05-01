@@ -56,7 +56,7 @@ class Node(Scatter):
         self.do_scale = True
         self.do_translation = True
         self.scale_min = .5
-        self.scale_max = 1.5
+        self.scale_max = 2.5
         
 
     def collide_point(self, x, y):
@@ -190,7 +190,8 @@ class Edge(Widget):
     def on_touch_move(self, touch):
         return
 
-
+class RedEdge(Edge):
+    pass
 
 class StartupImage(Image):
     ''' The image that's shown on the startup screen
@@ -398,10 +399,8 @@ class UIC(ScatterPlane):
     def add_red_edge(self, child_model_node):
         child_ui = child_model_node.get_ui_reference()
         parent_ui = child_model_node.get_parent().get_ui_reference()
-        red_edge = Edge(parent_ui,child_ui)
-        with red_edge.canvas:
-            Color(1,0,0)
-            Line(points= (red_edge.p.center_x, red_edge.p.center_y , red_edge.c.center_x, red_edge.c.center_y), width = 5)
+        red_edge = RedEdge(parent_ui,child_ui)
+        
         self.add_widget(red_edge)
 
 #
