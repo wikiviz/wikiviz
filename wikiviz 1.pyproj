@@ -20,6 +20,14 @@
     <Compile Include="tests\__init__.py" />
     <Content Include="wikiviz\knitting.html" />
     <Compile Include="wikiviz\SummaryBox.py" />
+    <Compile Include="wikiviz\ui_classes\controls.py" />
+    <Compile Include="wikiviz\ui_classes\edge.py" />
+    <Compile Include="wikiviz\ui_classes\node.py" />
+    <Compile Include="wikiviz\ui_classes\searchbar.py" />
+    <Compile Include="wikiviz\ui_classes\startupimage.py" />
+    <Compile Include="wikiviz\ui_classes\summarybox.py" />
+    <Compile Include="wikiviz\ui_classes\ui_container.py" />
+    <Compile Include="wikiviz\ui_classes\__init__.py" />
     <Compile Include="wikiviz\WikiViz.py" />
     <Content Include="docs\html\annotated.html" />
     <Content Include="docs\html\class_wiki_viz_1_1_my_text_input-members.html" />
@@ -555,6 +563,11 @@
     <Compile Include="wikiviz\controller\network\__init__.py" />
     <Compile Include="wikiviz\controller\parser\parser.py" />
     <Compile Include="wikiviz\controller\parser\__init__.py" />
+    <Content Include="wikiviz\ui_classes\node.pyc" />
+    <Content Include="wikiviz\ui_classes\searchbar.pyc" />
+    <Content Include="wikiviz\ui_classes\startupimage.pyc" />
+    <Content Include="wikiviz\ui_classes\ui_container.pyc" />
+    <Content Include="wikiviz\ui_classes\__init__.pyc" />
     <Content Include="wikiviz\WikiViz.kv" />
   </ItemGroup>
   <ItemGroup>
@@ -577,6 +590,7 @@
     <Folder Include="wikiviz\controller\parser" />
     <Folder Include="wikiviz\image" />
     <Folder Include="wikiviz\model" />
+    <Folder Include="wikiviz\ui_classes\" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{e1e214d3-6353-4c3b-882a-07cc49f82e40}\2.7" />
