@@ -18,8 +18,20 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="tests\__init__.py" />
-    <Content Include="wikiviz\knitting.html" />
-    <Compile Include="wikiviz\SummaryBox.py" />
+    <Compile Include="wikiviz\common\singleton.py" />
+    <Compile Include="wikiviz\common\__init__.py" />
+    <Compile Include="wikiviz\controller\controller.py" />
+    <Compile Include="wikiviz\controller\network\network.py" />
+    <Compile Include="wikiviz\controller\network\__init__.py" />
+    <Compile Include="wikiviz\controller\parser\parser.py" />
+    <Compile Include="wikiviz\controller\parser\__init__.py" />
+    <Compile Include="wikiviz\controller\__init__.py" />
+    <Compile Include="wikiviz\image\image.py" />
+    <Compile Include="wikiviz\image\loader.py" />
+    <Compile Include="wikiviz\image\__init__.py" />
+    <Compile Include="wikiviz\model\model.py" />
+    <Compile Include="wikiviz\model\__init__.py" />
+    <Compile Include="wikiviz\read_stats.py" />
     <Compile Include="wikiviz\ui_classes\controls.py" />
     <Compile Include="wikiviz\ui_classes\edge.py" />
     <Compile Include="wikiviz\ui_classes\node.py" />
@@ -29,6 +41,8 @@
     <Compile Include="wikiviz\ui_classes\ui_container.py" />
     <Compile Include="wikiviz\ui_classes\__init__.py" />
     <Compile Include="wikiviz\WikiViz.py" />
+    <Content Include=".gitattributes" />
+    <Content Include=".gitignore" />
     <Content Include="docs\html\annotated.html" />
     <Content Include="docs\html\class_wiki_viz_1_1_my_text_input-members.html" />
     <Content Include="docs\html\classcontroller_1_1parser_1_1parser_1_1_page_link-members.html" />
@@ -539,6 +553,7 @@
     <Compile Include="tests\unit_tests\model\__init__.py" />
     <Compile Include="tests\unit_tests\controller\network\test_network.py" />
     <Compile Include="tests\unit_tests\controller\network\__init__.py" />
+    <Content Include="README.md" />
     <Content Include="tests\unit_tests\controller\parser\Ahmad_Khatib.html" />
     <Content Include="tests\unit_tests\controller\parser\cercyon.html" />
     <Content Include="tests\unit_tests\controller\parser\knitting.html" />
@@ -546,29 +561,34 @@
     <Content Include="tests\unit_tests\controller\parser\the_shock_of_the_old.html" />
     <Compile Include="tests\unit_tests\controller\parser\test_parser.py" />
     <Compile Include="tests\unit_tests\controller\parser\__init__.py" />
-    <Content Include="wikiviz\assets\icon_search.png" />
+    <Content Include="UpgradeLog.htm" />
+    <Content Include="WikiViz.pyproj" />
     <Content Include="wikiviz\assets\bg.jpg" />
+    <Content Include="wikiviz\assets\helveticaneue-webfont.ttf" />
+    <Content Include="wikiviz\assets\icon_search.png" />
     <Content Include="wikiviz\assets\loader.gif" />
     <Content Include="wikiviz\assets\placeholder.gif" />
-    <Compile Include="wikiviz\common\singleton.py" />
-    <Compile Include="wikiviz\common\__init__.py" />
-    <Compile Include="wikiviz\controller\controller.py" />
-    <Compile Include="wikiviz\controller\__init__.py" />
-    <Compile Include="wikiviz\image\image.py" />
-    <Compile Include="wikiviz\image\loader.py" />
-    <Compile Include="wikiviz\image\__init__.py" />
-    <Compile Include="wikiviz\model\model.py" />
-    <Compile Include="wikiviz\model\__init__.py" />
-    <Compile Include="wikiviz\controller\network\network.py" />
-    <Compile Include="wikiviz\controller\network\__init__.py" />
-    <Compile Include="wikiviz\controller\parser\parser.py" />
-    <Compile Include="wikiviz\controller\parser\__init__.py" />
+    <Content Include="wikiviz\common\singleton.pyc" />
+    <Content Include="wikiviz\common\__init__.pyc" />
+    <Content Include="wikiviz\controller\controller.pyc" />
+    <Content Include="wikiviz\controller\controller.py~" />
+    <Content Include="wikiviz\controller\network\network.pyc" />
+    <Content Include="wikiviz\controller\network\__init__.pyc" />
+    <Content Include="wikiviz\controller\parser\parser.pyc" />
+    <Content Include="wikiviz\controller\parser\__init__.pyc" />
+    <Content Include="wikiviz\controller\__init__.pyc" />
+    <Content Include="wikiviz\model\model.pyc" />
+    <Content Include="wikiviz\model\model.py~" />
+    <Content Include="wikiviz\model\__init__.pyc" />
+    <Content Include="wikiviz\ui_classes\edge.pyc" />
     <Content Include="wikiviz\ui_classes\node.pyc" />
     <Content Include="wikiviz\ui_classes\searchbar.pyc" />
     <Content Include="wikiviz\ui_classes\startupimage.pyc" />
     <Content Include="wikiviz\ui_classes\ui_container.pyc" />
     <Content Include="wikiviz\ui_classes\__init__.pyc" />
     <Content Include="wikiviz\WikiViz.kv" />
+    <Content Include="wikiviz\WikiViz.kv~" />
+    <Content Include="wikiviz\WikiViz.py~" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="docs\" />
@@ -584,14 +604,14 @@
     <Folder Include="tests\unit_tests\controller\parser" />
     <Folder Include="tests\unit_tests\display" />
     <Folder Include="tests\unit_tests\model" />
-    <Folder Include="wikiviz" />
-    <Folder Include="wikiviz\assets" />
-    <Folder Include="wikiviz\common" />
-    <Folder Include="wikiviz\controller" />
-    <Folder Include="wikiviz\controller\network" />
-    <Folder Include="wikiviz\controller\parser" />
-    <Folder Include="wikiviz\image" />
-    <Folder Include="wikiviz\model" />
+    <Folder Include="wikiviz\" />
+    <Folder Include="wikiviz\assets\" />
+    <Folder Include="wikiviz\common\" />
+    <Folder Include="wikiviz\controller\" />
+    <Folder Include="wikiviz\controller\network\" />
+    <Folder Include="wikiviz\controller\parser\" />
+    <Folder Include="wikiviz\image\" />
+    <Folder Include="wikiviz\model\" />
     <Folder Include="wikiviz\ui_classes\" />
   </ItemGroup>
   <ItemGroup>

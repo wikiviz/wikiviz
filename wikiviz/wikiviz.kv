@@ -1,0 +1,198 @@
+#:kivy 1.8.0
+#:import win kivy.core.window
+#:import Color kivy.graphics.Color
+#: import font pygame.font
+#:import random random.random
+
+<UINode>:
+	id: node
+	pos: self.pos
+	size: self.size
+	label: label
+	source: ''
+	keyword: ''
+	edges: {}
+	circle: bkgrd
+
+	Widget:
+		id: bkgrd	
+		canvas:
+			Color:
+				rgb: 0, 0, 0
+				#rgb: random(),random(),random()
+			Ellipse:
+				size:self.height+20, self.width+20
+				pos:self.x-10 , self.y-10
+
+	Label:
+		id: label
+		pos: self.x,self.y
+		text: node.keyword
+		font_size: root.height/5
+		#font_name: font.match_font('Droid Sans, Helvetica Light, Arial Thin, Arial')
+
+<WikiPediaUINode>:
+	id: node
+	image: image
+	AsyncImage:
+		id: image
+		source: node.source
+		canvas:
+			Ellipse:
+				size: self.height+10, self.width+10
+				pos: self.x-5, self.y-5
+				texture: self.texture 
+
+	
+<Edge>:
+	pos: self.p.center_x, self.p.center_y
+	size: self.c.center_x - self.p.center_x, self.c.center_y - self.p.center_y
+
+	canvas:
+		Color:
+			rgb: .9, .9,.9
+
+		Line:
+			points: self.p.center_x, self.p.center_y , self.c.center_x, self.c.center_y
+			width: 2
+
+
+
+<SearchBar>:
+	id: uis
+	size: win.Window.width/2, win.Window.height/10
+	pos: win.Window.width/2 -self.width/2 , win.Window.height/2 - self.height/2
+	search_bar: search_text_field
+	go_button: search_button
+
+	MyTextInput:
+		id: search_text_field
+		pos: root.pos
+		size: (root.width-root.height-20), root.height
+		font_size: (root.height)-30
+		text: 'Search'
+		multiline: False
+		cursor_blink: False
+		background_color: .1,.1,.1,1				
+		foreground_color: 1,1,1,1
+		cursor_color: 1,1,1,1				
+		border: 0,0,0,0
+		padding: 10
+		#font_name: font.match_font('Droid Sans, Helvetica Light, Arial Thin, Arial')
+				
+		on_touch_up:
+			x = (search_text_field.text == 'Search')
+			if x and search_text_field.collide_point(args[1].x, args[1].y): search_text_field.text = ''
+		on_enter:
+			uis.on_search_function(search_text_field.text)
+
+	SearchButton:
+		id: search_button
+		pos: uis.x+(uis.width-uis.height)-10, uis.y
+		size: uis.height, uis.height
+		source: 'assets/icon_search.png'
+
+		on_touch_up:
+			collided = (search_button.collide_point(args[1].x, args[1].y))
+			if collided: uis.on_search_function(uis.search_bar.text)
+
+
+
+<UIContainer>: 
+	id: uic
+	background: startup_image
+	StartupImage:
+		id: startup_image
+		source: 'assets/bg.jpg'
+		canvas:
+			Rectangle:
+				size: (win.Window.width)/(uic.scale), win.Window.height/(uic.scale)
+				pos: (-uic.x)/uic.scale, (-uic.y)/uic.scale
+				texture: startup_image.texture
+
+
+<Scatter_Summary_Widget>:
+	border: 0	
+<UISummary>: 
+
+	id: summ
+	image: sum_pic
+	text: ''
+	source: ''
+	label: summary
+	image: sum_pic
+	Widget:
+		id: tsum
+		size_hint: None, None
+		height: 50*36+3*win.Window.size[1]/8
+		width: root.width
+		pos: summ.pos
+		Widget:
+			pos: tsum.pos
+			canvas:
+				Color:
+					rgba: .1,.1,.1,.95
+				Rectangle:
+					pos: tsum.x - root.width/2, tsum.y - root.height/2
+					size: 2*tsum.width ,2*tsum.height
+
+		AsyncImage:
+			id: sum_pic
+			size: win.Window.size[0]/2, win.Window.size[1]/4
+			center_x: tsum.x + tsum.width/2
+			y: tsum.y + tsum.height- 1.5* self.height
+			source: summ.source
+
+		Label:
+			id: summary
+			text: summ.text
+			markup: True
+			center: tsum.center_x ,tsum.y + (tsum.height-1.5*sum_pic.height-self.height) + 20
+
+<ControlsLayout>:
+	size: win.Window.width/10, win.Window.height/10
+	spacing: str(5) + 'px'
+	#pos: (-win.Window.width) , (win.Window.height)
+	new_search: new_search_button		
+	BoxLayout:
+		SearchButton:
+			id: new_search_button
+			#pos: root.pos
+			source: 'assets/icon_search.png'
+			size: root.height, root.height
+
+<ResetSearchPopup>:
+	id: uipup
+	content: uicc
+	title: "Would you like to reset your search?"
+	title_size: str(14)+'px'
+	size: win.Window.width/2, win.Window.height/7
+	separator_height: 0
+	center: root.center
+
+	Widget:
+		id: uicc
+		size: uipup.width, uipup.height/2
+		yes_button: yes
+		no_button: no 
+		pos: uipup.pos
+
+		Button:
+			id: yes
+			text: "YES"
+			pos: uicc.pos
+			size: uicc.width/2-(15/win.Window.scale), (uipup.height)/(4)
+			font_size: (uipup.height)/10
+			on_touch_up:
+				collided = yes.collide_point(args[1].x, args[1].y)
+				if collided: self.on_reset_function()				
+	
+		Button:
+			id: no
+			text: "NO"
+			pos: uicc.x + uicc.width/2, uicc.y 
+			size: uicc.width/2-(15/uic.scale), (uipup.height)/(4)
+			font_size: (uipup.height)/(7)
+						
+			on_touch_up:						
+				if no.collide_point(args[1].x, args[1].y): self.on_decline_function()

@@ -1,0 +1,55 @@
+# controller.py
+
+
+import model.model as mod
+
+
+
+
+
+class Controller():
+
+
+    def __init__(self, creation_callback, red_edge_creation_callback, edge_creation_callback):
+        self.model = mod.Model()
+        self.requests = [] #holds network request objects
+        self.model = mod.Model()
+        self.pending_requests = []
+
+        self.node_creation_callback =  creation_callback
+        self.make_red_edge = red_edge_creation_callback
+	self.make_edge = edge_creation_callback
+
+    def search_by_keyword(self, issued_request, keyword):
+        # this is the root node
+        self.model.convert_martix_to_graph(self.node_creation_callback, self.edge_creation_callback, keyword)
+
+
+
+    def find_event_handler(self, touch, function):
+        model_node= self.model.find_event_handler(touch)
+        if not model_node:
+            return False
+        node = model_node.get_ui_reference()
+        text = model_node.get_summary()
+        source = model_node.get_source()
+        print text
+        print source
+        if function == 'on_touch_up':
+            if node.user_wants_summary() and not model_node.has_visited:
+                self.make_red_edge(model_node)
+                #self.search_by_url(model_node)
+                model_node.has_visited = True
+                return node.on_touch_up(touch)
+            elif not node.user_wants_summary():
+                return node.on_touch_up(touch)
+            return node.on_touch_up(touch, text, source)
+        elif function == "on_touch_down":
+            return node.on_touch_down(touch)
+        elif function == 'on_touch_move':
+            return node.on_touch_move(touch)
+        else:
+            return False
+
+    def dump_nodes(self):
+        self.model.dump_nodes()
