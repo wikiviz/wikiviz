@@ -5,6 +5,77 @@ from kivy.graphics import Color
 from random import random
 from kivy.clock import Clock
 
+class NodeContainer(Widget):
+    controller = ObjectProperty(None)
+    def __init__(self,controller, node, edge, *args, **kwargs):
+        super(NodeContainer, self).__init__(**kwargs)
+        self.register_event_type("on_add_node")
+        self.controller = controller(self.on_add_node, self.add_red_edge, self.add_edge, *args)
+        self.Node = node
+        self.Edge = edge
+
+    def search_by_keyword(self, keyword):
+        print keyword
+        self.controller.search_by_keyword(None,keyword)
+
+    def on_touch_down(self,touch):
+        if self.controller.find_event_handler(touch, 'on_touch_down'):
+            return True
+    def on_touch_move(self, touch):
+        if self.controller.find_event_handler(touch, 'on_touch_move'):
+            return True
+    def on_touch_up(self,touch):
+        if self.controller.find_event_handler(touch, 'on_touch_up'):
+            return True
+
+    def on_add_node(self, model_node, *args):
+        ''' Callback function. Called when network returns with model data.
+         @param Model Node reference
+        '''
+
+        # retrieve data from model node
+        source = model_node.get_source()
+        keyword = model_node.get_keyword()
+        pos = model_node.get_pos()
+
+        # create new UI Node
+        
+        to_be_added = self.Node(pos=pos)
+        
+        model_node.set_id(to_be_added) #set model_node's reference to UI node
+
+ 
+        # change image to format we need in UI
+        # images is stored as a list; we just want the first one
+        if len(source) == 0:
+            source = ''
+        else:
+            source = source[0]
+
+        to_be_added.source = source
+        to_be_added.keyword = keyword
+
+        # add UI Node and Edge to the screen
+        self.add_widget(to_be_added)
+
+ 
+
+    def add_edge(self,parent, to_be_added):
+
+        edge =  self.Edge(parent, to_be_added)
+        self.add_widget(edge) # parent, child
+        #to_be_added._bring_to_front()
+        #parent._bring_to_front()
+        return edge
+     
+
+    def add_red_edge(self, child_model_node):
+        child_ui = child_model_node.get_ui_reference()
+        parent_ui = child_model_node.get_parent().get_ui_reference()
+        try:
+            parent_ui.edges[child_ui].change_color(1,0,0)
+        except KeyError:
+            return
 
 
 class UINode(Scatter):
@@ -32,7 +103,7 @@ class UINode(Scatter):
         self.scale_min = .5
         self.scale_max = 2.5
 
-        self.circle.canvas.children[0] = Color(random(),random(),random())
+        #self.circle.canvas.children[0] = Color(random(),random(),random())
 
 
 
@@ -45,7 +116,7 @@ class UINode(Scatter):
         return -1.1*self.width/8 <= x <= 1.2*self.width and -1.1*self.height/8 <= y <= 1.2*self.height
 
 
-    def on_touch_up(self, touch, *args):
+    def on_touch_up(self, touch):
         ''' Determine whether touch is intending to move or tap the node
             then call appropriate event
         '''
@@ -73,7 +144,7 @@ class UINode(Scatter):
         '''
         self.move = 0
         x, y = touch.x, touch.y
-        self._bring_to_front()
+        #self._bring_to_front()
         if self._touches != []:
             return True
         touch.grab(self)

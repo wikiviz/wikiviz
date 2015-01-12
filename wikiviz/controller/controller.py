@@ -8,17 +8,15 @@ from kivy.clock import Clock
 
 
 class Controller(object):
-
-
     def __init__(self, node_creation_callback, red_edge_creation_callback, edge_creation_callback):
         self.model = mod.Model(self.node_creation, self.edge_creation)
         self.requests = [] #holds network request objects
         self.model = mod.Model()
-
+        self.dump_edges()
+        self.dump_nodes()
         self.node_creation_callback =  node_creation_callback
         self.red_edge_creation_callback = red_edge_creation_callback
         self.edge_creation_callback = edge_creation_callback
-
 
     def find_event_handler(self, touch, function):
         model_node= self.model.find_event_handler(touch)
@@ -54,7 +52,8 @@ class NetworkController(Controller):
     def __init__(self, *args, **kwargs):
         self.pending_requests = []
         self.requests = []
-        super(NetworkController, self).__init__(*args,**kwargs)
+        super(NetworkController, self).__init__(*args[:-1])
+        self.add_summary_callback = args[-1]
     def search_by_keyword(self, issued_request, keyword):
 
         # this is the root node
@@ -106,9 +105,7 @@ class NetworkController(Controller):
             return False
         node = model_node.get_ui_reference()
         text = model_node.get_summary()
-        source = model_node.get_source()
-        print text
-        print source
+        title = model_node.get_keyword()
         if function == 'on_touch_up':
             if node.user_wants_summary() and not model_node.has_visited:
                 self.red_edge_creation(model_node)
@@ -117,13 +114,11 @@ class NetworkController(Controller):
                 return node.on_touch_up(touch)
             elif not node.user_wants_summary():
                 return node.on_touch_up(touch)
-            return node.on_touch_up(touch, text, source)
+            self.add_summary_callback(title,text)
+            return node.on_touch_up(touch)
         elif function == "on_touch_down":
             return node.on_touch_down(touch)
         elif function == 'on_touch_move':
             return node.on_touch_move(touch)
         else:
             return False
-
-    def dump_nodes(self):
-        self.model.dump_nodes()

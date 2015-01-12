@@ -1,21 +1,72 @@
 from kivy.uix.scatter import ScatterPlane
 from kivy.properties import ObjectProperty,BooleanProperty
 from kivy.clock import Clock
-
+from ui_classes.node import NodeContainer
 from ui_classes.searchbar import SearchBar
+from ui_classes.controls import ControlsLayout, ResetSearchPopup
+from kivy.core import window
+from kivy.uix.widget import Widget
+from ui_classes.summarybox import UISummary
 
-class UIContainer(ScatterPlane):
+class UIContainer(Widget):
+    ui_scatter = ObjectProperty(None)
+    controls = ObjectProperty(None)
+    reset_popup= ObjectProperty(None)
+    ui_summary = ObjectProperty(None)
+    def __init__(self,controller, node, edge, **kwargs):
+        print "INIT"
+        super(UIContainer, self).__init__(**kwargs)
+        self.register_event_type("on_initialize")
+        Clock.schedule_once(self.on_initialize)
+        self.controller = controller
+        self.node = node
+        self.edge = edge
+    def on_initialize(self, *args):
+        print "On INIT"
+        self.ui_scatter = WikiUIScatter(self.controller, self.node,self.edge, self.add_controls, self.add_summary)
+        self.add_widget(self.ui_scatter)
+
+    def add_controls(self):
+        self.controls = ControlsLayout(self.reset_choice)
+        self.add_widget(self.controls)
+
+    def add_summary(self, title, text):
+        self.ui_summary = UISummary(title, text,self.remove_summary)
+        self.add_widget(self.ui_summary)
+        return
+    def remove_summary(self):
+        self.remove_widget(self.ui_summary)
+
+    def reset_choice(self):
+        self.remove_widget(self.controls)
+        self.reset_popup = ResetSearchPopup(self.reset_search, self.remove_reset_popup)
+        self.add_widget(self.reset_popup)
+
+    def remove_reset_popup(self):
+        self.remove_widget(self.ui_scatter)
+        self.remove_widget(self.reset_popup)
+        self.add_widget(self.ui_scatter)
+        self.add_widget(self.controls)
+
+    def reset_search(self):
+        self.dump_graph()
+    def dump_graph(self):
+        print "Dump Graph"
+        self.remove_widget(self.ui_scatter)
+        self.on_initialize()
+
+
+class UIScatter(ScatterPlane):
     '''
     Modified ScatterPlane layout
     Contains Nodes and Edges and Controller
     '''
-    is_popup_displayed = BooleanProperty(False)
-    blocked = BooleanProperty(False)
-    controller = ObjectProperty(None)
-    uis = ObjectProperty(None)
+
     background = ObjectProperty(None)
-    def __init__(self,controller, node, edge, **kwargs):
-        super(UIContainer, self).__init__(**kwargs)
+
+    def __init__(self, **kwargs):
+        print "Init Scatter"
+        super(UIScatter, self).__init__(**kwargs)
         # rotation and scale controls
 
         self.do_rotation = False
@@ -24,33 +75,16 @@ class UIContainer(ScatterPlane):
         self.scale_max = 100.0
         self.scale_min = .01
         # register event
-        self.register_event_type("on_add_node")
         self.register_event_type("on_initialize")
-
         Clock.schedule_once(self.on_initialize)
         # reference to Controller, with callback function
-        self.controller = controller(self.on_add_node, self.add_red_edge, self.add_edge)
-        self.Node = node
-        self.Edge = edge
-    
-        
+     
         return
+
     def on_initialize(self, *args):
-        self.uis = SearchBar(self.initial_search, pos = (100, 100))
-        self.add_widget(self.uis)
+        print "On Init base"
+        pass
 
-
-    def initial_search(self, *args):
-        ''' Called once for the initial search
-            Pulls keyword from search bar text
-        '''
-        self.pos = (self.width/2,self.height/2)
-        self.remove_widget(self.uis)
-        self.do_scale = True
-        self.do_translation= True  
-        self.controller.search_by_keyword(None, self.uis.search_bar.text)
-
-        return
     #
     # TOUCH FUNCTIONS
     #
@@ -60,9 +94,6 @@ class UIContainer(ScatterPlane):
         Determine action on touch based on current state
         '''
  
-        # do nothing if popup displayed
-        if self.is_popup_displayed:
-            return False
   
         # do nothing if touch causes children to exceed screen bounds (?)
         x, y = touch.x, touch.y
@@ -75,46 +106,36 @@ class UIContainer(ScatterPlane):
         touch.apply_transform_2d(self.to_local)
  
         # do nothing if controller is already handling the event (?)
-        if self.controller.find_event_handler(touch, 'on_touch_down'):
-            touch.pop()
-            return False
 
-        if self.uis.collide_point(x,y):
-            self.uis.on_touch_down(touch)
-            touch.pop()
-            return False
+        for eachChild in self.children:
 
-  
+            if eachChild.on_touch_down(touch):
+                touch.pop()
+                return False
 
         touch.pop()
-
+ 
 
         if self.do_collide_after_children:
             if not self.collide_point(x, y):
                 return False
 
-        self._bring_to_front()
+        #self._bring_to_front()
         touch.grab(self)
         self._touches.append(touch)
         self._last_touch_pos[touch] = touch.pos
-
         return True
 
 
     def on_touch_move(self, touch):
-        if self.is_popup_displayed:
-            return False
         x, y = touch.x, touch.y
         if self.collide_point(x, y) and not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            if self.controller.find_event_handler(touch, 'on_touch_move'):
-                touch.pop()
-                return False
-            if self.uis.collide_point(x,y):
-                self.uis.on_touch_move(touch)
-                touch.pop()
-                return False
+            for eachChild in self.children:
+                if eachChild.on_touch_move(touch):
+                    touch.pop()
+                    return False
             touch.pop()
         if touch in self._touches and touch.grab_current == self:
             if self.transform_with_touch(touch):
@@ -126,19 +147,14 @@ class UIContainer(ScatterPlane):
 
     def on_touch_up(self, touch):
         x, y = touch.x, touch.y
-        if self.is_popup_displayed:
-            return False
 
         if not touch.grab_current == self:
             touch.push()
             touch.apply_transform_2d(self.to_local)
-            if self.controller.find_event_handler(touch, 'on_touch_up'):
-                touch.pop()
-                return False
-            if self.uis.collide_point(x,y):
-                self.uis.on_touch_up(touch)
-                touch.pop()
-                return False
+            for eachChild in self.children:
+                if eachChild.on_touch_up(touch):
+                    touch.pop()
+                    return False
 
             touch.pop()
         if touch in self._touches:
@@ -153,62 +169,42 @@ class UIContainer(ScatterPlane):
     # FUNCTIONS CALLED BY EVENTS
     #
 
-
-    def on_add_node(self, model_node, *args):
-        ''' Callback function. Called when network returns with model data.
-         @param Model Node reference
-        '''
-
-        # retrieve data from model node
-        source = model_node.get_source()
-        keyword = model_node.get_keyword()
-        pos = model_node.get_pos()
-
-        # create new UI Node
-        
-        to_be_added = self.Node(pos=pos)
-        
-        model_node.set_id(to_be_added) #set model_node's reference to UI node
-
- 
-        # change image to format we need in UI
-        # images is stored as a list; we just want the first one
-        if len(source) == 0:
-            source = ''
-        else:
-            source = source[0]
-
-        to_be_added.source = source
-        to_be_added.keyword = keyword
-
-        # add UI Node and Edge to the screen
-        self.add_widget(to_be_added)
-
- 
-
-    def add_edge(self,parent, to_be_added):
-
-        edge =  self.Edge(parent, to_be_added)
-        self.add_widget(edge) # parent, child
-        to_be_added._bring_to_front()
-        parent._bring_to_front()
-        return edge
-     
-
-    def add_red_edge(self, child_model_node):
-        child_ui = child_model_node.get_ui_reference()
-        parent_ui = child_model_node.get_parent().get_ui_reference()
-        try:
-            parent_ui.edges[child_ui].change_color(1,0,0)
-        except KeyError:
-            return
-
-    def dump_nodes(self):
-        self.controller.dump_nodes()
-        self.children = []
-    def dump_edges(self):
-        for eachEdge in self.controller.get_edges():
-            self.remove_widget(eachEdge)
-        self.controller.dump_edges()
-
   
+class WikiUIScatter(UIScatter):
+    uis = ObjectProperty(None)
+    new_search_button = ObjectProperty(None)
+    node_container = ObjectProperty(None)
+    def __init__(self,controller, node, edge, add_controls, add_summary,  **kwargs):
+        print "Init WikiScatter"
+        super(WikiUIScatter, self).__init__(**kwargs)
+        # rotation and scale controls
+        # reference to Controller, with callback function
+        self.node_container = NodeContainer(controller,node,edge, add_summary)
+        self.add_controls = add_controls      
+        return
+    def on_initialize(self, *args):
+        print "On Init WikiScatter"
+        self.uis = SearchBar(self.initial_search, pos = (100, 100))
+        self.add_widget(self.uis)
+    def initial_search(self, *args):
+        ''' Called once for the initial search
+            Pulls keyword from search bar text
+        '''
+        print "Search"
+        print args
+        self.pos = (self.width/2,self.height/2)
+        self.remove_widget(self.uis)
+        self.do_scale = True
+        self.do_translation= True  
+        self.node_container.search_by_keyword(*args)
+        self.add_widget(self.node_container)
+        self.add_controls()
+        return
+    def reset_search(self):
+        self.remove_widget(self.new_search_button)
+        self.dump_graph()
+    def dump_graph(self):
+        print "Dump Graph"
+        self.controller.dump_nodes()
+        self.clear_widgets(self.children)
+        self.controller.dump_edges()

@@ -1,15 +1,42 @@
 from kivy.uix.widget import Widget
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.image import Image
-
-class SearchBar(Widget):
+from kivy.properties import ObjectProperty
+from kivy.clock import Clock
+class SearchBar(BoxLayout):
+    search_bar = ObjectProperty(None)
+    go_button = ObjectProperty(None)
     def __init__(self, on_search_function, **kwargs):
+
         super(SearchBar, self).__init__(**kwargs)
         self.on_search_function = on_search_function
+        self.register_event_type("on_initialize")
+        Clock.schedule_once(self.on_initialize)
+
+    def on_initialize(self, *args, **kwargs):
+
+        self.go_button = SearchButton(self.on_search,size_hint=(.15,1), pos = (self.search_bar.right, self.y))
+        self.add_widget(self.go_button)
+
     def on_touch_down(self, touch):
-        return super(SearchBar, self).on_touch_down(touch)
+        for c in self.children:
+            if c.collide_point(touch.x, touch.y):
+                return c.on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        for c in self.children:
+            if c.collide_point(touch.x, touch.y):
+    
+                return c.on_touch_move(touch)
+
     def on_touch_up(self, touch):
-        return super(SearchBar, self).on_touch_up(touch)
+        for c in self.children:
+            if c.collide_point(touch.x, touch.y):
+      
+                return c.on_touch_up(touch)
+    def on_search(self):
+        self.on_search_function(self.search_bar.text)
 
 class MyTextInput(TextInput):
     ''' Custom TextInput class
@@ -17,7 +44,6 @@ class MyTextInput(TextInput):
     def __init__(self, **kwargs):
         super(MyTextInput, self).__init__(**kwargs)
         self.register_event_type("on_enter")
-
     def _keyboard_on_key_down(self, window, keycode, text, modifiers):
         ''' Override keyboard events to allow for easy editing of text
         '''
@@ -77,11 +103,24 @@ class MyTextInput(TextInput):
         if k:
             key = (None, None, k, 1)
             self._key_down(key)
-
-
-    def on_enter(self):
+    def on_enter(self, *args):
         #see kivy file for implementation
         return
 
 class SearchButton(Image):
-    pass
+    def __init__(self, on_click, **kwargs):
+        super(SearchButton, self).__init__(**kwargs)
+        self.on_click = on_click
+
+    def on_touch_down(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            return True
+
+    def on_touch_move(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            return True
+
+    def on_touch_up(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            self.on_click()
+            return True
